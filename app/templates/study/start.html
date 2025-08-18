@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-header text-center">
+                <h4 class="card-title mb-1">
+                    <i class="bi bi-play-circle me-2"></i>Study Session
+                </h4>
+                <h5 class="text-muted mb-0">{{ deck.name }}</h5>
+            </div>
+            <div class="card-body">
+                <!-- Deck Info -->
+                <div class="text-center mb-4">
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="h4 text-primary">{{ stats.total_cards }}</div>
+                            <div class="small text-muted">Total Cards</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="h4 text-warning">{{ stats.unstudied_cards }}</div>
+                            <div class="small text-muted">New Cards</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="h4 text-info">{{ stats.cards_needing_review }}</div>
+                            <div class="small text-muted">Need Review</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Study Options Form -->
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-4">
+                        {{ form.study_mode.label(class="form-label fw-bold") }}
+                        {{ form.study_mode(class="form-select") }}
+                        <div class="form-text">Choose how cards are ordered during study</div>
+                    </div>
+
+                    <div class="mb-4">
+                        {{ form.card_limit.label(class="form-label fw-bold") }}
+                        {{ form.card_limit(class="form-select") }}
+                        <div class="form-text">Limit the number of cards to study</div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        {{ form.submit(class="btn btn-primary btn-lg") }}
+                        <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Back to Deck
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Study Tips -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-lightbulb me-2"></i>Study Tips
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="small text-muted mb-0">
+                    <li>Be honest with yourself when marking answers</li>
+                    <li>Take your time to think before revealing the answer</li>
+                    <li>Review incorrect answers to understand your mistakes</li>
+                    <li>Study regularly for better retention</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

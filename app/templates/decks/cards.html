@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h2 mb-1">Manage Cards</h1>
+                <h5 class="text-muted">{{ deck.name }}</h5>
+                <p class="text-muted">{{ total }} {{ total|pluralize('card', 'cards') }} in this deck</p>
+            </div>
+            <div>
+                <div class="btn-group">
+                    <a href="{{ url_for('decks.create_card', deck_id=deck.id) }}" class="btn btn-primary">
+                        <i class="bi bi-plus me-1"></i>Add Card
+                    </a>
+                    <a href="{{ url_for('decks.bulk_create_cards', deck_id=deck.id) }}" class="btn btn-outline-primary">
+                        <i class="bi bi-stack me-1"></i>Bulk Import
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if cards %}
+<div class="row">
+    {% for card in cards %}
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <span class="badge bg-secondary">Card {{ ((page-1) * 20) + loop.index }}</span>
+                    <div>
+                        <span class="badge {{ difficulty_badge_class(card.difficulty) }}">
+                            {{ difficulty_label(card.difficulty) }}
+                        </span>
+                        {% if card.times_studied > 0 %}
+                            <span class="badge {{ accuracy_badge_class(card.get_accuracy()) }}">
+                                {{ card.get_accuracy() }}%
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="small fw-bold text-muted mb-1">FRONT:</div>
+                    <div class="mb-2">{{ card.front_text }}</div>
+                    <div class="small fw-bold text-muted mb-1">BACK:</div>
+                    <div class="text-muted">{{ card.back_text }}</div>
+                </div>
+
+                <div class="small text-muted mb-3">
+                    <i class="bi bi-eye me-1"></i>{{ card.times_studied }} {{ card.times_studied|pluralize('study', 'studies') }}
+                    {% if card.times_studied > 0 %}
+                        <span class="mx-2">•</span>
+                        <i class="bi bi-check-circle me-1"></i>{{ card.times_correct }} correct
+                    {% endif %}
+                </div>
+
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('decks.edit_card', deck_id=deck.id, card_id=card.id) }}" class="btn btn-outline-primary btn-sm flex-fill">
+                        <i class="bi bi-pencil me-1"></i>Edit
+                    </a>
+                    <a href="{{ url_for('decks.delete_card', deck_id=deck.id, card_id=card.id) }}" class="btn btn-outline-danger btn-sm">
+                        <i class="bi bi-trash me-1"></i>Delete
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+<div class="row mt-4">
+    <div class="col-12">
+        <nav aria-label="Cards pagination">
+            <ul class="pagination justify-content-center">
+                {% if has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('decks.cards', deck_id=deck.id, page=page-1) }}">
+                            <i class="bi bi-chevron-left"></i> Previous
+                        </a>
+                    </li>
+                {% endif %}
+
+                <li class="page-item active">
+                    <span class="page-link">Page {{ page }}</span>
+                </li>
+
+                {% if has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('decks.cards', deck_id=deck.id, page=page+1) }}">
+                            Next <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+
+{% else %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center py-5">
+            <i class="bi bi-card-text display-1 text-muted mb-3"></i>
+            <h4 class="text-muted">No cards yet</h4>
+            <p class="text-muted">Add your first flashcard to start building this deck!</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{{ url_for('main.dashboard') if current_user.is_authenticated else url_for('main.index') }}" class="btn btn-primary">
+                    <i class="bi bi-house me-2"></i>Go Home
+                </a>
+                <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>Go Back
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

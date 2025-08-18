@@ -1,0 +1,204 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h2 mb-1">Study Statistics</h1>
+                <h5 class="text-muted">{{ deck.name }}</h5>
+                <p class="text-muted">Detailed analysis of your learning progress</p>
+            </div>
+            <div>
+                <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Deck
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Overall Statistics -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-card-text fs-1 text-primary mb-2"></i>
+                <div class="h4 mb-1">{{ stats.total_cards }}</div>
+                <div class="text-muted small">Total Cards</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-check-circle fs-1 text-success mb-2"></i>
+                <div class="h4 mb-1">{{ stats.studied_cards }}</div>
+                <div class="text-muted small">Cards Studied</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-target fs-1 text-info mb-2"></i>
+                <div class="h4 mb-1">{{ stats.avg_accuracy }}%</div>
+                <div class="text-muted small">Average Accuracy</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-arrow-repeat fs-1 text-warning mb-2"></i>
+                <div class="h4 mb-1">{{ stats.cards_needing_review }}</div>
+                <div class="text-muted small">Need Review</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Performance Distribution -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-pie-chart me-2"></i>Performance Distribution
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="fw-bold mb-3">By Accuracy</h6>
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between">
+                                <span class="small">Mastered (90%+)</span>
+                                <span class="small fw-bold text-success">
+                                    {{ cards_with_stats|selectattr('accuracy', 'ge', 90)|list|length }}
+                                </span>
+                            </div>
+                            <div class="progress progress-sm">
+                                <div class="progress-bar bg-success" style="width: {{ ((cards_with_stats|selectattr('accuracy', 'ge', 90)|list|length) / stats.total_cards * 100) if stats.total_cards > 0 else 0 }}%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between">
+                                <span class="small">Good (70-89%)</span>
+                                <span class="small fw-bold text-info">
+                                    {{ cards_with_stats|selectattr('accuracy', 'ge', 70)|selectattr('accuracy', 'lt', 90)|list|length }}
+                                </span>
+                            </div>
+                            <div class="progress progress-sm">
+                                <div class="progress-bar bg-info" style="width: {{ ((cards_with_stats|selectattr('accuracy', 'ge', 70)|selectattr('accuracy', 'lt', 90)|list|length) / stats.total_cards * 100) if stats.total_cards > 0 else 0 }}%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between">
+                                <span class="small">Needs Work (<70%)</span>
+                                <span class="small fw-bold text-danger">
+                                    {{ cards_with_stats|selectattr('accuracy', 'lt', 70)|list|length }}
+                                </span>
+                            </div>
+                            <div class="progress progress-sm">
+                                <div class="progress-bar bg-danger" style="width: {{ ((cards_with_stats|selectattr('accuracy', 'lt', 70)|list|length) / stats.total_cards * 100) if stats.total_cards > 0 else 0 }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="fw-bold mb-3">Study Progress</h6>
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between">
+                                <span class="small">Studied Cards</span>
+                                <span class="small fw-bold">{{ stats.studied_cards }} / {{ stats.total_cards }}</span>
+                            </div>
+                            <div class="progress progress-sm">
+                                <div class="progress-bar" style="width: {{ (stats.studied_cards / stats.total_cards * 100) if stats.total_cards > 0 else 0 }}%"></div>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <div class="d-flex justify-content-between">
+                                <span class="small">Total Study Sessions</span>
+                                <span class="small fw-bold">{{ stats.total_study_sessions }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Card Details -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-list-ul me-2"></i>Individual Card Performance
+                </h6>
+                <small class="text-muted">Sorted by accuracy (lowest first)</small>
+            </div>
+            <div class="card-body">
+                {% if cards_with_stats %}
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Front</th>
+                                <th>Back</th>
+                                <th>Difficulty</th>
+                                <th>Accuracy</th>
+                                <th>Times Studied</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for card_stat in cards_with_stats %}
+                            <tr class="{% if card_stat.needs_review %}table-warning{% endif %}">
+                                <td>{{ card_stat.card.front_text|truncate(30) }}</td>
+                                <td class="text-muted">{{ card_stat.card.back_text|truncate(30) }}</td>
+                                <td>
+                                    <span class="badge {{ difficulty_badge_class(card_stat.card.difficulty) }}">
+                                        {{ card_stat.card.difficulty }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge {{ accuracy_badge_class(card_stat.accuracy) }}">
+                                        {{ card_stat.accuracy }}%
+                                    </span>
+                                </td>
+                                <td>{{ card_stat.card.times_studied }}</td>
+                                <td>
+                                    {% if card_stat.needs_review %}
+                                        <span class="badge bg-warning">Needs Review</span>
+                                    {% elif card_stat.accuracy >= 90 %}
+                                        <span class="badge bg-success">Mastered</span>
+                                    {% elif card_stat.card.times_studied == 0 %}
+                                        <span class="badge bg-secondary">New</span>
+                                    {% else %}
+                                        <span class="badge bg-info">In Progress</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <i class="bi bi-info-circle display-4 text-muted mb-3"></i>
+                    <p class="text-muted">No cards in this deck yet.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<style>
+.progress-sm {
+    height: 8px;
+}
+</style>

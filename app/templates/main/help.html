@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-3">
+        <div class="card sticky-top" style="top: 2rem;">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-list me-2"></i>Help Topics
+                </h6>
+            </div>
+            <div class="card-body">
+                <nav class="nav flex-column">
+                    <a class="nav-link px-0" href="#getting-started">Getting Started</a>
+                    <a class="nav-link px-0" href="#creating-decks">Creating Decks</a>
+                    <a class="nav-link px-0" href="#studying">Studying</a>
+                    <a class="nav-link px-0" href="#managing-cards">Managing Cards</a>
+                    <a class="nav-link px-0" href="#account">Account Settings</a>
+                    <a class="nav-link px-0" href="#troubleshooting">Troubleshooting</a>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-9">
+        <div class="mb-4">
+            <h1 class="display-6 fw-bold mb-2">Help Center</h1>
+            <p class="lead text-muted">Everything you need to know about using FlashCards</p>
+        </div>
+
+        <!-- Getting Started -->
+        <section id="getting-started" class="mb-5">
+            <h3 class="fw-bold mb-3">
+                <i class="bi bi-play-circle text-primary me-2"></i>Getting Started
+            </h3>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="fw-bold">How do I create an account?</h5>
+                    <p class="text-muted mb-3">
+                        Click "Sign Up" in the navigation bar and fill out the registration form with your username,
+                        email, and password. Your account will be created immediately.
+                    </p>
+
+                    <h5 class="fw-bold">What can I do with FlashCards?</h5>
+                    <p class="text-muted mb-0">
+                        You can create flashcard decks, study with intelligent spaced repetition,
+                        track your progress, share decks with others, and browse community-created content.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Creating Decks -->
+        <section id="creating-decks" class="mb-5">
+            <h3 class="fw-bold mb-3">
+                <i class="bi bi-plus-circle text-success me-2"></i>Creating Decks
+            </h3>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="fw-bold">How do I create a new deck?</h5>
+                    <p class="text-muted mb-3">
+                        Go to "My Decks" and click "Create New Deck". Give your deck a name and description,
+                        then choose whether to make it public or private.
+                    </p>
+
+                    <h5 class="fw-bold">What's the difference between public and private decks?</h5>
+                    <p class="text-muted mb-3">
+                        Private decks are only visible to you. Public decks can be viewed and copied by other users,
+                        helping to build a community knowledge base.
+                    </p>
+
+                    <h5 class="fw-bold">How do I add cards to my deck?</h5>
+                    <p class="text-muted mb-0">
+                        You can add cards individually using the "Add Card" button, or use bulk import to
+                        add multiple cards at once using the format: "Front text | Back text"
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Studying -->
+        <section id="studying" class="mb-5">
+            <h3 class="fw-bold mb-3">
+                <i class="bi bi-brain text-info me-2"></i>Studying
+            </h3>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="fw-bold">What are the different study modes?</h5>
+                    <ul class="text-muted mb-3">
+                        <li><strong>Random:</strong> Cards in random order</li>
+                        <li><strong>Difficulty:</strong> Sorted by difficulty level</li>
+                        <li><strong>Accuracy:</strong> Sorted by your performance</li>
+                        <li><strong>Least Studied:</strong> Cards you've practiced least</li>
+                        <li><strong>Chronological:</strong> By creation date</li>
+                    </ul>
+
+                    <h5 class="fw-bold">How does the difficulty system work?</h5>
+                    <p class="text-muted mb-3">
+                        Cards start with difficulty 1 and adjust based on your performance. Cards you get wrong
+                        become easier (lower difficulty), while cards you consistently get right become harder.
+                    </p>
+
+                    <h5 class="fw-bold">What should I do with cards I need to review?</h5>
+                    <p class="text-muted mb-0">
+                        Use the "Review" feature to focus on cards with low accuracy or high difficulty.
+                        This helps you spend time on material that needs the most attention.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Managing Cards -->
+        <section id="managing-cards" class="mb-5">
+            <h3 class="fw-bold mb-3">
+                <i class="bi bi-card-text text-warning me-2"></i>Managing Cards
+            </h3>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="fw-bold">How do I edit or delete cards?</h5>
+                    <p class="text-muted mb-3">
+                        Go to your deck and click "Manage Cards". From there you can edit or delete individual cards.
+                    </p>
+
+                    <h5 class="fw-bold">Can I import cards from a file?</h5>
+                    <p class="text-muted mb-0">
+                        Yes! Use the bulk import feature. Format your cards as "Front | Back" with one card per line.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Account Settings -->
+        <section id="account" class="mb-5">
+            <h3 class="fw-bold mb-3">
+                <i class="bi bi-person-gear text-secondary me-2"></i>Account Settings
+            </h3>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="fw-bold">How do I change my password?</h5>
+                    <p class="text-muted mb-3">
+                        Go to your profile settings and click "Change Password". You'll need to enter your
+                        current password and your new password.
+                    </p>
+
+                    <h5 class="fw-bold">Can I change my username or email?</h5>
+                    <p class="text-muted mb-0">
+                        Yes, you can update both your username and email address in your profile settings.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Troubleshooting -->
+        <section id="troubleshooting" class="mb-5">
+            <h3 class="fw-bold mb-3">
+                <i class="bi bi-tools text-danger me-2"></i>Troubleshooting
+            </h3>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="fw-bold">I forgot my password. What should I do?</h5>
+                    <p class="text-muted mb-3">
+                        Currently, please contact support to reset your password. A self-service password
+                        reset feature is coming soon.
+                    </p>
+
+                    <h5 class="fw-bold">My study session isn't working properly</h5>
+                    <p class="text-muted mb-3">
+                        Try refreshing the page. If the problem persists, make sure your browser has
+                        JavaScript enabled and try clearing your browser cache.
+                    </p>
+
+                    <h5 class="fw-bold">I found a bug or have a feature request</h5>
+                    <p class="text-muted mb-0">
+                        We'd love to hear from you! Please contact our support team with details about
+                        any issues or suggestions you have.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact -->
+        <div class="card bg-light">
+            <div class="card-body text-center">
+                <h5 class="fw-bold mb-3">Still need help?</h5>
+                <p class="text-muted mb-3">
+                    Can't find what you're looking for? Our support team is here to help.
+                </p>
+                <a href="mailto:support@flashcards.com" class="btn btn-primary">
+                    <i class="bi bi-envelope me-2"></i>Contact Support
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+<style>
+.sticky-top {
+    z-index: 1020;
+}
+
+@media (max-width: 991.98px) {
+    .sticky-top {
+        position: relative !important;
+        top: auto !important;
+    }
+}
+</style>3">
+                <a href="{{ url_for('decks.create_card', deck_id=deck.id) }}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-2"></i>Add First Card
+                </a>
+                <a href="{{ url_for('decks.bulk_create_cards', deck_id=deck.id) }}" class="btn btn-outline-primary">
+                    <i class="bi bi-stack me-2"></i>Bulk Import
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="row mt-4">
+    <div class="col-12 text-center">
+        <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left me-2"></i>Back to Deck
+        </a>
+    </div>
+</div>
+{% endblock %}
