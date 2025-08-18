@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <div class="display-1 mb-4">🎉</div>
+                <h2 class="fw-bold mb-3">Study Session Complete!</h2>
+                <h5 class="text-muted mb-4">{{ deck.name }}</h5>
+
+                <!-- Results -->
+                <div class="row mb-4">
+                    <div class="col-md-3 mb-3">
+                        <div class="h3 text-primary">{{ results.total_studied }}</div>
+                        <div class="text-muted">Cards Studied</div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="h3 text-success">{{ results.correct_count }}</div>
+                        <div class="text-muted">Correct</div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="h3 text-danger">{{ results.incorrect_count }}</div>
+                        <div class="text-muted">Incorrect</div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="h3 text-info">{{ results.accuracy }}%</div>
+                        <div class="text-muted">Accuracy</div>
+                    </div>
+                </div>
+
+                <!-- Performance Badge -->
+                <div class="mb-4">
+                    {% if results.accuracy >= 90 %}
+                        <div class="alert alert-success">
+                            <i class="bi bi-trophy me-2"></i>
+                            <strong>Excellent!</strong> You've mastered this material!
+                        </div>
+                    {% elif results.accuracy >= 70 %}
+                        <div class="alert alert-info">
+                            <i class="bi bi-star me-2"></i>
+                            <strong>Good job!</strong> Keep practicing to improve!
+                        </div>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <i class="bi bi-arrow-repeat me-2"></i>
+                            <strong>Keep studying!</strong> Review the cards you missed.
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="{{ url_for('study.start', deck_id=deck.id) }}" class="btn btn-primary">
+                        <i class="bi bi-arrow-repeat me-2"></i>Study Again
+                    </a>
+                    <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-outline-primary">
+                        <i class="bi bi-eye me-2"></i>View Deck
+                    </a>
+                    <a href="{{ url_for('study.statistics', deck_id=deck.id) }}" class="btn btn-outline-info">
+                        <i class="bi bi-graph-up me-2"></i>View Stats
+                    </a>
+                    <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary">
+                        <i class="bi bi-house me-2"></i>Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Motivational Quote -->
+        <div class="card mt-4">
+            <div class="card-body text-center">
+                <blockquote class="blockquote mb-0">
+                    <p class="mb-3">"The expert in anything was once a beginner."</p>
+                    <footer class="blockquote-footer">Helen Hayes</footer>
+                </blockquote>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

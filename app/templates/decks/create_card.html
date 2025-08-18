@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-1">
+                    <i class="bi bi-plus-circle me-2"></i>Add New Card
+                </h4>
+                <div class="text-muted">{{ deck.name }}</div>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-4">
+                        {{ form.front_text.label(class="form-label fw-bold") }}
+                        {{ form.front_text(class="form-control" + (" is-invalid" if form.front_text.errors else "")) }}
+                        {% for error in form.front_text.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                        <div class="form-text">Enter the question, term, or prompt</div>
+                    </div>
+
+                    <div class="mb-4">
+                        {{ form.back_text.label(class="form-label fw-bold") }}
+                        {{ form.back_text(class="form-control" + (" is-invalid" if form.back_text.errors else "")) }}
+                        {% for error in form.back_text.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                        <div class="form-text">Enter the answer, definition, or explanation</div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-secondary">Cancel</a>
+                        {{ form.submit(class="btn btn-primary") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Preview Card -->
+        <div class="card mt-4" id="card-preview" style="display: none;">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-eye me-2"></i>Preview
+                </h6>
+            </div>
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <div class="fw-bold mb-2">FRONT:</div>
+                    <div id="preview-front" class="border rounded p-3 mb-3"></div>
+                    <div class="fw-bold mb-2">BACK:</div>
+                    <div id="preview-back" class="border rounded p-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const frontInput = document.getElementById('front_text');
+    const backInput = document.getElementById('back_text');
+    const preview = document.getElementById('card-preview');
+    const previewFront = document.getElementById('preview-front');
+    const previewBack = document.getElementById('preview-back');
+
+    function updatePreview() {
+        const frontText = frontInput.value.trim();
+        const backText = backInput.value.trim();
+
+        if (frontText || backText) {
+            previewFront.textContent = frontText || 'Enter front text...';
+            previewBack.textContent = backText || 'Enter back text...';
+            preview.style.display = 'block';
+        } else {
+            preview.style.display = 'none';
+        }
+    }
+
+    frontInput.addEventListener('input', updatePreview);
+    backInput.addEventListener('input', updatePreview);
+});
+</script>
+{% endblock %}

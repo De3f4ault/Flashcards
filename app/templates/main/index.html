@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="text-center py-5">
+            <div class="mb-4">
+                <i class="bi bi-collection-fill display-1 text-primary"></i>
+            </div>
+            <h1 class="display-4 fw-bold mb-3">Master Anything with FlashCards</h1>
+            <p class="lead text-muted mb-4">Create, study, and master your knowledge with our intelligent spaced repetition system. Join thousands of learners improving their skills every day.</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
+                    <i class="bi bi-person-plus me-2"></i>Get Started Free
+                </a>
+                <a href="{{ url_for('decks.public') }}" class="btn btn-outline-primary btn-lg">
+                    <i class="bi bi-search me-2"></i>Browse Decks
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="row mb-5">
+    <div class="col-12 text-center mb-4">
+        <h2 class="h3 fw-bold">Why Choose FlashCards?</h2>
+        <p class="text-muted">Everything you need to learn effectively</p>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-0 shadow-sm text-center">
+            <div class="card-body p-4">
+                <div class="mb-3">
+                    <i class="bi bi-brain display-4 text-primary"></i>
+                </div>
+                <h5 class="card-title">Smart Learning</h5>
+                <p class="card-text text-muted">Our adaptive algorithm focuses on cards you struggle with, optimizing your study time for maximum retention.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-0 shadow-sm text-center">
+            <div class="card-body p-4">
+                <div class="mb-3">
+                    <i class="bi bi-people display-4 text-success"></i>
+                </div>
+                <h5 class="card-title">Community Driven</h5>
+                <p class="card-text text-muted">Access thousands of public decks created by the community, or share your own knowledge with others.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-0 shadow-sm text-center">
+            <div class="card-body p-4">
+                <div class="mb-3">
+                    <i class="bi bi-graph-up display-4 text-info"></i>
+                </div>
+                <h5 class="card-title">Track Progress</h5>
+                <p class="card-text text-muted">Detailed analytics help you understand your learning patterns and celebrate your achievements.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Featured Decks Section -->
+{% if featured_decks %}
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold mb-1">Popular Decks</h3>
+                <p class="text-muted mb-0">Discover what others are learning</p>
+            </div>
+            <a href="{{ url_for('decks.public') }}" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-right me-2"></i>View All
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    {% for deck in featured_decks %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h6 class="card-title mb-1">
+                        <a href="{{ url_for('decks.view', id=deck.id) }}" class="text-decoration-none">
+                            {{ deck.name }}
+                        </a>
+                    </h6>
+                    <span class="badge bg-success">Public</span>
+                </div>
+
+                <p class="card-text text-muted small mb-3">
+                    {% if deck.description %}
+                        {{ deck.description[:80] }}{% if deck.description|length > 80 %}...{% endif %}
+                    {% else %}
+                        No description available
+                    {% endif %}
+                </p>
+
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <small class="text-muted">
+                        <i class="bi bi-card-text me-1"></i>{{ deck.get_card_count() }} cards
+                    </small>
+                    <small class="text-muted">
+                        <i class="bi bi-person me-1"></i>{{ deck.owner.username }}
+                    </small>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-outline-primary btn-sm flex-fill">
+                        <i class="bi bi-eye me-1"></i>View
+                    </a>
+                    {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('decks.duplicate', id=deck.id) }}" class="btn btn-primary btn-sm">
+                        <i class="bi bi-copy me-1"></i>Copy
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Statistics Section -->
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card bg-light border-0">
+            <div class="card-body text-center py-5">
+                <h3 class="fw-bold mb-4">Join Our Learning Community</h3>
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <div class="h2 fw-bold text-primary mb-1">10,000+</div>
+                        <div class="text-muted">Active Learners</div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="h2 fw-bold text-success mb-1">50,000+</div>
+                        <div class="text-muted">Flashcards Created</div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="h2 fw-bold text-info mb-1">1,000+</div>
+                        <div class="text-muted">Public Decks</div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="h2 fw-bold text-warning mb-1">95%</div>
+                        <div class="text-muted">Success Rate</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- How It Works Section -->
+<div class="row mb-5">
+    <div class="col-12 text-center mb-4">
+        <h3 class="fw-bold">How It Works</h3>
+        <p class="text-muted">Get started in just three simple steps</p>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-4 mb-4">
+        <div class="text-center">
+            <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                <span class="h4 mb-0">1</span>
+            </div>
+            <h5 class="fw-bold">Create or Browse</h5>
+            <p class="text-muted">Create your own flashcard decks or browse thousands of public decks created by the community.</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="text-center">
+            <div class="rounded-circle bg-success text-white d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                <span class="h4 mb-0">2</span>
+            </div>
+            <h5 class="fw-bold">Study Smart</h5>
+            <p class="text-muted">Use our adaptive learning system that focuses on cards you find challenging for maximum efficiency.</p>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="text-center">
+            <div class="rounded-circle bg-info text-white d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                <span class="h4 mb-0">3</span>
+            </div>
+            <h5 class="fw-bold">Track & Improve</h5>
+            <p class="text-muted">Monitor your progress with detailed statistics and watch your knowledge grow over time.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Call to Action -->
+<div class="row">
+    <div class="col-12">
+        <div class="card bg-primary text-white border-0">
+            <div class="card-body text-center py-5">
+                <h3 class="fw-bold mb-3">Ready to Start Learning?</h3>
+                <p class="lead mb-4">Join thousands of learners who are already improving their skills with FlashCards.</p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-light btn-lg">
+                        <i class="bi bi-person-plus me-2"></i>Sign Up Free
+                    </a>
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-outline-light btn-lg">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

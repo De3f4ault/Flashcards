@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h2 mb-1">Review Cards</h1>
+                <h5 class="text-muted">{{ deck.name }}</h5>
+                <p class="text-muted">Focus on cards that need more practice</p>
+            </div>
+            <div>
+                <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Deck
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if cards %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="alert alert-warning">
+            <i class="bi bi-exclamation-triangle me-2"></i>
+            <strong>{{ cards|length }} cards need review.</strong> These are cards with low accuracy or high difficulty.
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    {% for card in cards %}
+    <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h6 class="card-title mb-0">Card {{ loop.index }}</h6>
+                    <div>
+                        <span class="badge {{ difficulty_badge_class(card.difficulty) }} me-1">
+                            {{ difficulty_label(card.difficulty) }}
+                        </span>
+                        {% if card.times_studied > 0 %}
+                            <span class="badge {{ accuracy_badge_class(card.get_accuracy()) }}">
+                                {{ card.get_accuracy() }}%
+                            </span>
+                        {% else %}
+                            <span class="badge bg-secondary">New</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <div class="small fw-bold text-muted mb-1">FRONT:</div>
+                    <div class="mb-2">{{ card.front_text }}</div>
+                    <div class="small fw-bold text-muted mb-1">BACK:</div>
+                    <div class="text-muted">{{ card.back_text }}</div>
+                </div>
+
+                <div class="small text-muted">
+                    <i class="bi bi-eye me-1"></i>Studied {{ card.times_studied }} times
+                    {% if card.times_studied > 0 %}
+                        <span class="mx-2">•</span>
+                        <i class="bi bi-check-circle me-1"></i>{{ card.times_correct }} correct
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="row mt-4">
+    <div class="col-12 text-center">
+        <a href="{{ url_for('study.start', deck_id=deck.id) }}" class="btn btn-primary btn-lg">
+            <i class="bi bi-play-circle me-2"></i>Study These Cards
+        </a>
+    </div>
+</div>
+
+{% else %}
+<div class="row">
+    <div class="col-12">
+        <div class="text-center py-5">
+            <i class="bi bi-check-circle display-1 text-success mb-3"></i>
+            <h4 class="text-success">All cards are mastered!</h4>
+            <p class="text-muted">No cards currently need review. Great job!</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{{ url_for('study.start', deck_id=deck.id) }}" class="btn btn-primary">
+                    <i class="bi bi-play-circle me-2"></i>Study All Cards
+                </a>
+                <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Deck
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

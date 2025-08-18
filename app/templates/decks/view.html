@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-start">
+            <div>
+                <div class="d-flex align-items-center mb-2">
+                    <h1 class="h2 mb-0 me-3">{{ deck.name }}</h1>
+                    {% if deck.is_public %}
+                        <span class="badge bg-success">Public</span>
+                    {% else %}
+                        <span class="badge bg-secondary">Private</span>
+                    {% endif %}
+                </div>
+                {% if deck.description %}
+                    <p class="text-muted mb-2">{{ deck.description }}</p>
+                {% endif %}
+                <div class="small text-muted">
+                    <i class="bi bi-person me-1"></i>Created by {{ deck.owner.username }}
+                    <span class="mx-2">•</span>
+                    <i class="bi bi-clock me-1"></i>{{ deck.created_at|timeago }}
+                </div>
+            </div>
+            <div class="text-end">
+                {% if current_user.is_authenticated and deck.user_id == current_user.id %}
+                    <div class="btn-group mb-2">
+                        <a href="{{ url_for('decks.edit', id=deck.id) }}" class="btn btn-outline-primary">
+                            <i class="bi bi-pencil me-1"></i>Edit
+                        </a>
+                        <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">
+                            <span class="visually-hidden">Toggle Dropdown</span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('decks.cards', deck_id=deck.id) }}">
+                                <i class="bi bi-card-list me-2"></i>Manage Cards
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('decks.create_card', deck_id=deck.id) }}">
+                                <i class="bi bi-plus me-2"></i>Add Card
+                            </a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('decks.bulk_create_cards', deck_id=deck.id) }}">
+                                <i class="bi bi-stack me-2"></i>Bulk Import
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{{ url_for('decks.delete', id=deck.id) }}">
+                                <i class="bi bi-trash me-2"></i>Delete Deck
+                            </a></li>
+                        </ul>
+                    </div>
+                {% else %}
+                    <a href="{{ url_for('decks.duplicate', id=deck.id) }}" class="btn btn-outline-success mb-2">
+                        <i class="bi bi-copy me-1"></i>Copy Deck
+                    </a>
+                {% endif %}
+                <br>
+                {% if deck.can_be_studied() %}
+                    <a href="{{ url_for('study.start', deck_id=deck.id) }}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-play-circle me-2"></i>Start Studying
+                    </a>
+                {% else %}
+                    <button class="btn btn-outline-secondary btn-lg" disabled>
+                        <i class="bi bi-info-circle me-2"></i>No Cards to Study
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-card-text fs-1 text-primary mb-2"></i>
+                <div class="h4 mb-1">{{ stats.total_cards }}</div>
+                <div class="text-muted small">Total Cards</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-bar-chart fs-1 text-info mb-2"></i>
+                <div class="h4 mb-1">{{ stats.avg_difficulty|round(1) }}/5</div>
+                <div class="text-muted small">Avg Difficulty</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-target fs-1 text-success mb-2"></i>
+                <div class="h4 mb-1">{{ stats.avg_accuracy|round(1) }}%</div>
+                <div class="text-muted small">Accuracy</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-clock-history fs-1 text-warning mb-2"></i>
+                <div class="h4 mb-1">{{ stats.total_studies }}</div>
+                <div class="text-muted small">Study Sessions</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Add Card Form -->
+{% if quick_form and current_user.is_authenticated and deck.user_id == current_user.id %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-plus-circle me-2"></i>Quick Add Card
+                </h6>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ quick_form.hidden_tag() }}
+                    <div class="row">
+                        <div class="col-md-5 mb-3">
+                            {{ quick_form.front_text.label(class="form-label") }}
+                            {{ quick_form.front_text(class="form-control") }}
+                        </div>
+                        <div class="col-md-5 mb-3">
+                            {{ quick_form.back_text.label(class="form-label") }}
+                            {{ quick_form.back_text(class="form-control") }}
+                        </div>
+                        <div class="col-md-2 mb-3">
+                            <label class="form-label">&nbsp;</label>
+                            <div>
+                                {{ quick_form.submit(class="btn btn-success w-100") }}
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Study Recommendations -->
+{% if study_stats.total_cards > 0 %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-lightbulb me-2"></i>Study Recommendations
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        {% set recommendation, rec_type = study_recommendation(study_stats) %}
+                        <div class="alert alert-{{ rec_type }} mb-0 py-2">
+                            {{ recommendation }}
+                        </div>
+                    </div>
+                    <div class="ms-3">
+                        {% if study_stats.cards_needing_review > 0 %}
+                            <a href="{{ url_for('study.review', deck_id=deck.id) }}" class="btn btn-warning btn-sm">
+                                <i class="bi bi-arrow-repeat me-1"></i>Review Cards
+                            </a>
+                        {% endif %}
+                        <a href="{{ url_for('study.statistics', deck_id=deck.id) }}" class="btn btn-outline-info btn-sm">
+                            <i class="bi bi-graph-up me-1"></i>Detailed Stats
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Recent Cards Preview -->
+{% if deck.flashcards %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-card-list me-2"></i>Recent Cards
+                </h6>
+                <a href="{{ url_for('decks.cards', deck_id=deck.id) }}" class="btn btn-outline-primary btn-sm">
+                    View All Cards
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for card in deck.flashcards[:6] %}
+                    <div class="col-md-6 mb-3">
+                        <div class="border rounded p-3">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <strong class="small">Front:</strong>
+                                <div class="d-flex gap-1">
+                                    <span class="badge {{ difficulty_badge_class(card.difficulty) }}">
+                                        {{ difficulty_label(card.difficulty) }}
+                                    </span>
+                                    {% if card.times_studied > 0 %}
+                                        <span class="badge {{ accuracy_badge_class(card.get_accuracy()) }}">
+                                            {{ card.get_accuracy() }}%
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="mb-2">{{ card.front_text|truncate(60) }}</div>
+                            <div class="small text-muted">
+                                <strong>Back:</strong> {{ card.back_text|truncate(60) }}
+                            </div>
+                            <div class="small text-muted mt-2">
+                                <i class="bi bi-eye me-1"></i>Studied {{ card.times_studied }} times
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
