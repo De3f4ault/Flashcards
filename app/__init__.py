@@ -1,14 +1,13 @@
 import os
 from flask import Flask
 from app.config import config
-from app.extensions import db, migrate, login_manager
+from app.extensions import db, migrate, login_manager, csrf  # Add csrf here
 from app.routes import register_routes
 from app.utils.helpers import (
     format_datetime, time_ago, truncate_text,
     get_difficulty_badge_class, get_accuracy_badge_class,
     pluralize, get_study_recommendation
 )
-
 
 def create_app(config_name=None):
     """Application factory pattern"""
@@ -20,8 +19,9 @@ def create_app(config_name=None):
 
     # Initialize extensions
     db.init_app(app)
-    migrate.init_app(app, db)
+    migrate.init_app(app)
     login_manager.init_app(app)
+    csrf.init_app(app)  # Add this line
 
     # Register routes
     register_routes(app)
@@ -41,10 +41,8 @@ def create_app(config_name=None):
 
     return app
 
-
 def register_template_helpers(app):
     """Register template filters and global functions"""
-
     # Template filters
     @app.template_filter('datetime')
     def datetime_filter(dt, format='%B %d, %Y at %I:%M %p'):

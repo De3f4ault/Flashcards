@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-1">
+                    <i class="bi bi-copy me-2"></i>Copy Deck
+                </h4>
+                <div class="text-muted">Copy "{{ original_deck.name }}" to your account</div>
+            </div>
+            <div class="card-body">
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-4">
+                        {{ form.name.label(class="form-label fw-bold") }}
+                        {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
+                        {% for error in form.name.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                        <div class="form-text">Choose a name for your copy of this deck</div>
+                    </div>
+
+                    <!-- Deck Preview -->
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h6 class="fw-bold mb-3">Original Deck Preview</h6>
+                            <div class="row">
+                                <div class="col-6">
+                                    <strong>Name:</strong><br>
+                                    {{ original_deck.name }}
+                                </div>
+                                <div class="col-6">
+                                    <strong>Cards:</strong><br>
+                                    {{ original_deck.get_card_count() }} cards
+                                </div>
+                            </div>
+                            {% if original_deck.description %}
+                            <div class="mt-2">
+                                <strong>Description:</strong><br>
+                                {{ original_deck.description }}
+                            </div>
+                            {% endif %}
+                            <div class="mt-2">
+                                <strong>Owner:</strong><br>
+                                {{ original_deck.owner.username }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('decks.view', id=original_deck.id) }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Cancel
+                        </a>
+                        {{ form.submit(class="btn btn-success") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Copy Information -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-info-circle me-2"></i>About Copying Decks
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="small text-muted mb-0">
+                    <li>All cards will be copied to your new deck</li>
+                    <li>Card statistics (difficulty, study count) will be reset</li>
+                    <li>The copied deck will be private to you by default</li>
+                    <li>You can edit and modify your copy without affecting the original</li>
+                    <li>This helps you learn from community decks while tracking your own progress</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

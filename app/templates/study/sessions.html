@@ -1,58 +1,75 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
-        <!-- Progress Bar -->
-        <div class="card mb-3">
-            <div class="card-body py-3">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="small fw-bold">Progress</span>
-                    <span class="small text-muted">{{ progress.current }} of {{ progress.total }} cards</span>
-                </div>
-                <div class="progress">
-                    <div class="progress-bar" role="progressbar" style="width: {{ progress.percentage }}%">
-                        {{ progress.percentage }}%
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-md-10 col-lg-8">
+            <!-- Progress Section -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-semibold text-primary">
+                            <i class="bi bi-graph-up me-1"></i>Progress
+                        </span>
+                        <span class="text-muted small">
+                            Card <strong>{{ progress.current }}</strong> of <strong>{{ progress.total }}</strong>
+                        </span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated"
+                             role="progressbar"
+                             style="width: {{ progress.percentage }}%"
+                             aria-valuenow="{{ progress.percentage }}"
+                             aria-valuemin="0"
+                             aria-valuemax="100">
+                        </div>
+                    </div>
+                    <div class="text-center mt-2">
+                        <small class="text-muted">{{ progress.percentage }}% Complete</small>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Flashcard -->
-        <div class="card flashcard-container">
-            <div class="card-body p-4">
-                <div class="text-center">
-                    <div class="mb-3">
-                        <span class="badge bg-primary">Question {{ progress.current }}</span>
-                        <span class="badge {{ difficulty_badge_class(card.difficulty) }} ms-2">
+            <!-- Flashcard -->
+            <div class="card border-0 shadow flashcard-card mb-4" id="flashcard">
+                <div class="card-body p-5 text-center">
+                    <!-- Card Header -->
+                    <div class="mb-4">
+                        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">
+                            <i class="bi bi-question-circle me-1"></i>Question {{ progress.current }}
+                        </span>
+                        <span class="badge {{ difficulty_badge_class(card.difficulty) }} px-3 py-2 ms-2">
                             {{ difficulty_label(card.difficulty) }}
                         </span>
                     </div>
 
                     <!-- Card Front -->
-                    <div id="card-front" class="card-content">
-                        <div class="display-6 mb-4">🤔</div>
-                        <h4 class="mb-4">{{ card.front_text }}</h4>
-                        <button class="btn btn-outline-primary btn-lg" onclick="showAnswer()">
-                            <i class="bi bi-eye me-2"></i>Show Answer
+                    <div id="card-front" class="card-face">
+                        <div class="emoji-display mb-4">🎯</div>
+                        <h3 class="card-text-content mb-5">{{ card.front_text }}</h3>
+                        <button class="btn btn-primary btn-lg px-5 shadow-sm" onclick="flipCard()">
+                            <i class="bi bi-eye me-2"></i>Reveal Answer
                         </button>
+                        <div class="mt-3">
+                            <small class="text-muted">Or click anywhere on the card to flip</small>
+                        </div>
                     </div>
 
-                    <!-- Card Back (Hidden Initially) -->
-                    <div id="card-back" class="card-content d-none">
-                        <div class="display-6 mb-4">💡</div>
-                        <div class="mb-4">
-                            <h5 class="text-muted">Answer:</h5>
-                            <h4>{{ card.back_text }}</h4>
+                    <!-- Card Back -->
+                    <div id="card-back" class="card-face d-none">
+                        <div class="emoji-display mb-4">💡</div>
+                        <div class="answer-section mb-5">
+                            <h6 class="text-muted text-uppercase small mb-3">Answer</h6>
+                            <h3 class="card-text-content text-success">{{ card.back_text }}</h3>
                         </div>
 
-                        <div class="mt-4">
-                            <h6 class="mb-3">How did you do?</h6>
-                            <div class="d-flex justify-content-center gap-3">
-                                <button class="btn btn-danger btn-lg" onclick="markAnswer(false)">
+                        <div class="rating-section">
+                            <h6 class="mb-4 fw-semibold">How well did you know this?</h6>
+                            <div class="d-flex justify-content-center gap-3 flex-wrap">
+                                <button class="btn btn-danger btn-lg px-4 shadow-sm" onclick="submitAnswer(false)">
                                     <i class="bi bi-x-circle me-2"></i>Incorrect
                                 </button>
-                                <button class="btn btn-success btn-lg" onclick="markAnswer(true)">
+                                <button class="btn btn-success btn-lg px-4 shadow-sm" onclick="submitAnswer(true)">
                                     <i class="bi bi-check-circle me-2"></i>Correct
                                 </button>
                             </div>
@@ -60,67 +77,226 @@
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Session Stats -->
-        <div class="card mt-3">
-            <div class="card-body py-3">
-                <div class="row text-center">
-                    <div class="col-4">
-                        <div class="h6 text-success">{{ session_stats.correct_count }}</div>
-                        <div class="small text-muted">Correct</div>
-                    </div>
-                    <div class="col-4">
-                        <div class="h6 text-danger">{{ session_stats.total_studied - session_stats.correct_count }}</div>
-                        <div class="small text-muted">Incorrect</div>
-                    </div>
-                    <div class="col-4">
-                        <div class="h6 text-info">{{ session_stats.total_studied }}</div>
-                        <div class="small text-muted">Studied</div>
+            <!-- Session Statistics -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <h6 class="text-center mb-3 text-muted small text-uppercase">Session Stats</h6>
+                    <div class="row g-3 text-center">
+                        <div class="col-4">
+                            <div class="stat-box p-3 rounded bg-success bg-opacity-10">
+                                <div class="h4 mb-1 text-success fw-bold">{{ session_stats.correct_count }}</div>
+                                <div class="small text-success">
+                                    <i class="bi bi-check-circle me-1"></i>Correct
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat-box p-3 rounded bg-danger bg-opacity-10">
+                                <div class="h4 mb-1 text-danger fw-bold">{{ session_stats.total_studied - session_stats.correct_count }}</div>
+                                <div class="small text-danger">
+                                    <i class="bi bi-x-circle me-1"></i>Incorrect
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stat-box p-3 rounded bg-info bg-opacity-10">
+                                <div class="h4 mb-1 text-info fw-bold">{{ session_stats.total_studied }}</div>
+                                <div class="small text-info">
+                                    <i class="bi bi-card-list me-1"></i>Total
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Navigation -->
-        <div class="text-center mt-3">
-            <a href="{{ url_for('study.start', deck_id=deck.id) }}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-left me-2"></i>Study Options
-            </a>
+            <!-- Navigation -->
+            <div class="d-flex justify-content-between align-items-center">
+                <a href="{{ url_for('study.start', deck_id=deck.id) }}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Options
+                </a>
+                <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-outline-primary">
+                    <i class="bi bi-house me-2"></i>Deck Home
+                </a>
+            </div>
         </div>
     </div>
 </div>
 
 <style>
-.flashcard-container {
-    min-height: 400px;
+.flashcard-card {
+    min-height: 450px;
     display: flex;
     align-items: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
 }
 
-.card-content {
+.flashcard-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.15) !important;
+}
+
+.card-face {
     width: 100%;
     transition: opacity 0.3s ease;
 }
 
-.progress-bar {
-    transition: width 0.5s ease;
+.emoji-display {
+    font-size: 4rem;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.card-text-content {
+    font-weight: 500;
+    line-height: 1.6;
+    color: #2c3e50;
+}
+
+.answer-section {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    border-left: 4px solid #198754;
+}
+
+.rating-section {
+    padding: 1.5rem;
+    background: #fff;
+    border-radius: 0.5rem;
+}
+
+.stat-box {
+    transition: transform 0.2s ease;
+}
+
+.stat-box:hover {
+    transform: scale(1.05);
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-10px); }
+    50% { transform: translateX(10px); }
+    75% { transform: translateX(-5px); }
+}
+
+.shake {
+    animation: shake 0.5s;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.pulse {
+    animation: pulse 0.5s;
+}
+
+/* Loading overlay */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
 }
 </style>
 
 <script>
-function showAnswer() {
-    document.getElementById('card-front').classList.add('d-none');
-    document.getElementById('card-back').classList.remove('d-none');
+const flashcard = document.getElementById('flashcard');
+const cardFront = document.getElementById('card-front');
+const cardBack = document.getElementById('card-back');
+let isFlipped = false;
+
+// Click anywhere on card to flip
+flashcard.addEventListener('click', (e) => {
+    if (!e.target.closest('button')) {
+        flipCard();
+    }
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+    if (e.key === ' ' || e.key === 'Enter') {
+        e.preventDefault();
+        if (!isFlipped) {
+            flipCard();
+        }
+    } else if (isFlipped) {
+        if (e.key === '1' || e.key === 'x') {
+            submitAnswer(false);
+        } else if (e.key === '2' || e.key === 'c') {
+            submitAnswer(true);
+        }
+    }
+});
+
+function flipCard() {
+    isFlipped = !isFlipped;
+
+    // Fade out
+    cardFront.style.opacity = '0';
+    cardBack.style.opacity = '0';
+
+    setTimeout(() => {
+        cardFront.classList.toggle('d-none');
+        cardBack.classList.toggle('d-none');
+
+        // Fade in
+        setTimeout(() => {
+            cardFront.style.opacity = '1';
+            cardBack.style.opacity = '1';
+        }, 50);
+    }, 200);
 }
 
-async function markAnswer(correct) {
+async function submitAnswer(correct) {
+    // Visual feedback
+    flashcard.classList.add(correct ? 'pulse' : 'shake');
+
+    setTimeout(() => {
+        flashcard.classList.remove('pulse', 'shake');
+    }, 500);
+
+    // Show loading overlay
+    const loadingOverlay = document.createElement('div');
+    loadingOverlay.className = 'loading-overlay';
+    loadingOverlay.innerHTML = `
+        <div class="text-center">
+            <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="text-muted">Loading next card...</p>
+        </div>
+    `;
+
+    setTimeout(() => {
+        document.body.appendChild(loadingOverlay);
+    }, 300);
+
     try {
+        // Get CSRF token from the form or generate it
+        let csrfToken = '{{ csrf_token() }}';
+
         const response = await fetch('{{ url_for("study.answer", deck_id=deck.id) }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': document.querySelector('meta[name=csrf-token]').getAttribute('content')
+                'X-CSRFToken': csrfToken
             },
             body: JSON.stringify({ correct: correct })
         });
@@ -128,30 +304,18 @@ async function markAnswer(correct) {
         const data = await response.json();
 
         if (data.success) {
-            if (data.is_complete) {
+            setTimeout(() => {
                 window.location.href = data.next_url;
-            } else {
-                // Show loading state
-                document.querySelector('.card-body').innerHTML = `
-                    <div class="text-center py-5">
-                        <div class="spinner-border text-primary mb-3" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <p class="text-muted">Loading next card...</p>
-                    </div>
-                `;
-
-                // Redirect to next card
-                setTimeout(() => {
-                    window.location.href = data.next_url;
-                }, 1000);
-            }
+            }, 500);
+        } else {
+            throw new Error('Failed to submit answer');
         }
     } catch (error) {
         console.error('Error:', error);
         // Fallback to form submission
         const form = document.createElement('form');
         form.method = 'POST';
+        form.action = '{{ url_for("study.answer", deck_id=deck.id) }}';
         form.innerHTML = `
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
             <input type="hidden" name="correct" value="${correct}">

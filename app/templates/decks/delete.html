@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0 text-danger">
+                    <i class="bi bi-exclamation-triangle me-2"></i>Delete Deck
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-danger">
+                    <h5 class="alert-heading">Warning!</h5>
+                    <p class="mb-0">You are about to delete the deck "<strong>{{ deck.name }}</strong>". This action cannot be undone.</p>
+                </div>
+
+                <div class="card bg-light mb-4">
+                    <div class="card-body">
+                        <h6 class="fw-bold">Deck Details</h6>
+                        <div class="row">
+                            <div class="col-6">
+                                <strong>Name:</strong><br>
+                                {{ deck.name }}
+                            </div>
+                            <div class="col-6">
+                                <strong>Cards:</strong><br>
+                                {{ deck.get_card_count() }} cards
+                            </div>
+                        </div>
+                        {% if deck.description %}
+                        <div class="mt-2">
+                            <strong>Description:</strong><br>
+                            {{ deck.description }}
+                        </div>
+                        {% endif %}
+                        <div class="mt-2">
+                            <strong>Created:</strong><br>
+                            {{ deck.created_at|datetime }}
+                        </div>
+                    </div>
+                </div>
+
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-3">
+                        {{ form.confirmation.label(class="form-label fw-bold") }}
+                        {{ form.confirmation(class="form-control" + (" is-invalid" if form.confirmation.errors else "")) }}
+                        {% for error in form.confirmation.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                        <div class="form-text">Type "CONFIRM" to proceed with deletion</div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-secondary">Cancel</a>
+                        {{ form.submit(class="btn btn-danger") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -2,15 +2,17 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request,
 from flask_login import login_required, current_user
 from app.forms import StudyOptionsForm
 from app.services import DeckService, StudyService
+from app.models import Deck
 
 study_bp = Blueprint('study', __name__)
 
 
-@study_bp.route('/<int:deck_id>')
+@study_bp.route('/<int:deck_id>', methods=['GET', 'POST'])
 @login_required
 def start(deck_id):
     """Study session start page with options"""
-    deck = DeckService.get_or_404(deck_id)
+    # Secure lookup: verify deck ownership or public access
+    deck = Deck.query.get_or_404(deck_id)
 
     # Check access permissions
     if not DeckService.user_can_access_deck(deck, current_user.id):
@@ -32,7 +34,7 @@ def start(deck_id):
             'study_mode': form.study_mode.data,
             'card_limit': form.card_limit.data if form.card_limit.data > 0 else None
         }
-        return redirect(url_for('study.session', deck_id=deck_id))
+        return redirect(url_for('study.study_session', deck_id=deck_id))
 
     return render_template(
         'study/start.html',
@@ -45,9 +47,10 @@ def start(deck_id):
 
 @study_bp.route('/<int:deck_id>/session')
 @login_required
-def session(deck_id):
+def study_session(deck_id):
     """Active study session"""
-    deck = DeckService.get_or_404(deck_id)
+    # Secure lookup: verify deck ownership or public access
+    deck = Deck.query.get_or_404(deck_id)
 
     # Check access permissions
     if not DeckService.user_can_access_deck(deck, current_user.id):
@@ -108,7 +111,7 @@ def session(deck_id):
     }
 
     return render_template(
-        'study/session.html',
+        'study/sessions.html',
         title=f'Studying {deck.name}',
         deck=deck,
         card=current_card,
@@ -121,6 +124,16 @@ def session(deck_id):
 @login_required
 def answer(deck_id):
     """Process study answer"""
+    # Secure lookup: verify deck ownership or public access
+    deck = Deck.query.get_or_404(deck_id)
+
+    # Check access permissions
+    if not DeckService.user_can_access_deck(deck, current_user.id):
+        if request.is_json:
+            return jsonify({'success': False, 'error': 'Permission denied'}), 403
+        flash('You do not have permission to study this deck.', 'error')
+        return redirect(url_for('decks.index'))
+
     if 'current_session' not in session:
         flash('Study session expired. Please start a new session.', 'warning')
         return redirect(url_for('study.start', deck_id=deck_id))
@@ -154,18 +167,24 @@ def answer(deck_id):
         return jsonify({
             'success': True,
             'is_complete': is_complete,
-            'next_url': url_for('study.complete', deck_id=deck_id) if is_complete else url_for('study.session', deck_id=deck_id)
+            'next_url': url_for('study.complete', deck_id=deck_id) if is_complete else url_for('study.study_session', deck_id=deck_id)
         })
     else:
         # Regular form submission
-        return redirect(url_for('study.session', deck_id=deck_id))
+        return redirect(url_for('study.study_session', deck_id=deck_id))
 
 
 @study_bp.route('/<int:deck_id>/complete')
 @login_required
 def complete(deck_id):
     """Study session completion page"""
-    deck = DeckService.get_or_404(deck_id)
+    # Secure lookup: verify deck ownership or public access
+    deck = Deck.query.get_or_404(deck_id)
+
+    # Check access permissions
+    if not DeckService.user_can_access_deck(deck, current_user.id):
+        flash('You do not have permission to view this page.', 'error')
+        return redirect(url_for('decks.index'))
 
     # Get session results
     current_session = session.get('current_session', {})
@@ -198,7 +217,8 @@ def complete(deck_id):
 @login_required
 def review(deck_id):
     """Review cards that need practice"""
-    deck = DeckService.get_or_404(deck_id)
+    # Secure lookup: verify deck ownership or public access
+    deck = Deck.query.get_or_404(deck_id)
 
     # Check access permissions
     if not DeckService.user_can_access_deck(deck, current_user.id):
@@ -219,7 +239,8 @@ def review(deck_id):
 @login_required
 def statistics(deck_id):
     """Detailed study statistics"""
-    deck = DeckService.get_or_404(deck_id)
+    # Secure lookup: verify deck ownership or public access
+    deck = Deck.query.get_or_404(deck_id)
 
     # Check access permissions
     if not DeckService.user_can_access_deck(deck, current_user.id):
