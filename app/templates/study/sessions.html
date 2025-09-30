@@ -30,7 +30,22 @@
                 </div>
             </div>
 
-            <!-- Flashcard -->
+            <!-- Study Mode Toggle -->
+            <div class="text-center mb-3">
+                <div class="btn-group" role="group">
+                    <input type="radio" class="btn-check" name="studyMode" id="flipMode" {% if preferred_mode == 'flip' %}checked{% endif %} onchange="switchMode('flip')">
+                    <label class="btn btn-outline-primary" for="flipMode">
+                        <i class="bi bi-card-text me-1"></i>Flip Card
+                    </label>
+
+                    <input type="radio" class="btn-check" name="studyMode" id="typeMode" {% if preferred_mode == 'type' %}checked{% endif %} onchange="switchMode('type')">
+                    <label class="btn btn-outline-primary" for="typeMode">
+                        <i class="bi bi-keyboard me-1"></i>Type Answer
+                    </label>
+                </div>
+            </div>
+
+            <!-- Flashcard Container -->
             <div class="card border-0 shadow flashcard-card mb-4" id="flashcard">
                 <div class="card-body p-5 text-center">
                     <!-- Card Header -->
@@ -43,36 +58,91 @@
                         </span>
                     </div>
 
-                    <!-- Card Front -->
-                    <div id="card-front" class="card-face">
-                        <div class="emoji-display mb-4">🎯</div>
-                        <h3 class="card-text-content mb-5">{{ card.front_text }}</h3>
-                        <button class="btn btn-primary btn-lg px-5 shadow-sm" onclick="flipCard()">
-                            <i class="bi bi-eye me-2"></i>Reveal Answer
-                        </button>
-                        <div class="mt-3">
-                            <small class="text-muted">Or click anywhere on the card to flip</small>
+                    <!-- FLIP MODE -->
+                    <div id="flip-mode-container">
+                        <!-- Card Front -->
+                        <div id="card-front" class="card-face">
+                            <div class="emoji-display mb-4">🎯</div>
+                            <h3 class="card-text-content mb-5">{{ card.front_text }}</h3>
+                            <button class="btn btn-primary btn-lg px-5 shadow-sm" onclick="flipCard()">
+                                <i class="bi bi-eye me-2"></i>Reveal Answer
+                            </button>
+                            <div class="mt-3">
+                                <small class="text-muted">Or click anywhere on the card to flip</small>
+                            </div>
+                        </div>
+
+                        <!-- Card Back -->
+                        <div id="card-back" class="card-face d-none">
+                            <div class="emoji-display mb-4">💡</div>
+                            <div class="answer-section mb-5">
+                                <h6 class="text-muted text-uppercase small mb-3">Answer</h6>
+                                <h3 class="card-text-content text-success">{{ card.back_text }}</h3>
+                            </div>
+
+                            <div class="rating-section">
+                                <h6 class="mb-4 fw-semibold">How well did you know this?</h6>
+                                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                                    <button class="btn btn-danger btn-lg px-4 shadow-sm" onclick="submitAnswer(false)">
+                                        <i class="bi bi-x-circle me-2"></i>Incorrect
+                                    </button>
+                                    <button class="btn btn-success btn-lg px-4 shadow-sm" onclick="submitAnswer(true)">
+                                        <i class="bi bi-check-circle me-2"></i>Correct
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Card Back -->
-                    <div id="card-back" class="card-face d-none">
-                        <div class="emoji-display mb-4">💡</div>
-                        <div class="answer-section mb-5">
-                            <h6 class="text-muted text-uppercase small mb-3">Answer</h6>
-                            <h3 class="card-text-content text-success">{{ card.back_text }}</h3>
+                    <!-- TYPE MODE -->
+                    <div id="type-mode-container" class="d-none">
+                        <!-- Question State -->
+                        <div id="type-question-state">
+                            <div class="emoji-display mb-4">✍️</div>
+                            <h3 class="card-text-content mb-5">{{ card.front_text }}</h3>
+
+                            <div class="type-answer-input-container mb-4">
+                                <input type="text"
+                                       class="form-control form-control-lg text-center"
+                                       id="userAnswer"
+                                       placeholder="Type your answer here..."
+                                       autocomplete="off"
+                                       autofocus>
+                                <div class="mt-2">
+                                    <small class="text-muted">Press Enter to check your answer</small>
+                                </div>
+                            </div>
+
+                            <button class="btn btn-primary btn-lg px-5 shadow-sm" onclick="checkTypedAnswer()">
+                                <i class="bi bi-check2-square me-2"></i>Check Answer
+                            </button>
                         </div>
 
-                        <div class="rating-section">
-                            <h6 class="mb-4 fw-semibold">How well did you know this?</h6>
-                            <div class="d-flex justify-content-center gap-3 flex-wrap">
-                                <button class="btn btn-danger btn-lg px-4 shadow-sm" onclick="submitAnswer(false)">
-                                    <i class="bi bi-x-circle me-2"></i>Incorrect
-                                </button>
-                                <button class="btn btn-success btn-lg px-4 shadow-sm" onclick="submitAnswer(true)">
-                                    <i class="bi bi-check-circle me-2"></i>Correct
-                                </button>
+                        <!-- Result State -->
+                        <div id="type-result-state" class="d-none">
+                            <div id="result-emoji" class="emoji-display mb-4"></div>
+
+                            <div id="result-feedback" class="mb-4"></div>
+
+                            <div class="answer-comparison mb-5">
+                                <div class="mb-3">
+                                    <h6 class="text-muted small text-uppercase mb-2">Your Answer</h6>
+                                    <div class="user-answer-display p-3 rounded bg-light">
+                                        <span id="user-answer-text"></span>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h6 class="text-muted small text-uppercase mb-2">Correct Answer</h6>
+                                    <div class="correct-answer-display p-3 rounded bg-success bg-opacity-10">
+                                        <span class="text-success fw-semibold">{{ card.back_text }}</span>
+                                    </div>
+                                </div>
                             </div>
+
+                            <button class="btn btn-primary btn-lg px-5 shadow-sm" onclick="nextCardFromType()">
+                                <i class="bi bi-arrow-right me-2"></i>Next Card
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -129,7 +199,6 @@
     min-height: 450px;
     display: flex;
     align-items: center;
-    cursor: pointer;
     transition: all 0.3s ease;
     background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
 }
@@ -137,6 +206,10 @@
 .flashcard-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.15) !important;
+}
+
+.flashcard-card.clickable {
+    cursor: pointer;
 }
 
 .card-face {
@@ -181,6 +254,39 @@
     transform: scale(1.05);
 }
 
+.type-answer-input-container input {
+    font-size: 1.2rem;
+    padding: 1rem;
+    border: 2px solid #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.type-answer-input-container input:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+.answer-comparison {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.user-answer-display {
+    border: 2px solid #dee2e6;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.correct-answer-display {
+    border: 2px solid #198754;
+    min-height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 @keyframes shake {
     0%, 100% { transform: translateX(0); }
     25% { transform: translateX(-10px); }
@@ -201,7 +307,6 @@
     animation: pulse 0.5s;
 }
 
-/* Loading overlay */
 .loading-overlay {
     position: fixed;
     top: 0;
@@ -220,27 +325,74 @@
 const flashcard = document.getElementById('flashcard');
 const cardFront = document.getElementById('card-front');
 const cardBack = document.getElementById('card-back');
-let isFlipped = false;
+const flipModeContainer = document.getElementById('flip-mode-container');
+const typeModeContainer = document.getElementById('type-mode-container');
+const userAnswerInput = document.getElementById('userAnswer');
+const correctAnswer = "{{ card.back_text }}";
 
-// Click anywhere on card to flip
+let isFlipped = false;
+let currentMode = '{{ preferred_mode|default("flip") }}';
+let typedAnswerCorrect = false;
+
+// Initialize with preferred mode on page load
+document.addEventListener('DOMContentLoaded', function() {
+    if (currentMode === 'type') {
+        switchMode('type');
+    }
+});
+
+// Mode switching
+function switchMode(mode) {
+    currentMode = mode;
+
+    if (mode === 'flip') {
+        flipModeContainer.classList.remove('d-none');
+        typeModeContainer.classList.add('d-none');
+        flashcard.classList.add('clickable');
+        resetFlipMode();
+    } else {
+        flipModeContainer.classList.add('d-none');
+        typeModeContainer.classList.remove('d-none');
+        flashcard.classList.remove('clickable');
+        resetTypeMode();
+        setTimeout(() => userAnswerInput.focus(), 100);
+    }
+}
+
+function resetFlipMode() {
+    isFlipped = false;
+    cardFront.classList.remove('d-none');
+    cardBack.classList.add('d-none');
+    cardFront.style.opacity = '1';
+    cardBack.style.opacity = '1';
+}
+
+function resetTypeMode() {
+    document.getElementById('type-question-state').classList.remove('d-none');
+    document.getElementById('type-result-state').classList.add('d-none');
+    userAnswerInput.value = '';
+}
+
+// Flip mode functionality
 flashcard.addEventListener('click', (e) => {
-    if (!e.target.closest('button')) {
+    if (currentMode === 'flip' && !e.target.closest('button')) {
         flipCard();
     }
 });
 
-// Keyboard shortcuts
 document.addEventListener('keydown', (e) => {
-    if (e.key === ' ' || e.key === 'Enter') {
-        e.preventDefault();
-        if (!isFlipped) {
-            flipCard();
-        }
-    } else if (isFlipped) {
-        if (e.key === '1' || e.key === 'x') {
-            submitAnswer(false);
-        } else if (e.key === '2' || e.key === 'c') {
-            submitAnswer(true);
+    if (currentMode === 'flip') {
+        if (e.key === ' ' || e.key === 'Enter') {
+            e.preventDefault();
+            if (!isFlipped) {
+                flipCard();
+            }
+        } else if (isFlipped) {
+            if (e.key === '1' || e.key === 'x') {
+                submitAnswer(false);
+            } else if (e.key === '2' || e.key === 'c') {
+                submitAnswer(true);
+            }
         }
     }
 });
@@ -248,7 +400,6 @@ document.addEventListener('keydown', (e) => {
 function flipCard() {
     isFlipped = !isFlipped;
 
-    // Fade out
     cardFront.style.opacity = '0';
     cardBack.style.opacity = '0';
 
@@ -256,7 +407,6 @@ function flipCard() {
         cardFront.classList.toggle('d-none');
         cardBack.classList.toggle('d-none');
 
-        // Fade in
         setTimeout(() => {
             cardFront.style.opacity = '1';
             cardBack.style.opacity = '1';
@@ -264,15 +414,84 @@ function flipCard() {
     }, 200);
 }
 
+// Type mode functionality
+userAnswerInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        e.preventDefault();
+        checkTypedAnswer();
+    }
+});
+
+function checkTypedAnswer() {
+    const userAnswer = userAnswerInput.value.trim();
+
+    if (!userAnswer) {
+        userAnswerInput.classList.add('shake');
+        setTimeout(() => userAnswerInput.classList.remove('shake'), 500);
+        return;
+    }
+
+    // Compare answers (case-insensitive, trimmed)
+    const isCorrect = compareAnswers(userAnswer, correctAnswer);
+    typedAnswerCorrect = isCorrect;
+
+    // Show result
+    document.getElementById('type-question-state').classList.add('d-none');
+    document.getElementById('type-result-state').classList.remove('d-none');
+
+    // Update result display
+    const resultEmoji = document.getElementById('result-emoji');
+    const resultFeedback = document.getElementById('result-feedback');
+    const userAnswerText = document.getElementById('user-answer-text');
+
+    if (isCorrect) {
+        resultEmoji.textContent = '🎉';
+        resultFeedback.innerHTML = '<div class="alert alert-success"><i class="bi bi-check-circle me-2"></i><strong>Correct!</strong> Great job!</div>';
+        flashcard.classList.add('pulse');
+    } else {
+        resultEmoji.textContent = '😔';
+        resultFeedback.innerHTML = '<div class="alert alert-danger"><i class="bi bi-x-circle me-2"></i><strong>Not quite.</strong> Review the correct answer below.</div>';
+        flashcard.classList.add('shake');
+    }
+
+    userAnswerText.textContent = userAnswer;
+
+    setTimeout(() => {
+        flashcard.classList.remove('pulse', 'shake');
+    }, 500);
+}
+
+function compareAnswers(userAnswer, correctAnswer) {
+    // Normalize both answers
+    const normalize = (str) => str.toLowerCase().trim().replace(/[^\w\s]/g, '');
+
+    const normalizedUser = normalize(userAnswer);
+    const normalizedCorrect = normalize(correctAnswer);
+
+    // Exact match
+    if (normalizedUser === normalizedCorrect) return true;
+
+    // Check if user answer contains all significant words from correct answer
+    const correctWords = normalizedCorrect.split(/\s+/).filter(w => w.length > 2);
+    const userWords = normalizedUser.split(/\s+/);
+
+    // If 80% of significant words match, consider it correct
+    const matchCount = correctWords.filter(word => userWords.includes(word)).length;
+    return matchCount >= correctWords.length * 0.8;
+}
+
+function nextCardFromType() {
+    submitAnswer(typedAnswerCorrect);
+}
+
+// Submit answer to server
 async function submitAnswer(correct) {
-    // Visual feedback
     flashcard.classList.add(correct ? 'pulse' : 'shake');
 
     setTimeout(() => {
         flashcard.classList.remove('pulse', 'shake');
     }, 500);
 
-    // Show loading overlay
     const loadingOverlay = document.createElement('div');
     loadingOverlay.className = 'loading-overlay';
     loadingOverlay.innerHTML = `
@@ -289,7 +508,6 @@ async function submitAnswer(correct) {
     }, 300);
 
     try {
-        // Get CSRF token from the form or generate it
         let csrfToken = '{{ csrf_token() }}';
 
         const response = await fetch('{{ url_for("study.answer", deck_id=deck.id) }}', {
@@ -312,7 +530,6 @@ async function submitAnswer(correct) {
         }
     } catch (error) {
         console.error('Error:', error);
-        // Fallback to form submission
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = '{{ url_for("study.answer", deck_id=deck.id) }}';
