@@ -32,7 +32,8 @@ def start(deck_id):
         session['study_settings'] = {
             'deck_id': deck_id,
             'study_mode': form.study_mode.data,
-            'card_limit': form.card_limit.data if form.card_limit.data > 0 else None
+            'card_limit': form.card_limit.data if form.card_limit.data > 0 else None,
+            'interaction_mode': form.interaction_mode.data if hasattr(form, 'interaction_mode') else 'flip'
         }
         return redirect(url_for('study.study_session', deck_id=deck_id))
 
@@ -64,7 +65,8 @@ def study_session(deck_id):
         study_settings = {
             'deck_id': deck_id,
             'study_mode': 'random',
-            'card_limit': None
+            'card_limit': None,
+            'interaction_mode': 'flip'
         }
         session['study_settings'] = study_settings
 
@@ -116,7 +118,8 @@ def study_session(deck_id):
         deck=deck,
         card=current_card,
         progress=progress,
-        session_stats=current_session
+        session_stats=current_session,
+        preferred_mode=study_settings.get('interaction_mode', 'flip')
     )
 
 
