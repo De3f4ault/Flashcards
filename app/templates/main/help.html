@@ -171,58 +171,25 @@
 
                     <h5 class="fw-bold">I found a bug or have a feature request</h5>
                     <p class="text-muted mb-0">
-                        We'd love to hear from you! Please contact our support team with details about
-                        any issues or suggestions you have.
+                        Please contact our support team with details about the issue or your feature suggestion.
+                        We appreciate your feedback and are constantly working to improve FlashCards.
                     </p>
                 </div>
             </div>
         </section>
 
-        <!-- Contact -->
-        <div class="card bg-light">
-            <div class="card-body text-center">
-                <h5 class="fw-bold mb-3">Still need help?</h5>
-                <p class="text-muted mb-3">
-                    Can't find what you're looking for? Our support team is here to help.
-                </p>
-                <a href="mailto:support@flashcards.com" class="btn btn-primary">
-                    <i class="bi bi-envelope me-2"></i>Contact Support
-                </a>
+        <!-- Contact Support -->
+        <section class="mb-5">
+            <div class="card bg-light">
+                <div class="card-body text-center py-4">
+                    <h4 class="fw-bold mb-3">Still Need Help?</h4>
+                    <p class="text-muted mb-3">Our support team is here to assist you with any questions or issues.</p>
+                    <a href="mailto:support@flashcards.com" class="btn btn-primary">
+                        <i class="bi bi-envelope me-2"></i>Contact Support
+                    </a>
+                </div>
             </div>
-        </div>
-    </div>
-</div>
-{% endblock %}
-
-<style>
-.sticky-top {
-    z-index: 1020;
-}
-
-@media (max-width: 991.98px) {
-    .sticky-top {
-        position: relative !important;
-        top: auto !important;
-    }
-}
-</style>3">
-                <a href="{{ url_for('decks.create_card', deck_id=deck.id) }}" class="btn btn-primary">
-                    <i class="bi bi-plus-circle me-2"></i>Add First Card
-                </a>
-                <a href="{{ url_for('decks.bulk_create_cards', deck_id=deck.id) }}" class="btn btn-outline-primary">
-                    <i class="bi bi-stack me-2"></i>Bulk Import
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-{% endif %}
-
-<div class="row mt-4">
-    <div class="col-12 text-center">
-        <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-left me-2"></i>Back to Deck
-        </a>
+        </section>
     </div>
 </div>
 {% endblock %}
