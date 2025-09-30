@@ -6,6 +6,7 @@ from app.forms import (
 )
 from app.services import DeckService, StudyService
 from app.config import Config
+from app.models import Deck, Flashcard
 
 decks_bp = Blueprint('decks', __name__)
 
@@ -91,7 +92,7 @@ def create():
     return render_template('decks/create.html', title='Create Deck', form=form)
 
 
-@decks_bp.route('/<int:id>')
+@decks_bp.route('/<int:id>', methods=['GET', 'POST'])
 def view(id):
     """View deck details"""
     deck = DeckService.get_or_404(id)
@@ -132,11 +133,8 @@ def view(id):
 @login_required
 def edit(id):
     """Edit deck"""
-    deck = DeckService.get_or_404(id)
-
-    # Check ownership
-    if not DeckService.user_owns_deck(deck, current_user.id):
-        abort(403)
+    # Secure lookup: only get deck if it belongs to current user
+    deck = Deck.query.filter_by(id=id, user_id=current_user.id).first_or_404()
 
     form = DeckForm()
 
@@ -163,11 +161,8 @@ def edit(id):
 @login_required
 def delete(id):
     """Delete deck"""
-    deck = DeckService.get_or_404(id)
-
-    # Check ownership
-    if not DeckService.user_owns_deck(deck, current_user.id):
-        abort(403)
+    # Secure lookup: only get deck if it belongs to current user
+    deck = Deck.query.filter_by(id=id, user_id=current_user.id).first_or_404()
 
     form = ConfirmationForm()
 
@@ -216,11 +211,8 @@ def duplicate(id):
 @login_required
 def cards(deck_id):
     """List all cards in a deck"""
-    deck = DeckService.get_or_404(deck_id)
-
-    # Check access permissions
-    if not DeckService.user_can_access_deck(deck, current_user.id):
-        abort(403)
+    # Secure lookup: only get deck if it belongs to current user
+    deck = Deck.query.filter_by(id=deck_id, user_id=current_user.id).first_or_404()
 
     page = request.args.get('page', 1, type=int)
     cards = StudyService.get_deck_cards(deck_id)
@@ -249,11 +241,8 @@ def cards(deck_id):
 @login_required
 def create_card(deck_id):
     """Create new flashcard"""
-    deck = DeckService.get_or_404(deck_id)
-
-    # Check ownership
-    if not DeckService.user_owns_deck(deck, current_user.id):
-        abort(403)
+    # Secure lookup: only get deck if it belongs to current user
+    deck = Deck.query.filter_by(id=deck_id, user_id=current_user.id).first_or_404()
 
     form = FlashcardForm()
 
@@ -278,11 +267,8 @@ def create_card(deck_id):
 @login_required
 def bulk_create_cards(deck_id):
     """Bulk create flashcards"""
-    deck = DeckService.get_or_404(deck_id)
-
-    # Check ownership
-    if not DeckService.user_owns_deck(deck, current_user.id):
-        abort(403)
+    # Secure lookup: only get deck if it belongs to current user
+    deck = Deck.query.filter_by(id=deck_id, user_id=current_user.id).first_or_404()
 
     form = BulkFlashcardForm()
 
@@ -303,16 +289,15 @@ def bulk_create_cards(deck_id):
     )
 
 
-@decks_bp.route('/cards/<int:id>/edit', methods=['GET', 'POST'])
+@decks_bp.route('/<int:deck_id>/cards/<int:card_id>/edit', methods=['GET', 'POST'])
 @login_required
-def edit_card(id):
+def edit_card(deck_id, card_id):
     """Edit flashcard"""
-    card = StudyService.get_or_404(id)
-    deck = DeckService.get_or_404(card.deck_id)
+    # Secure lookup: first verify deck ownership
+    deck = Deck.query.filter_by(id=deck_id, user_id=current_user.id).first_or_404()
 
-    # Check ownership
-    if not DeckService.user_owns_deck(deck, current_user.id):
-        abort(403)
+    # Then verify card belongs to this deck
+    card = Flashcard.query.filter_by(id=card_id, deck_id=deck.id).first_or_404()
 
     form = FlashcardForm()
 
@@ -338,17 +323,20 @@ def edit_card(id):
     )
 
 
-@decks_bp.route('/cards/<int:id>/delete', methods=['POST'])
+@decks_bp.route('/<int:deck_id>/cards/<int:card_id>/delete', methods=['POST', 'GET'])
 @login_required
-def delete_card(id):
+def delete_card(deck_id, card_id):
     """Delete flashcard"""
-    card = StudyService.get_or_404(id)
-    deck = DeckService.get_or_404(card.deck_id)
+    # Secure lookup: first verify deck ownership
+    deck = Deck.query.filter_by(id=deck_id, user_id=current_user.id).first_or_404()
 
-    # Check ownership
-    if not DeckService.user_owns_deck(deck, current_user.id):
-        abort(403)
+    # Then verify card belongs to this deck
+    card = Flashcard.query.filter_by(id=card_id, deck_id=deck.id).first_or_404()
 
-    StudyService.delete(card)
-    flash('Flashcard deleted successfully!', 'success')
-    return redirect(url_for('decks.view', id=deck.id))
+    if request.method == 'POST':
+        StudyService.delete(card)
+        flash('Flashcard deleted successfully!', 'success')
+        return redirect(url_for('decks.view', id=deck.id))
+
+    # Optional: confirmation page for GET
+    return render_template('decks/delete_card.html', title='Delete Card', deck=deck, card=card)
