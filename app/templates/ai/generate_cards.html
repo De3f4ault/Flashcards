@@ -10,9 +10,6 @@
                     <h4 class="card-title mb-0">
                         <i class="bi bi-stars me-2"></i>Generate Cards with AI
                     </h4>
-                    <span class="badge bg-white text-primary">
-                        {{ current_user.get_ai_credits_display() }} credits
-                    </span>
                 </div>
                 <div class="small mt-2">{{ deck.name }}</div>
             </div>
@@ -48,9 +45,6 @@
                             {% for error in form.card_count.errors %}
                                 <div class="invalid-feedback">{{ error }}</div>
                             {% endfor %}
-                            <div class="form-text">
-                                <span id="credits-cost">Cost: 10 credits</span>
-                            </div>
                         </div>
 
                         <div class="col-md-6 mb-4">
@@ -135,17 +129,8 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const cardCountSelect = document.getElementById('card_count');
-    const costDisplay = document.getElementById('credits-cost');
     const submitBtn = document.getElementById('submit-btn');
     const form = document.getElementById('generate-form');
-
-    // Update cost display when card count changes
-    cardCountSelect.addEventListener('change', function() {
-        const count = parseInt(this.value);
-        const cost = count;  // 1 credit per card
-        costDisplay.textContent = `Cost: ${cost} credit${cost !== 1 ? 's' : ''}`;
-    });
 
     // Show loading state on submit
     form.addEventListener('submit', function() {

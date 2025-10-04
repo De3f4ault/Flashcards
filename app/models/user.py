@@ -13,8 +13,7 @@ class User(UserMixin, BaseModel):
     is_active = db.Column(db.Boolean, default=True, nullable=False)
 
     # AI Features
-    ai_enabled = db.Column(db.Boolean, default=False, nullable=False)
-    ai_credits = db.Column(db.Integer, default=100, nullable=True)  # None = unlimited
+    ai_enabled = db.Column(db.Boolean, default=True, nullable=False)  # Changed default to True
     ai_provider = db.Column(db.String(20), default='gemini', nullable=True)
 
     # Relationships
@@ -41,10 +40,4 @@ class User(UserMixin, BaseModel):
 
     def has_ai_access(self):
         """Check if user has access to AI features"""
-        return self.ai_enabled and (self.ai_credits is None or self.ai_credits > 0)
-
-    def get_ai_credits_display(self):
-        """Get display string for AI credits"""
-        if self.ai_credits is None:
-            return "Unlimited"
-        return str(self.ai_credits)
+        return self.ai_enabled

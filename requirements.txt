@@ -1,12 +1,12 @@
-Flask==2.3.3
-Flask-SQLAlchemy==3.0.5
-Flask-Migrate==4.0.5
-Flask-Login==0.6.3
-Flask-WTF==1.1.1
-WTForms==3.0.1
-Werkzeug==2.3.7
-python-dotenv==1.0.0
-email-validator==2.0.0
+Flask
+Flask-SQLAlchemy
+Flask-Migrate
+Flask-Login
+Flask-WTF
+WTForms
+Werkzeug
+python-dotenv
+email-validator
 
 # AI Integration
 google-generativeai==0.3.2
