@@ -71,31 +71,6 @@ class AIService:
         return request_count >= Config.AI_RATE_LIMIT_PER_HOUR
 
     @staticmethod
-    def _check_user_credits(user_id: int) -> bool:
-        """Check if user has AI credits available"""
-        from app.models.user import User
-        user = User.query.get(user_id)
-
-        if not user:
-            return False
-
-        # If credits are None or > 0, allow
-        if user.ai_credits is None or user.ai_credits > 0:
-            return True
-
-        return False
-
-    @staticmethod
-    def _deduct_credits(user_id: int, amount: int = 1):
-        """Deduct AI credits from user account"""
-        from app.models.user import User
-        user = User.query.get(user_id)
-
-        if user and user.ai_credits is not None:
-            user.ai_credits = max(0, user.ai_credits - amount)
-            db.session.commit()
-
-    @staticmethod
     def generate_flashcards(
         topic: str,
         count: int = 10,
@@ -123,9 +98,6 @@ class AIService:
         if not AIService.is_available(user_id):
             return []
 
-        if user_id and not AIService._check_user_credits(user_id):
-            return []
-
         # Limit count
         count = min(count, Config.AI_MAX_CARDS_PER_GENERATION)
 
@@ -145,7 +117,6 @@ class AIService:
                     tokens_used=provider.estimate_tokens(topic) * count,
                     success=True
                 )
-                AIService._deduct_credits(user_id, amount=count)
 
             return cards
 
@@ -187,9 +158,6 @@ class AIService:
         if not AIService.is_available(user_id):
             return None
 
-        if user_id and not AIService._check_user_credits(user_id):
-            return None
-
         try:
             provider = AIService._get_provider()
             result = provider.enhance_card(front_text, back_text, enhancement_type)
@@ -202,8 +170,6 @@ class AIService:
                     tokens_used=provider.estimate_tokens(front_text + back_text),
                     success=result is not None
                 )
-                if result:
-                    AIService._deduct_credits(user_id, amount=1)
 
             return result
 
@@ -244,9 +210,6 @@ class AIService:
         if not AIService.is_available(user_id):
             return "AI hints are not available."
 
-        if user_id and not AIService._check_user_credits(user_id):
-            return "You've run out of AI credits."
-
         try:
             provider = AIService._get_provider()
             hint = provider.generate_hint(card_front, card_back, previous_attempts)
@@ -259,8 +222,6 @@ class AIService:
                     tokens_used=provider.estimate_tokens(card_front + card_back),
                     success=bool(hint)
                 )
-                if hint:
-                    AIService._deduct_credits(user_id, amount=1)
 
             return hint
 
@@ -301,9 +262,6 @@ class AIService:
         if not AIService.is_available(user_id):
             return []
 
-        if user_id and not AIService._check_user_credits(user_id):
-            return []
-
         try:
             provider = AIService._get_provider()
             tags = provider.suggest_tags(card_front, card_back, max_tags)
@@ -316,7 +274,6 @@ class AIService:
                     tokens_used=provider.estimate_tokens(card_front + card_back),
                     success=bool(tags)
                 )
-                # Don't deduct credits for tag suggestions (lightweight operation)
 
             return tags
 
@@ -354,7 +311,6 @@ class AIService:
 
         return {
             'ai_enabled': user.ai_enabled,
-            'ai_credits': user.ai_credits,
             'usage_by_operation': usage_stats,
             'total_requests': sum(op['count'] for op in usage_stats.values()),
             'rate_limit_status': {

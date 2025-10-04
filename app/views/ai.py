@@ -17,8 +17,8 @@ def check_ai_access():
         flash('AI features are currently unavailable.', 'warning')
         abort(403)
 
-    if not current_user.has_ai_access():
-        flash('You need to enable AI features in your profile to use this.', 'warning')
+    if not current_user.ai_enabled:
+        flash('AI features are disabled. Please enable them in your profile.', 'warning')
         abort(403)
 
 
