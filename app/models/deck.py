@@ -79,8 +79,8 @@ class Deck(BaseModel):
             search_term = f"%{query.lower()}%"
             cards_query = cards_query.filter(
                 or_(
-                    func.lower(Flashcard.front).like(search_term),
-                    func.lower(Flashcard.back).like(search_term)
+                    func.lower(Flashcard.front_text).like(search_term),
+                    func.lower(Flashcard.back_text).like(search_term)
                 )
             )
 
@@ -155,8 +155,8 @@ class Deck(BaseModel):
         sort_options = {
             'created_desc': Flashcard.created_at.desc(),
             'created_asc': Flashcard.created_at.asc(),
-            'alpha_asc': Flashcard.front.asc(),
-            'alpha_desc': Flashcard.front.desc(),
+            'alpha_asc': Flashcard.front_text.asc(),
+            'alpha_desc': Flashcard.front_text.desc(),
             'accuracy_high': accuracy.desc(),
             'accuracy_low': accuracy.asc(),
             'studied_most': Flashcard.times_studied.desc(),

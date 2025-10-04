@@ -12,6 +12,11 @@ class User(UserMixin, BaseModel):
     password_hash = db.Column(db.String(255), nullable=False)
     is_active = db.Column(db.Boolean, default=True, nullable=False)
 
+    # AI Features
+    ai_enabled = db.Column(db.Boolean, default=False, nullable=False)
+    ai_credits = db.Column(db.Integer, default=100, nullable=True)  # None = unlimited
+    ai_provider = db.Column(db.String(20), default='gemini', nullable=True)
+
     # Relationships
     decks = db.relationship('Deck', backref='owner', lazy=True, cascade='all, delete-orphan')
 
@@ -33,3 +38,13 @@ class User(UserMixin, BaseModel):
     def get_total_cards(self):
         """Get total number of cards across all decks"""
         return sum(len(deck.flashcards) for deck in self.decks)
+
+    def has_ai_access(self):
+        """Check if user has access to AI features"""
+        return self.ai_enabled and (self.ai_credits is None or self.ai_credits > 0)
+
+    def get_ai_credits_display(self):
+        """Get display string for AI credits"""
+        if self.ai_credits is None:
+            return "Unlimited"
+        return str(self.ai_credits)

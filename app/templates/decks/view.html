@@ -41,6 +41,14 @@
                             <li><a class="dropdown-item" href="{{ url_for('decks.bulk_create_cards', deck_id=deck.id) }}">
                                 <i class="bi bi-stack me-2"></i>Bulk Import
                             </a></li>
+
+                            {% if current_user.has_ai_access() %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-primary" href="{{ url_for('ai.generate_cards', deck_id=deck.id) }}">
+                                <i class="bi bi-stars me-2"></i>Generate Cards with AI
+                            </a></li>
+                            {% endif %}
+
                             <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item text-danger" href="{{ url_for('decks.delete', id=deck.id) }}">
                                 <i class="bi bi-trash me-2"></i>Delete Deck
@@ -66,6 +74,44 @@
         </div>
     </div>
 </div>
+
+<!-- AI Generation Card (Only show if user owns deck and has AI access) -->
+{% if current_user.is_authenticated and deck.user_id == current_user.id and current_user.has_ai_access() %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-primary">
+            <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="card-title mb-0">
+                        <i class="bi bi-stars me-2"></i>AI-Powered Card Generation
+                    </h6>
+                    <span class="badge bg-white text-primary">
+                        {{ current_user.get_ai_credits_display() }} credits
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <p class="mb-2">
+                            <strong>Generate flashcards instantly using AI!</strong>
+                        </p>
+                        <p class="small text-muted mb-0">
+                            Just provide a topic, and AI will create multiple study cards for you.
+                            Perfect for quickly building decks on any subject.
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                        <a href="{{ url_for('ai.generate_cards', deck_id=deck.id) }}" class="btn btn-primary">
+                            <i class="bi bi-magic me-2"></i>Generate Cards
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
 
 <!-- Statistics Cards -->
 <div class="row mb-4">
@@ -199,6 +245,11 @@
                             <div class="d-flex justify-content-between align-items-start mb-2">
                                 <strong class="small">Front:</strong>
                                 <div class="d-flex gap-1">
+                                    {% if card.ai_generated %}
+                                        <span class="badge bg-gradient" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" title="AI Generated">
+                                            <i class="bi bi-stars"></i> AI
+                                        </span>
+                                    {% endif %}
                                     <span class="badge {{ difficulty_badge_class(card.difficulty) }}">
                                         {{ difficulty_label(card.difficulty) }}
                                     </span>

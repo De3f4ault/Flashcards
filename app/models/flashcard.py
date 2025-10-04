@@ -13,7 +13,7 @@ class Flashcard(BaseModel):
     times_studied = db.Column(db.Integer, default=0)
     times_correct = db.Column(db.Integer, default=0)
 
-    # ========== NEW: SM-2 SPACED REPETITION FIELDS ==========
+    # ========== SM-2 SPACED REPETITION FIELDS ==========
     ease_factor = db.Column(db.Float, default=2.5)  # How "easy" card is (1.3-3.0)
     interval = db.Column(db.Integer, default=0)  # Days until next review
     repetitions = db.Column(db.Integer, default=0)  # Consecutive correct answers
@@ -21,11 +21,36 @@ class Flashcard(BaseModel):
     last_reviewed = db.Column(db.DateTime, nullable=True)
     learning_state = db.Column(db.String(20), default='new')  # new/learning/review/mastered
 
+    # ========== AI FEATURES FIELDS ==========
+    ai_generated = db.Column(db.Boolean, default=False, nullable=False)
+    generation_prompt = db.Column(db.Text, nullable=True)  # Store the prompt that generated this card
+    ai_provider = db.Column(db.String(20), nullable=True)  # Which AI generated it (gemini, openai, etc.)
+
     # Foreign Keys
     deck_id = db.Column(db.Integer, db.ForeignKey('decks.id'), nullable=False)
 
     def __repr__(self):
         return f'<Flashcard {self.front_text[:20]}...>'
+
+    # ========== PROPERTY ACCESSORS (for backward compatibility) ==========
+
+    @property
+    def front(self):
+        """Alias for front_text (backward compatibility)"""
+        return self.front_text
+
+    @front.setter
+    def front(self, value):
+        self.front_text = value
+
+    @property
+    def back(self):
+        """Alias for back_text (backward compatibility)"""
+        return self.back_text
+
+    @back.setter
+    def back(self, value):
+        self.back_text = value
 
     # ========== ORIGINAL METHODS (Preserved) ==========
 
@@ -53,7 +78,7 @@ class Flashcard(BaseModel):
         elif accuracy < 50 and self.difficulty > 1:
             self.difficulty -= 1
 
-    # ========== NEW: SM-2 SPACED REPETITION METHODS ==========
+    # ========== SM-2 SPACED REPETITION METHODS ==========
 
     def is_due_for_review(self):
         """Check if card is due for review today"""
@@ -209,6 +234,11 @@ class Flashcard(BaseModel):
             'next_review_date': self.next_review_date.isoformat() if self.next_review_date else None,
             'last_reviewed': self.last_reviewed.isoformat() if self.last_reviewed else None,
             'learning_state': self.learning_state,
+
+            # AI fields
+            'ai_generated': self.ai_generated,
+            'generation_prompt': self.generation_prompt,
+            'ai_provider': self.ai_provider,
 
             # Computed fields
             'is_due': self.is_due_for_review(),

@@ -2,6 +2,8 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, logout_user, current_user
 from app.forms import LoginForm, RegistrationForm, ChangePasswordForm, ProfileForm
 from app.services import AuthService
+from app.extensions import db
+from app.config import Config
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -122,3 +124,35 @@ def account():
     }
 
     return render_template('auth/account.html', title='Account', stats=user_stats)
+
+
+# ============================================================================
+# NEW: AI FEATURES MANAGEMENT
+# ============================================================================
+
+@auth_bp.route('/toggle-ai', methods=['POST'])
+@login_required
+def toggle_ai():
+    """Toggle AI features for the current user"""
+
+    # Check if AI is globally enabled
+    if not Config.AI_ENABLED:
+        flash('AI features are not available at this time.', 'warning')
+        return redirect(url_for('auth.profile'))
+
+    # Toggle AI status
+    current_user.ai_enabled = not current_user.ai_enabled
+
+    # If enabling AI and user has no credits, give them free credits
+    if current_user.ai_enabled and current_user.ai_credits == 0:
+        current_user.ai_credits = Config.AI_FREE_CREDITS_PER_USER
+
+    # Save changes
+    db.session.commit()
+
+    if current_user.ai_enabled:
+        flash(f'AI features enabled! You have {current_user.get_ai_credits_display()} credits.', 'success')
+    else:
+        flash('AI features have been disabled.', 'info')
+
+    return redirect(url_for('auth.profile'))

@@ -5,6 +5,11 @@ Run this file to start the development server
 """
 
 import os
+from dotenv import load_dotenv
+
+# CRITICAL: Load environment variables from .env file BEFORE importing app
+load_dotenv()
+
 from app import create_app
 
 # Create app instance
