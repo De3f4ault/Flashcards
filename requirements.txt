@@ -7,3 +7,6 @@ WTForms==3.0.1
 Werkzeug==2.3.7
 python-dotenv==1.0.0
 email-validator==2.0.0
+
+# AI Integration
+google-generativeai==0.3.2

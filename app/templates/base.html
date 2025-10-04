@@ -122,6 +122,18 @@
             font-size: 0.875rem;
         }
 
+        .ai-credits-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
         @media (max-width: 768px) {
             .navbar-nav {
                 text-align: center;
@@ -190,6 +202,16 @@
 
                 <ul class="navbar-nav">
                     {% if current_user.is_authenticated %}
+                        <!-- AI Credits Display -->
+                        {% if current_user.ai_enabled %}
+                        <li class="nav-item d-flex align-items-center me-2">
+                            <span class="ai-credits-badge" title="AI Credits">
+                                <i class="bi bi-stars"></i>
+                                {{ current_user.get_ai_credits_display() }}
+                            </span>
+                        </li>
+                        {% endif %}
+
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('auth.profile') }}">
                                 <div class="user-profile">

@@ -1,0 +1,66 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv
+
+# Flask
+instance/
+*.db
+*.db.backup
+.env
+.flaskenv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# OS
+Thumbs.db
+.Spotlight-V100
+.Trashes
+
+# Project specific - DO NOT COMMIT
+flashcards.db
+*.db.backup
+config.py  # If it contains secrets
+
+# Keep these empty directories
+!instance/.gitkeep
+!logs/.gitkeep

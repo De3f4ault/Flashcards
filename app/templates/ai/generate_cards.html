@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-7">
+        <!-- Header Card -->
+        <div class="card border-primary mb-4">
+            <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h4 class="card-title mb-0">
+                        <i class="bi bi-stars me-2"></i>Generate Cards with AI
+                    </h4>
+                    <span class="badge bg-white text-primary">
+                        {{ current_user.get_ai_credits_display() }} credits
+                    </span>
+                </div>
+                <div class="small mt-2">{{ deck.name }}</div>
+            </div>
+            <div class="card-body">
+                <p class="mb-0">
+                    AI will create multiple flashcards based on your topic.
+                    Provide a clear topic or concept, and choose how many cards you want.
+                </p>
+            </div>
+        </div>
+
+        <!-- Generation Form -->
+        <div class="card">
+            <div class="card-body">
+                <form method="POST" id="generate-form">
+                    {{ form.hidden_tag() }}
+
+                    <div class="mb-4">
+                        {{ form.topic.label(class="form-label fw-bold") }}
+                        {{ form.topic(class="form-control form-control-lg" + (" is-invalid" if form.topic.errors else ""), placeholder="e.g., Spanish irregular verbs, Photosynthesis, JavaScript arrays") }}
+                        {% for error in form.topic.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                        <div class="form-text">
+                            Be specific! Example: "French numbers 1-100" instead of just "French"
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            {{ form.card_count.label(class="form-label fw-bold") }}
+                            {{ form.card_count(class="form-select" + (" is-invalid" if form.card_count.errors else "")) }}
+                            {% for error in form.card_count.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                            <div class="form-text">
+                                <span id="credits-cost">Cost: 10 credits</span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            {{ form.difficulty.label(class="form-label fw-bold") }}
+                            {{ form.difficulty(class="form-select" + (" is-invalid" if form.difficulty.errors else "")) }}
+                            {% for error in form.difficulty.errors %}
+                                <div class="invalid-feedback">{{ error }}</div>
+                            {% endfor %}
+                            <div class="form-text">Adjust card complexity</div>
+                        </div>
+                    </div>
+
+                    <!-- Optional: Context/Instructions -->
+                    <div class="mb-4">
+                        {{ form.context.label(class="form-label fw-bold") }}
+                        {{ form.context(class="form-control" + (" is-invalid" if form.context.errors else ""), rows=3, placeholder="e.g., Focus on conjugation patterns, Include examples, Make it beginner-friendly") }}
+                        {% for error in form.context.errors %}
+                            <div class="invalid-feedback">{{ error }}</div>
+                        {% endfor %}
+                        <div class="form-text">Optional: Provide additional context or special instructions</div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-lightbulb me-2"></i>
+                        <strong>Tips for best results:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Be specific with your topic</li>
+                            <li>Start with fewer cards to test the quality</li>
+                            <li>You can always generate more cards later</li>
+                            <li>Review and edit generated cards before studying</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left me-1"></i>Cancel
+                        </a>
+                        {{ form.submit(class="btn btn-primary btn-lg", id="submit-btn") }}
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Example Topics -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-lightbulb me-2"></i>Example Topics
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <div class="border rounded p-2 small">
+                            <strong>Language Learning:</strong><br>
+                            Spanish present tense conjugations
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <div class="border rounded p-2 small">
+                            <strong>Science:</strong><br>
+                            Human body organ systems
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <div class="border rounded p-2 small">
+                            <strong>History:</strong><br>
+                            World War II major events
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <div class="border rounded p-2 small">
+                            <strong>Programming:</strong><br>
+                            Python list methods and usage
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const cardCountSelect = document.getElementById('card_count');
+    const costDisplay = document.getElementById('credits-cost');
+    const submitBtn = document.getElementById('submit-btn');
+    const form = document.getElementById('generate-form');
+
+    // Update cost display when card count changes
+    cardCountSelect.addEventListener('change', function() {
+        const count = parseInt(this.value);
+        const cost = count;  // 1 credit per card
+        costDisplay.textContent = `Cost: ${cost} credit${cost !== 1 ? 's' : ''}`;
+    });
+
+    // Show loading state on submit
+    form.addEventListener('submit', function() {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Generating...';
+    });
+});
+</script>
+{% endblock %}

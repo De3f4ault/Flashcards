@@ -1,4 +1,4 @@
-from app.views import main_bp, auth_bp, decks_bp, study_bp
+from app.views import main_bp, auth_bp, decks_bp, study_bp, ai_bp
 
 
 def register_routes(app):
@@ -15,3 +15,6 @@ def register_routes(app):
 
     # Study session routes
     app.register_blueprint(study_bp, url_prefix='/study')
+
+    # AI features routes
+    app.register_blueprint(ai_bp, url_prefix='/ai')
