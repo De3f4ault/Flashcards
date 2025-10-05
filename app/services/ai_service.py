@@ -290,6 +290,142 @@ class AIService:
             return []
 
     @staticmethod
+    def generate_chat_response(
+        user_message: str,
+        conversation_history: List[Dict] = None,
+        system_prompt: str = None,
+        user_id: int = None
+    ) -> Dict[str, any]:
+        """
+        Generate AI response for chat conversation
+
+        Args:
+            user_message: The user's message
+            conversation_history: Previous messages in the conversation
+            system_prompt: Optional system instructions
+            user_id: User ID for tracking
+
+        Returns:
+            Dict with success status, content, and metadata
+        """
+        if not AIService.is_available(user_id):
+            return {
+                'success': False,
+                'error': 'AI service is not available'
+            }
+
+        try:
+            provider = AIService._get_provider()
+
+            response = provider.generate_chat_response(
+                user_message=user_message,
+                conversation_history=conversation_history or [],
+                system_prompt=system_prompt
+            )
+
+            # Log usage
+            if user_id:
+                AIUsage.log_usage(
+                    user_id=user_id,
+                    operation_type='chat_response',
+                    tokens_used=response.get('tokens_used', 0),
+                    success=True
+                )
+
+            # Return in the format chat_service expects
+            return {
+                'success': True,
+                'content': response.get('text', ''),
+                'tokens_used': response.get('tokens_used', 0),
+                'model': response.get('model', 'unknown')
+            }
+
+        except Exception as e:
+            # Log failure
+            if user_id:
+                AIUsage.log_usage(
+                    user_id=user_id,
+                    operation_type='chat_response',
+                    success=False,
+                    error_message=str(e)
+                )
+
+            print(f"AI generate_chat_response error: {e}")
+            return {
+                'success': False,
+                'error': f'Failed to generate response: {str(e)}'
+            }
+
+    @staticmethod
+    def generate_with_file(
+        prompt: str,
+        file_uri: str,
+        conversation_history: List[Dict] = None,
+        system_prompt: str = None,
+        user_id: int = None
+    ) -> Dict[str, any]:
+        """
+        Generate AI response using a document file as context
+
+        Args:
+            prompt: The user's prompt/question
+            file_uri: URI or path to the uploaded file
+            conversation_history: Previous messages in the conversation
+            system_prompt: Optional system instructions
+            user_id: User ID for tracking
+
+        Returns:
+            Dict with success status, content, and metadata
+        """
+        if not AIService.is_available(user_id):
+            return {
+                'success': False,
+                'error': 'AI service is not available'
+            }
+
+        try:
+            provider = AIService._get_provider()
+
+            response = provider.generate_with_file(
+                prompt=prompt,
+                file_uri=file_uri,
+                conversation_history=conversation_history or [],
+                system_prompt=system_prompt
+            )
+
+            # Log usage
+            if user_id:
+                AIUsage.log_usage(
+                    user_id=user_id,
+                    operation_type='document_chat',
+                    tokens_used=response.get('tokens_used', 0),
+                    success=True
+                )
+
+            return {
+                'success': True,
+                'content': response.get('text', ''),
+                'tokens_used': response.get('tokens_used', 0),
+                'model': response.get('model', 'unknown')
+            }
+
+        except Exception as e:
+            # Log failure
+            if user_id:
+                AIUsage.log_usage(
+                    user_id=user_id,
+                    operation_type='document_chat',
+                    success=False,
+                    error_message=str(e)
+                )
+
+            print(f"AI generate_with_file error: {e}")
+            return {
+                'success': False,
+                'error': f'Failed to generate response with document: {str(e)}'
+            }
+
+    @staticmethod
     def get_user_stats(user_id: int, days: int = 30) -> Dict:
         """
         Get AI usage statistics for a user

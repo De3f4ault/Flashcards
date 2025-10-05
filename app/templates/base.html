@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% if title %}{{ title }} - {% endif %}FlashCards</title>
 
@@ -167,6 +168,23 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{{ url_for('decks.public') }}">
                                 <i class="bi bi-globe me-1"></i>Browse Public
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.endpoint and 'documents' in request.endpoint %}active{% endif %}"
+                               href="{{ url_for('documents.library') }}" title="My Documents">
+                                <i class="bi bi-file-earmark-text me-1"></i>Documents
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.endpoint and 'chat' in request.endpoint %}active{% endif %}"
+                               href="{{ url_for('chat.index') }}" title="AI Chat Assistant">
+                                <i class="bi bi-chat-dots me-1"></i>AI Chat
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('mc_metrics.dashboard') }}" title="Phase 1 Metrics">
+                                <i class="bi bi-graph-up me-1"></i>Metrics
                             </a>
                         </li>
                     {% else %}

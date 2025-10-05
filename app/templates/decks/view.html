@@ -108,6 +108,45 @@
 </div>
 {% endif %}
 
+<!-- MC Questions Section (NEW) -->
+{% if current_user.is_authenticated and deck.user_id == current_user.id and current_user.has_ai_access() %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-success">
+            <div class="card-header bg-success text-white">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-check2-square me-2"></i>Multiple Choice Questions
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <p class="mb-2">
+                            <strong>Test your knowledge with MC questions!</strong>
+                        </p>
+                        <p class="small text-muted mb-0">
+                            Generate multiple choice questions with AI, complete with explanations for common misconceptions. Perfect for exam preparation.
+                        </p>
+                    </div>
+                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('mc_generation.generate_request', deck_id=deck.id) }}"
+                               class="btn btn-success">
+                                <i class="bi bi-stars me-1"></i>Generate MC Questions
+                            </a>
+                            <a href="{{ url_for('mc_study.start', deck_id=deck.id) }}"
+                               class="btn btn-outline-success">
+                                <i class="bi bi-play-circle me-1"></i>Study MC Questions
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <!-- Statistics Cards -->
 <div class="row mb-4">
     <div class="col-md-3 mb-3">
@@ -261,6 +300,50 @@
                             </div>
                             <div class="small text-muted mt-2">
                                 <i class="bi bi-eye me-1"></i>Studied {{ card.times_studied }} times
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+<!-- MC Cards Preview (NEW) -->
+{% if mc_cards %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-success">
+            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                <h6 class="card-title mb-0">
+                    <i class="bi bi-check2-square me-2"></i>Multiple Choice Questions ({{ mc_card_count }})
+                </h6>
+                <a href="{{ url_for('mc_study.start', deck_id=deck.id) }}" class="btn btn-light btn-sm">
+                    Study All MC Questions
+                </a>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for card in mc_cards %}
+                    <div class="col-md-6 mb-3">
+                        <div class="border border-success rounded p-3">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <small class="text-muted">Q{{ loop.index }}</small>
+                                <div class="d-flex gap-1">
+                                    <span class="badge bg-success">Difficulty: {{ card.difficulty }}/5</span>
+                                    {% set stats = card.get_accuracy_stats() %}
+                                    {% if stats.times_attempted > 0 %}
+                                        <span class="badge bg-info">{{ stats.accuracy }}% correct</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="fw-bold mb-2">{{ card.question_text|truncate(80) }}</div>
+                            <div class="small">
+                                <div class="text-success">✓ {{ card.get_choices_dict()[card.correct_answer]|truncate(60) }}</div>
+                            </div>
+                            <div class="small text-muted mt-2">
+                                <i class="bi bi-eye me-1"></i>Attempted {{ stats.times_attempted }} times
                             </div>
                         </div>
                     </div>

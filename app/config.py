@@ -22,7 +22,7 @@ class Config:
     DECKS_PER_PAGE = 12
 
     # AI Configuration
-    AI_ENABLED = os.environ.get('AI_ENABLED', 'true').lower() == 'true'  # Changed default to 'true'
+    AI_ENABLED = os.environ.get('AI_ENABLED', 'true').lower() == 'true'
     AI_PROVIDER = os.environ.get('AI_PROVIDER', 'gemini')
     GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY')
     OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY')  # Optional fallback
@@ -37,6 +37,15 @@ class Config:
     AI_CARD_ENHANCEMENT_ENABLED = os.environ.get('AI_CARD_ENHANCEMENT_ENABLED', 'true').lower() == 'true'
     AI_HINT_GENERATION_ENABLED = os.environ.get('AI_HINT_GENERATION_ENABLED', 'true').lower() == 'true'
     AI_TAG_SUGGESTIONS_ENABLED = os.environ.get('AI_TAG_SUGGESTIONS_ENABLED', 'false').lower() == 'true'
+
+    # Document Upload Configuration (NEW)
+    UPLOAD_FOLDER = os.path.join(project_root, 'uploads', 'documents')
+    MAX_CONTENT_LENGTH = 50 * 1024 * 1024  # 50MB max file size
+    ALLOWED_DOCUMENT_EXTENSIONS = {'pdf', 'txt', 'epub', 'docx'}
+
+    # Gemini File API Configuration (NEW)
+    GEMINI_FILE_API_ENABLED = os.environ.get('GEMINI_FILE_API_ENABLED', 'true').lower() == 'true'
+    GEMINI_FILE_CACHE_DURATION = 48  # hours - Gemini's cache limit
 
 
 class DevelopmentConfig(Config):

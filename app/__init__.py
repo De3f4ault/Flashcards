@@ -1,7 +1,8 @@
 import os
 from flask import Flask
+from flask_wtf.csrf import generate_csrf
 from app.config import config
-from app.extensions import db, migrate, login_manager, csrf  # Add csrf here
+from app.extensions import db, migrate, login_manager, csrf
 from app.routes import register_routes
 from app.utils.helpers import (
     format_datetime, time_ago, truncate_text,
@@ -21,7 +22,16 @@ def create_app(config_name=None):
     db.init_app(app)
     migrate.init_app(app)
     login_manager.init_app(app)
-    csrf.init_app(app)  # Add this line
+    csrf.init_app(app)
+
+    # Make csrf_token() function available in all templates
+    @app.context_processor
+    def inject_csrf_token():
+        return dict(csrf_token=generate_csrf)
+
+    # Exempt chat JSON endpoints from CSRF (they use JSON, not forms)
+    csrf.exempt('chat.send_message')
+    csrf.exempt('documents.delete')
 
     # Register routes
     register_routes(app)

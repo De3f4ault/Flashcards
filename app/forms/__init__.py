@@ -22,6 +22,19 @@ from app.forms.base_forms import (
     PaginationForm
 )
 
+from app.forms.mc_generation_forms import (
+    MCGenerationRequestForm,
+    MCQuestionEditForm,
+    MCManualCreateForm
+)
+
+from app.forms.mc_study_forms import (
+    MCSessionStartForm,
+    MCAnswerSubmitForm,
+    MCFeedbackContinueForm,
+    MCSessionFilterForm
+)
+
 __all__ = [
     # Auth forms
     'LoginForm',
@@ -42,5 +55,16 @@ __all__ = [
     'BaseForm',
     'SearchForm',
     'ConfirmationForm',
-    'PaginationForm'
+    'PaginationForm',
+
+    # MC Generation forms
+    'MCGenerationRequestForm',
+    'MCQuestionEditForm',
+    'MCManualCreateForm',
+
+    # MC Study forms
+    'MCSessionStartForm',
+    'MCAnswerSubmitForm',
+    'MCFeedbackContinueForm',
+    'MCSessionFilterForm'
 ]

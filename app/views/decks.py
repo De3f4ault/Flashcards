@@ -1,3 +1,4 @@
+from app.models import Deck, Flashcard, MCCard
 from flask import Blueprint, render_template, redirect, url_for, flash, request, abort, jsonify
 from flask_login import login_required, current_user
 from app.forms import (
@@ -111,6 +112,11 @@ def view(id):
     difficulty_dist = DeckService.get_deck_difficulty_distribution(id)
     study_stats = StudyService.get_study_statistics(deck.id)
 
+    # Get MC cards for this deck
+    from app.models import MCCard
+    mc_cards_list = MCCard.query.filter_by(deck_id=id).order_by(MCCard.created_at.desc()).limit(6).all()
+    mc_card_count = MCCard.query.filter_by(deck_id=id).count()
+
     # Quick add form for owners
     quick_form = None
     if current_user.is_authenticated and DeckService.user_owns_deck(deck, current_user.id):
@@ -132,9 +138,10 @@ def view(id):
         stats=stats,
         difficulty_dist=difficulty_dist,
         study_stats=study_stats,
-        quick_form=quick_form
+        quick_form=quick_form,
+        mc_cards=mc_cards_list,
+        mc_card_count=mc_card_count
     )
-
 
 @decks_bp.route('/<int:id>/edit', methods=['GET', 'POST'])
 @login_required
