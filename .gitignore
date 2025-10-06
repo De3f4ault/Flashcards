@@ -64,3 +64,4 @@ config.py  # If it contains secrets
 # Keep these empty directories
 !instance/.gitkeep
 !logs/.gitkeep
+.env
