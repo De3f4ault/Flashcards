@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="padding-top: 100px; padding-bottom: 60px;">
+    <div style="max-width: 1200px; margin: 0 auto;">
+        <!-- Header -->
+        <div style="margin-bottom: var(--space-2xl);">
+            <h1 style="font-size: var(--font-size-3xl); font-weight: var(--font-weight-bold); margin-bottom: var(--space-xs); display: flex; align-items: center; gap: 12px;">
+                📈 Phase 1 Metrics Dashboard
+            </h1>
+            <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: var(--radius-lg); padding: var(--space-sm); margin-top: var(--space-md); color: var(--color-info); display: inline-block;">
+                Showing metrics for the last <strong>{{ days }} days</strong>
+            </div>
+        </div>
+
+        <!-- Technical Success -->
+        <div style="background: var(--color-bg-secondary); border: 2px solid {% if metrics.technical_success.passing %}var(--color-success){% else %}var(--color-danger){% endif %}; border-radius: var(--radius-lg); margin-bottom: var(--space-lg); overflow: hidden;">
+            <div style="background: {% if metrics.technical_success.passing %}var(--color-success){% else %}var(--color-danger){% endif %}; padding: var(--space-md); color: white;">
+                <h5 style="margin: 0; font-weight: var(--font-weight-bold); display: flex; align-items: center; gap: 8px;">
+                    {% if metrics.technical_success.passing %}✓{% else %}✗{% endif %}
+                    Technical Success - {{ metrics.technical_success.success_rate }}% (Target: {{ metrics.technical_success.target }}%)
+                </h5>
+            </div>
+            <div style="padding: var(--space-xl);">
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-lg); margin-bottom: var(--space-lg); text-align: center;">
+                    <div>
+                        <h3 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-extrabold); color: var(--color-text-primary); margin-bottom: 4px;">
+                            {{ metrics.technical_success.total_requests }}
+                        </h3>
+                        <p style="color: var(--color-text-muted); margin: 0;">Total Requests</p>
+                    </div>
+                    <div>
+                        <h3 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-extrabold); color: var(--color-success); margin-bottom: 4px;">
+                            {{ metrics.technical_success.successful }}
+                        </h3>
+                        <p style="color: var(--color-text-muted); margin: 0;">Successful</p>
+                    </div>
+                    <div>
+                        <h3 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-extrabold); color: var(--color-danger); margin-bottom: 4px;">
+                            {{ metrics.technical_success.failed }}
+                        </h3>
+                        <p style="color: var(--color-text-muted); margin: 0;">Failed</p>
+                    </div>
+                </div>
+                <div style="height: 30px; background: var(--overlay-medium); border-radius: 15px; overflow: hidden;">
+                    <div style="height: 100%; background: var(--color-success); width: {{ metrics.technical_success.success_rate }}%; display: flex; align-items: center; justify-content: center; color: white; font-weight: var(--font-weight-bold); transition: width 0.5s ease;">
+                        {{ metrics.technical_success.success_rate }}%
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quality Metrics -->
+        <div style="background: var(--color-bg-secondary); border: 2px solid {% if metrics.quality.passing %}var(--color-success){% else %}var(--color-warning){% endif %}; border-radius: var(--radius-lg); margin-bottom: var(--space-lg); overflow: hidden;">
+            <div style="background: {% if metrics.quality.passing %}var(--color-success){% else %}var(--color-warning){% endif %}; padding: var(--space-md); color: white;">
+                <h5 style="margin: 0; font-weight: var(--font-weight-bold); display: flex; align-items: center; gap: 8px;">
+                    {% if metrics.quality.passing %}✓{% else %}✗{% endif %}
+                    Question Quality
+                </h5>
+            </div>
+            <div style="padding: var(--space-xl);">
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-md); margin-bottom: var(--space-lg); text-align: center;">
+                    <div>
+                        <h3 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-extrabold); color: var(--color-text-primary); margin-bottom: 4px;">
+                            {{ metrics.quality.total_questions_generated }}
+                        </h3>
+                        <p style="color: var(--color-text-muted); margin: 0; font-size: var(--font-size-sm);">Total Generated</p>
+                    </div>
+                    <div>
+                        <h3 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-extrabold); color: var(--color-success); margin-bottom: 4px;">
+                            {{ metrics.quality.accepted }}
+                        </h3>
+                        <p style="color: var(--color-text-muted); margin: 0; font-size: var(--font-size-sm);">Accepted</p>
+                    </div>
+                    <div>
+                        <h3 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-extrabold); color: var(--color-warning); margin-bottom: 4px;">
+                            {{ metrics.quality.edited }}
+                        </h3>
+                        <p style="color: var(--color-text-muted); margin: 0; font-size: var(--font-size-sm);">Edited</p>
+                    </div>
+                    <div>
+                        <h3 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-extrabold); color: var(--color-danger); margin-bottom: 4px;">
+                            {{ metrics.quality.total_questions_generated - metrics.quality.accepted }}
+                        </h3>
+                        <p style="color: var(--color-text-muted); margin: 0; font-size: var(--font-size-sm);">Deleted</p>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: var(--space-md);">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <strong style="color: var(--color-text-secondary);">Acceptance Rate: {{ metrics.quality.acceptance_rate }}%</strong>
+                        <span style="color: var(--color-text-tertiary); font-size: var(--font-size-sm);">Target: {{ metrics.quality.target_acceptance }}%</span>
+                    </div>
+                    <div style="height: 25px; background: var(--overlay-medium); border-radius: 12px; overflow: hidden;">
+                        <div style="height: 100%; background: {% if metrics.quality.acceptance_rate >= metrics.quality.target_acceptance %}var(--color-success){% else %}var(--color-warning){% endif %}; width: {{ metrics.quality.acceptance_rate }}%; display: flex; align-items: center; justify-content: center; color: white; font-weight: var(--font-weight-bold); font-size: var(--font-size-sm); transition: width 0.5s ease;">
+                            {{ metrics.quality.acceptance_rate }}%
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <strong style="color: var(--color-text-secondary);">Edit Rate: {{ metrics.quality.edit_rate }}%</strong>
+                        <span style="color: var(--color-text-tertiary); font-size: var(--font-size-sm);">Target: ≤{{ metrics.quality.target_edit }}%</span>
+                    </div>
+                    <div style="height: 25px; background: var(--overlay-medium); border-radius: 12px; overflow: hidden;">
+                        <div style="height: 100%; background: {% if metrics.quality.edit_rate <= metrics.quality.target_edit %}var(--color-success){% else %}var(--color-warning){% endif %}; width: {{ metrics.quality.edit_rate }}%; display: flex; align-items: center; justify-content: center; color: white; font-weight: var(--font-weight-bold); font-size: var(--font-size-sm); transition: width 0.5s ease;">
+                            {{ metrics.quality.edit_rate }}%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Engagement Metrics -->
+        <div style="background: var(--color-bg-secondary); border: 2px solid {% if metrics.engagement.passing %}var(--color-success){% else %}var(--color-danger){% endif %}; border-radius: var(--radius-lg); margin-bottom: var(--space-lg); overflow: hidden;">
+            <div style="background: {% if metrics.engagement.passing %}var(--color-success){% else %}var(--color-danger){% endif %}; padding: var(--space-md); color: white;">
+                <h5 style="margin: 0; font-weight: var(--font-weight-bold); display: flex; align-items: center; gap: 8px;">
+                    {% if metrics.engagement.passing %}✓{% else %}✗{% endif %}
+                    Session Completion - {{ metrics.engagement.completion_rate }}% (Target: {{ metrics.engagement.target }}%)
+                </h5>
+            </div>
+            <div style="padding: var(--space-xl);">
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-lg); margin-bottom: var(--space-lg); text-align: center;">
+                    <div>
+                        <h3 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-extrabold); color: var(--color-text-primary); margin-bottom: 4px;">
+                            {{ metrics.engagement.sessions_started }}
+                        </h3>
+                        <p style="color: var(--color-text-muted); margin: 0;">Sessions Started</p>
+                    </div>
+                    <div>
+                        <h3 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-extrabold); color: var(--color-success); margin-bottom: 4px;">
+                            {{ metrics.engagement.sessions_completed }}
+                        </h3>
+                        <p style="color: var(--color-text-muted); margin: 0;">Sessions Completed</p>
+                    </div>
+                    <div>
+                        <h3 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-extrabold); color: var(--color-danger); margin-bottom: 4px;">
+                            {{ metrics.engagement.sessions_started - metrics.engagement.sessions_completed }}
+                        </h3>
+                        <p style="color: var(--color-text-muted); margin: 0;">Abandoned</p>
+                    </div>
+                </div>
+                <div style="height: 30px; background: var(--overlay-medium); border-radius: 15px; overflow: hidden;">
+                    <div style="height: 100%; background: {% if metrics.engagement.completion_rate >= metrics.engagement.target %}var(--color-success){% else %}var(--color-danger){% endif %}; width: {{ metrics.engagement.completion_rate }}%; display: flex; align-items: center; justify-content: center; color: white; font-weight: var(--font-weight-bold); transition: width 0.5s ease;">
+                        {{ metrics.engagement.completion_rate }}%
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Metrics -->
+        <div style="background: var(--color-bg-secondary); border: 2px solid {% if metrics.users.passing %}var(--color-success){% else %}var(--color-danger){% endif %}; border-radius: var(--radius-lg); margin-bottom: var(--space-lg); overflow: hidden;">
+            <div style="background: {% if metrics.users.passing %}var(--color-success){% else %}var(--color-danger){% endif %}; padding: var(--space-md); color: white;">
+                <h5 style="margin: 0; font-weight: var(--font-weight-bold); display: flex; align-items: center; gap: 8px;">
+                    {% if metrics.users.passing %}✓{% else %}✗{% endif %}
+                    User Return Rate - {{ metrics.users.return_rate }}% (Target: {{ metrics.users.target_return }}%)
+                </h5>
+            </div>
+            <div style="padding: var(--space-xl);">
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-lg); margin-bottom: var(--space-lg); text-align: center;">
+                    <div>
+                        <h3 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-extrabold); color: var(--color-text-primary); margin-bottom: 4px;">
+                            {{ metrics.users.unique_users }}
+                        </h3>
+                        <p style="color: var(--color-text-muted); margin: 0;">Unique Users</p>
+                    </div>
+                    <div>
+                        <h3 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-extrabold); color: var(--color-info); margin-bottom: 4px;">
+                            {{ metrics.users.users_who_generated }}
+                        </h3>
+                        <p style="color: var(--color-text-muted); margin: 0;">Tried MC Generation</p>
+                    </div>
+                    <div>
+                        <h3 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-extrabold); color: var(--color-primary); margin-bottom: 4px;">
+                            {{ metrics.users.adoption_rate }}%
+                        </h3>
+                        <p style="color: var(--color-text-muted); margin: 0;">Adoption Rate</p>
+                    </div>
+                </div>
+                <div style="height: 30px; background: var(--overlay-medium); border-radius: 15px; overflow: hidden;">
+                    <div style="height: 100%; background: {% if metrics.users.return_rate >= metrics.users.target_return %}var(--color-success){% else %}var(--color-danger){% endif %}; width: {{ metrics.users.return_rate }}%; display: flex; align-items: center; justify-content: center; color: white; font-weight: var(--font-weight-bold); transition: width 0.5s ease;">
+                        {{ metrics.users.return_rate }}%
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Metrics -->
+        <div style="background: var(--color-bg-secondary); border: 2px solid {% if metrics.performance.passing %}var(--color-success){% else %}var(--color-warning){% endif %}; border-radius: var(--radius-lg); margin-bottom: var(--space-lg); overflow: hidden;">
+            <div style="background: {% if metrics.performance.passing %}var(--color-success){% else %}var(--color-warning){% endif %}; padding: var(--space-md); color: white;">
+                <h5 style="margin: 0; font-weight: var(--font-weight-bold); display: flex; align-items: center; gap: 8px;">
+                    {% if metrics.performance.passing %}✓{% else %}✗{% endif %}
+                    Performance
+                </h5>
+            </div>
+            <div style="padding: var(--space-xl);">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-lg); text-align: center; margin-bottom: var(--space-md);">
+                    <div>
+                        <h3 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-extrabold); color: {% if metrics.performance.passing %}var(--color-success){% else %}var(--color-warning){% endif %}; margin-bottom: 4px;">
+                            {{ metrics.performance.avg_generation_time }}s
+                        </h3>
+                        <p style="color: var(--color-text-muted); margin: 0;">Avg Generation Time</p>
+                    </div>
+                    <div>
+                        <h3 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-extrabold); color: var(--color-text-tertiary); margin-bottom: 4px;">
+                            {{ metrics.performance.target }}s
+                        </h3>
+                        <p style="color: var(--color-text-muted); margin: 0;">Target (≤30s)</p>
+                    </div>
+                </div>
+                {% if metrics.performance.passing %}
+                    <div style="background: rgba(52, 199, 89, 0.1); border: 1px solid rgba(52, 199, 89, 0.3); border-radius: var(--radius-md); padding: var(--space-sm); color: var(--color-success); display: flex; align-items: center; gap: 8px;">
+                        ✓ Generation speed is excellent!
+                    </div>
+                {% else %}
+                    <div style="background: rgba(234, 179, 8, 0.1); border: 1px solid rgba(234, 179, 8, 0.3); border-radius: var(--radius-md); padding: var(--space-sm); color: var(--color-warning); display: flex; align-items: center; gap: 8px;">
+                        ⚠️ Generation time could be improved
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display: flex; gap: var(--space-md); justify-content: center; flex-wrap: wrap;">
+            <a href="{{ url_for('mc_metrics.validation_report') }}" class="btn btn-primary btn-lg">
+                ✓ View Validation Report
+            </a>
+            <a href="{{ url_for('mc_metrics.api_metrics') }}" class="btn btn-secondary" target="_blank">
+                {} JSON API
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.FlashFlow) {
+            FlashFlow.showToast('Metrics dashboard loaded for the last {{ days }} days', 'info', 3000);
+        }
+    });
+</script>
+{% endblock %}

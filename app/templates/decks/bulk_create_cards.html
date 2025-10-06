@@ -1,63 +1,158 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-10 col-lg-8">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="card-title mb-1">
-                    <i class="bi bi-stack me-2"></i>Bulk Import Cards
-                </h4>
-                <div class="text-muted">{{ deck.name }}</div>
+<div style="padding-top: calc(var(--navbar-height) + var(--space-2xl)); padding-bottom: var(--space-2xl); min-height: 100vh;">
+    <div class="container" style="max-width: 1000px;">
+
+        <!-- Page Header -->
+        <div style="text-align: center; margin-bottom: var(--space-xl);">
+            <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; background: var(--gradient-green); border-radius: var(--radius-xl); margin-bottom: var(--space-md); box-shadow: var(--shadow-lg);">
+                <span style="font-size: 32px;">📚</span>
             </div>
-            <div class="card-body">
+            <h1 style="font-size: var(--font-size-3xl); font-weight: var(--font-weight-extrabold); margin-bottom: 8px;">Bulk Import Cards</h1>
+            <p style="color: var(--color-text-tertiary); font-size: var(--font-size-md);">{{ deck.name }}</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr; gap: var(--space-md);">
+            <!-- Import Form -->
+            <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-xl); padding: var(--space-xl); box-shadow: var(--shadow-lg);">
                 <form method="POST">
                     {{ form.hidden_tag() }}
 
-                    <div class="mb-4">
-                        {{ form.cards_text.label(class="form-label fw-bold") }}
-                        {{ form.cards_text(class="form-control" + (" is-invalid" if form.cards_text.errors else "")) }}
+                    <div class="form-group">
+                        <label for="{{ form.cards_text.id }}" class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 20px;">📝</span>
+                            {{ form.cards_text.label.text }}
+                        </label>
+                        {{ form.cards_text(class="form-textarea" + (" error" if form.cards_text.errors else ""), rows=12, placeholder="Question 1 | Answer 1\nQuestion 2 | Answer 2\nQuestion 3 | Answer 3", style="font-family: 'Courier New', monospace; font-size: var(--font-size-base);") }}
                         {% for error in form.cards_text.errors %}
-                            <div class="invalid-feedback">{{ error }}</div>
+                            <div class="form-error">{{ error }}</div>
                         {% endfor %}
-                        <div class="form-text">{{ form.cards_text.description }}</div>
+                        <div class="form-help">{{ form.cards_text.description }}</div>
                     </div>
 
-                    <div class="d-flex justify-content-between">
-                        <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-secondary">Cancel</a>
-                        {{ form.submit(class="btn btn-success") }}
+                    <!-- Live Counter -->
+                    <div id="card-counter" style="background: rgba(102, 126, 234, 0.1); border: 1px solid var(--color-border-primary); border-radius: var(--radius-md); padding: var(--space-sm); text-align: center; margin-bottom: var(--space-md); display: none;">
+                        <span style="font-weight: var(--font-weight-bold); color: var(--color-primary); font-size: var(--font-size-lg);" id="card-count">0</span>
+                        <span style="color: var(--color-text-tertiary); font-size: var(--font-size-sm); margin-left: 8px;">cards will be created</span>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div style="display: flex; gap: 12px;">
+                        <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-secondary" style="flex: 1;">
+                            Cancel
+                        </a>
+                        {{ form.submit(class="btn", style="flex: 2; background: var(--gradient-green); color: var(--color-text-primary);") }}
                     </div>
                 </form>
             </div>
-        </div>
 
-        <!-- Format Example -->
-        <div class="card mt-4">
-            <div class="card-header">
-                <h6 class="card-title mb-0">
-                    <i class="bi bi-info-circle me-2"></i>Format Example
+            <!-- Format Example & Instructions -->
+            <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-xl); padding: var(--space-lg); box-shadow: var(--shadow-md);">
+                <h6 style="font-weight: var(--font-weight-bold); margin-bottom: var(--space-md); display: flex; align-items: center; gap: 8px; color: var(--color-primary);">
+                    <span>ℹ️</span> Format Example
                 </h6>
-            </div>
-            <div class="card-body">
-                <h6 class="fw-bold">Example for a Spanish vocabulary deck:</h6>
-                <div class="bg-light rounded p-3 font-monospace small">
-                    Hello | Hola<br>
-                    Goodbye | Adiós<br>
-                    Please | Por favor<br>
-                    Thank you | Gracias<br>
-                    How are you? | ¿Cómo estás?
+
+                <div style="margin-bottom: var(--space-md);">
+                    <div style="font-weight: var(--font-weight-semibold); margin-bottom: 8px; color: var(--color-text-secondary);">Example for a Spanish vocabulary deck:</div>
+                    <div style="background: var(--overlay-light); border: 1px solid var(--color-border-medium); border-radius: var(--radius-md); padding: var(--space-md); font-family: 'Courier New', monospace; font-size: var(--font-size-sm); color: var(--color-text-secondary); line-height: 1.8;">
+                        Hello | Hola<br>
+                        Goodbye | Adiós<br>
+                        Please | Por favor<br>
+                        Thank you | Gracias<br>
+                        How are you? | ¿Cómo estás?
+                    </div>
                 </div>
-                <div class="mt-3">
-                    <h6 class="fw-bold">Tips:</h6>
-                    <ul class="small text-muted mb-0">
-                        <li>One card per line</li>
-                        <li>Separate front and back with a pipe symbol ( | )</li>
-                        <li>Empty lines are ignored</li>
-                        <li>Lines without a pipe symbol are skipped</li>
+
+                <div style="padding-top: var(--space-md); border-top: 1px solid var(--color-border-light);">
+                    <h6 style="font-weight: var(--font-weight-bold); margin-bottom: var(--space-sm); color: var(--color-text-secondary);">Important Tips:</h6>
+                    <ul style="margin: 0; padding-left: 24px; color: var(--color-text-tertiary); font-size: var(--font-size-sm); line-height: var(--line-height-relaxed);">
+                        <li><strong>One card per line</strong> - Each line creates a single flashcard</li>
+                        <li><strong>Use pipe separator ( | )</strong> - Front text | Back text</li>
+                        <li><strong>Empty lines are ignored</strong> - Add spacing for readability</li>
+                        <li><strong>Lines without pipes are skipped</strong> - Make sure each line has the | separator</li>
+                        <li><strong>Trim whitespace</strong> - Extra spaces around text will be removed</li>
                     </ul>
                 </div>
+            </div>
+
+            <!-- Quick Tips Card -->
+            <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-left: 4px solid var(--color-success); border-radius: var(--radius-lg); padding: var(--space-lg);">
+                <h6 style="font-weight: var(--font-weight-bold); margin-bottom: var(--space-sm); display: flex; align-items: center; gap: 8px; color: var(--color-success);">
+                    <span>💡</span> Pro Tips for Bulk Import
+                </h6>
+                <ul style="margin: 0; padding-left: 24px; color: var(--color-text-tertiary); font-size: var(--font-size-sm); line-height: var(--line-height-relaxed);">
+                    <li>Prepare your content in a spreadsheet first, then copy-paste</li>
+                    <li>Start with a small batch to test the format</li>
+                    <li>Use consistent formatting for better results</li>
+                    <li>Review cards after import and edit any that need adjustment</li>
+                </ul>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const textarea = document.querySelector('textarea');
+        const counter = document.getElementById('card-counter');
+        const countDisplay = document.getElementById('card-count');
+
+        function updateCardCount() {
+            const text = textarea.value;
+            const lines = text.split('\n');
+            let validCards = 0;
+
+            lines.forEach(line => {
+                const trimmed = line.trim();
+                if (trimmed && trimmed.includes('|')) {
+                    const parts = trimmed.split('|');
+                    if (parts.length >= 2 && parts[0].trim() && parts[1].trim()) {
+                        validCards++;
+                    }
+                }
+            });
+
+            countDisplay.textContent = validCards;
+
+            if (validCards > 0) {
+                counter.style.display = 'block';
+                if (validCards >= 10) {
+                    counter.style.background = 'rgba(52, 199, 89, 0.1)';
+                    counter.style.borderColor = 'rgba(52, 199, 89, 0.3)';
+                    countDisplay.style.color = 'var(--color-success)';
+                } else {
+                    counter.style.background = 'rgba(102, 126, 234, 0.1)';
+                    counter.style.borderColor = 'var(--color-border-primary)';
+                    countDisplay.style.color = 'var(--color-primary)';
+                }
+            } else {
+                counter.style.display = 'none';
+            }
+        }
+
+        textarea.addEventListener('input', updateCardCount);
+
+        // Initial count
+        updateCardCount();
+
+        // Auto-focus textarea
+        textarea.focus();
+
+        FlashFlow.showToast('Enter your cards in the format: Front | Back', 'info', 4000);
+
+        // Keyboard shortcut: Ctrl/Cmd + Enter to submit
+        textarea.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                const form = this.closest('form');
+                if (form) {
+                    form.submit();
+                }
+            }
+        });
+    });
+</script>
 {% endblock %}

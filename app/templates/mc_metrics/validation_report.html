@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="max-width: 1200px; padding-top: 120px; padding-bottom: 60px;">
+    <!-- Header -->
+    <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 40px;">
+        <div style="width: 64px; height: 64px; border-radius: 16px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; font-size: 32px;">
+            📋
+        </div>
+        <div>
+            <h1 style="font-size: 2rem; font-weight: 800; margin: 0 0 8px 0;">Phase 1 Validation Report</h1>
+            <p style="color: var(--color-text-tertiary); margin: 0;">Comprehensive analysis of MC question system readiness</p>
+        </div>
+    </div>
+
+    <!-- Overall Decision Card -->
+    <div style="background: {% if report.recommendation == 'GO' %}rgba(52, 199, 89, 0.1){% else %}rgba(239, 68, 68, 0.1){% endif %}; border: 2px solid {% if report.recommendation == 'GO' %}var(--color-success){% else %}var(--color-danger){% endif %}; border-radius: 16px; padding: 32px; margin-bottom: 40px;">
+        <h2 style="font-size: 1.75rem; font-weight: 800; margin: 0 0 16px 0; color: {% if report.recommendation == 'GO' %}var(--color-success){% else %}var(--color-danger){% endif %};">
+            {% if report.recommendation == 'GO' %}
+                ✅ RECOMMENDATION: PROCEED TO PHASE 2
+            {% else %}
+                ⚠️ RECOMMENDATION: DO NOT PROCEED TO PHASE 2 YET
+            {% endif %}
+        </h2>
+        <div style="height: 1px; background: {% if report.recommendation == 'GO' %}rgba(52, 199, 89, 0.3){% else %}rgba(239, 68, 68, 0.3){% endif %}; margin: 24px 0;"></div>
+        <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="font-size: 3rem; font-weight: 900; background: {% if report.recommendation == 'GO' %}var(--gradient-green){% else %}linear-gradient(135deg, #ef4444 0%, #dc2626 100%){% endif %}; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                {{ report.passing_count }}/{{ report.total_criteria }}
+            </div>
+            <div>
+                <div style="font-size: 1.25rem; font-weight: 700; color: var(--color-text-primary);">Criteria Met</div>
+                <div style="color: var(--color-text-tertiary); font-size: 0.95rem;">
+                    {{ ((report.passing_count / report.total_criteria * 100) | round | int) }}% completion rate
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Go/No-Go Criteria Section -->
+    <h2 style="font-size: 1.5rem; font-weight: 800; margin: 40px 0 24px 0;">Go/No-Go Criteria</h2>
+
+    <div style="display: flex; flex-direction: column; gap: 24px;">
+        {% for key, criterion in report.criteria.items() %}
+        <div style="background: var(--color-bg-secondary); border: 2px solid {% if criterion.passing %}var(--color-success){% else %}var(--color-danger){% endif %}; border-radius: 16px; overflow: hidden; transition: all 0.3s ease;">
+            <!-- Header -->
+            <div style="background: {% if criterion.passing %}rgba(52, 199, 89, 0.1){% else %}rgba(239, 68, 68, 0.1){% endif %}; padding: 20px 24px; border-bottom: 1px solid var(--color-border-light);">
+                <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 1.5rem;">{% if criterion.passing %}✓{% else %}✗{% endif %}</span>
+                    {{ criterion.name }}
+                </h3>
+            </div>
+
+            <!-- Body -->
+            <div style="padding: 24px;">
+                <p style="color: var(--color-text-tertiary); margin: 0 0 24px 0;">{{ criterion.description }}</p>
+
+                <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px; align-items: center;">
+                    <!-- Progress Bar -->
+                    <div>
+                        <div style="height: 40px; background: var(--overlay-medium); border-radius: 8px; overflow: hidden; position: relative;">
+                            <div class="progress-bar" data-width="{{ criterion.current }}%" style="height: 100%; width: {{ criterion.current }}%; background: {% if criterion.passing %}var(--gradient-green){% else %}linear-gradient(135deg, #ef4444 0%, #dc2626 100%){% endif %}; transition: width 0.6s ease; display: flex; align-items: center; justify-content: center;">
+                                <span style="font-weight: 700; font-size: 1rem; color: white; position: absolute; left: 50%; transform: translateX(-50%);">
+                                    {{ criterion.current }}%
+                                </span>
+                            </div>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; margin-top: 8px; font-size: 0.85rem; color: var(--color-text-muted);">
+                            <span>Target: {{ criterion.target }}%</span>
+                            {% if criterion.passing %}
+                                <span style="color: var(--color-success); font-weight: 600;">✓ Above target</span>
+                            {% else %}
+                                <span style="color: var(--color-danger); font-weight: 600;">✗ {{ criterion.target - criterion.current }}% gap</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Current Value -->
+                    <div style="text-align: center;">
+                        <div style="font-size: 3rem; font-weight: 900; margin-bottom: 4px; background: {% if criterion.passing %}var(--gradient-green){% else %}linear-gradient(135deg, #ef4444 0%, #dc2626 100%){% endif %}; -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                            {{ criterion.current }}%
+                        </div>
+                        <div style="color: var(--color-text-muted); font-size: 0.85rem;">Current</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Recommendations -->
+    {% if report.notes %}
+    <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-primary); border-left: 4px solid var(--color-primary); border-radius: 16px; overflow: hidden; margin-top: 40px;">
+        <div style="background: rgba(102, 126, 234, 0.1); padding: 20px 24px; border-bottom: 1px solid var(--color-border-light);">
+            <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 12px;">
+                💡 Recommendations
+            </h3>
+        </div>
+        <div style="padding: 24px;">
+            <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px;">
+                {% for note in report.notes %}
+                <li style="display: flex; align-items: start; gap: 12px; padding: 12px; background: var(--overlay-light); border-radius: 8px;">
+                    <span style="color: var(--color-primary); font-size: 1.25rem; flex-shrink: 0;">•</span>
+                    <span style="color: var(--color-text-secondary);">{{ note }}</span>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Detailed Metrics -->
+    <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: 16px; overflow: hidden; margin-top: 40px;">
+        <div style="background: var(--overlay-medium); padding: 20px 24px; border-bottom: 1px solid var(--color-border-light);">
+            <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 12px;">
+                📊 Detailed Metrics
+            </h3>
+        </div>
+        <div style="padding: 32px;">
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 32px;">
+                <!-- Technical Success -->
+                <div>
+                    <h4 style="font-size: 1rem; font-weight: 700; margin: 0 0 16px 0; color: var(--color-text-secondary);">Technical Success</h4>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="display: flex; justify-content: space-between; padding: 8px; background: var(--overlay-light); border-radius: 6px;">
+                            <span style="color: var(--color-text-tertiary);">Total requests:</span>
+                            <span style="font-weight: 700;">{{ report.raw_metrics.technical_success.total_requests }}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 8px; background: var(--overlay-light); border-radius: 6px;">
+                            <span style="color: var(--color-text-tertiary);">Successful:</span>
+                            <span style="font-weight: 700; color: var(--color-success);">{{ report.raw_metrics.technical_success.successful }}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 8px; background: var(--overlay-light); border-radius: 6px;">
+                            <span style="color: var(--color-text-tertiary);">Failed:</span>
+                            <span style="font-weight: 700; color: var(--color-danger);">{{ report.raw_metrics.technical_success.failed }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Question Quality -->
+                <div>
+                    <h4 style="font-size: 1rem; font-weight: 700; margin: 0 0 16px 0; color: var(--color-text-secondary);">Question Quality</h4>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="display: flex; justify-content: space-between; padding: 8px; background: var(--overlay-light); border-radius: 6px;">
+                            <span style="color: var(--color-text-tertiary);">Questions generated:</span>
+                            <span style="font-weight: 700;">{{ report.raw_metrics.quality.total_questions_generated }}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 8px; background: var(--overlay-light); border-radius: 6px;">
+                            <span style="color: var(--color-text-tertiary);">Accepted:</span>
+                            <span style="font-weight: 700; color: var(--color-success);">{{ report.raw_metrics.quality.accepted }}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 8px; background: var(--overlay-light); border-radius: 6px;">
+                            <span style="color: var(--color-text-tertiary);">Edited:</span>
+                            <span style="font-weight: 700; color: var(--color-warning);">{{ report.raw_metrics.quality.edited }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Engagement -->
+                <div>
+                    <h4 style="font-size: 1rem; font-weight: 700; margin: 0 0 16px 0; color: var(--color-text-secondary);">Engagement</h4>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="display: flex; justify-content: space-between; padding: 8px; background: var(--overlay-light); border-radius: 6px;">
+                            <span style="color: var(--color-text-tertiary);">Sessions started:</span>
+                            <span style="font-weight: 700;">{{ report.raw_metrics.engagement.sessions_started }}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 8px; background: var(--overlay-light); border-radius: 6px;">
+                            <span style="color: var(--color-text-tertiary);">Sessions completed:</span>
+                            <span style="font-weight: 700; color: var(--color-success);">{{ report.raw_metrics.engagement.sessions_completed }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Users -->
+                <div>
+                    <h4 style="font-size: 1rem; font-weight: 700; margin: 0 0 16px 0; color: var(--color-text-secondary);">Users</h4>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                        <div style="display: flex; justify-content: space-between; padding: 8px; background: var(--overlay-light); border-radius: 6px;">
+                            <span style="color: var(--color-text-tertiary);">Unique users:</span>
+                            <span style="font-weight: 700;">{{ report.raw_metrics.users.unique_users }}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 8px; background: var(--overlay-light); border-radius: 6px;">
+                            <span style="color: var(--color-text-tertiary);">Users who generated:</span>
+                            <span style="font-weight: 700;">{{ report.raw_metrics.users.users_who_generated }}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; padding: 8px; background: var(--overlay-light); border-radius: 6px;">
+                            <span style="color: var(--color-text-tertiary);">Adoption rate:</span>
+                            <span style="font-weight: 700; color: var(--color-primary);">{{ report.raw_metrics.users.adoption_rate }}%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Actions -->
+    <div style="margin-top: 40px; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+        <a href="{{ url_for('mc_metrics.dashboard') }}" class="btn btn-secondary">
+            ← Back to Dashboard
+        </a>
+        {% if report.recommendation == 'GO' %}
+        <button class="btn btn-primary btn-lg" onclick="alert('Phase 2 implementation can begin!')">
+            🚀 Proceed to Phase 2
+        </button>
+        {% else %}
+        <button class="btn" onclick="alert('Address failing criteria before Phase 2')" style="background: rgba(234, 179, 8, 0.2); border: 1px solid var(--color-warning); color: var(--color-warning); padding: 14px 40px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.3s ease;">
+            ⚠️ Review & Fix Issues
+        </button>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show toast based on recommendation
+        {% if report.recommendation == 'GO' %}
+            FlashFlow.showToast('✅ All criteria met! Ready for Phase 2.', 'success', 4000);
+        {% else %}
+            FlashFlow.showToast('⚠️ {{ report.total_criteria - report.passing_count }} criteria need attention.', 'warning', 4000);
+        {% endif %}
+
+        // Animate progress bars on load
+        document.querySelectorAll('.progress-bar').forEach((bar, index) => {
+            const targetWidth = bar.getAttribute('data-width');
+            bar.style.width = '0%';
+            setTimeout(() => {
+                bar.style.transition = 'width 0.8s ease';
+                bar.style.width = targetWidth;
+            }, 100 + (index * 100));
+        });
+    });
+</script>
+{% endblock %}

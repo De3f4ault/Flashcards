@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="padding-top: 100px; padding-bottom: 60px;">
+    <div style="max-width: 800px; margin: 0 auto;">
+        <!-- Celebration Header -->
+        <div style="text-align: center; margin-bottom: var(--space-2xl);">
+            <div style="font-size: 80px; margin-bottom: var(--space-md); animation: float 3s ease-in-out infinite;">
+                🎉
+            </div>
+            <h1 style="font-size: var(--font-size-3xl); font-weight: var(--font-weight-bold); margin-bottom: var(--space-sm);">
+                Study Session Complete!
+            </h1>
+            <p style="font-size: var(--font-size-lg); color: var(--color-text-tertiary); margin-bottom: 4px;">
+                {{ deck.name }}
+            </p>
+            {% if document %}
+            <p style="color: var(--color-text-muted); font-size: var(--font-size-sm);">
+                📄 Questions from: <strong>{{ document.original_filename }}</strong>
+            </p>
+            {% endif %}
+        </div>
+
+        <!-- Overall Score Card -->
+        <div style="background: var(--color-bg-secondary);
+                    border: 2px solid var(--color-primary);
+                    border-radius: var(--radius-xl);
+                    padding: var(--space-2xl);
+                    text-align: center;
+                    margin-bottom: var(--space-lg);
+                    position: relative;
+                    overflow: hidden;">
+            <div style="position: absolute; top: -50%; right: -50%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(102, 126, 234, 0.15) 0%, transparent 70%); pointer-events: none;"></div>
+            <div style="position: relative; z-index: 1;">
+                <h2 style="font-size: var(--font-size-xl); font-weight: var(--font-weight-semibold); margin-bottom: var(--space-md); color: var(--color-text-secondary);">
+                    Final Score
+                </h2>
+                <div style="font-size: 96px; font-weight: var(--font-weight-extrabold); background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: var(--space-md); line-height: 1;">
+                    {{ summary.accuracy }}%
+                </div>
+                <h4 style="color: var(--color-text-tertiary); font-weight: var(--font-weight-normal);">
+                    {{ summary.questions.correct }} out of {{ summary.questions.total }} correct
+                </h4>
+            </div>
+        </div>
+
+        <!-- Detailed Stats -->
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-md); margin-bottom: var(--space-lg);">
+            <!-- Time -->
+            <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-lg); text-align: center;">
+                <div style="font-size: 48px; margin-bottom: var(--space-sm);">⏱️</div>
+                <h5 style="font-size: var(--font-size-md); font-weight: var(--font-weight-semibold); margin-bottom: 8px; color: var(--color-text-secondary);">
+                    Time
+                </h5>
+                <p style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); color: var(--color-text-primary); margin-bottom: 4px;">
+                    {{ summary.duration.formatted }}
+                </p>
+                <small style="color: var(--color-text-muted); font-size: var(--font-size-sm);">
+                    {{ summary.avg_time_per_question }}s per question
+                </small>
+            </div>
+
+            <!-- Confidence -->
+            <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-lg); text-align: center;">
+                <div style="font-size: 48px; margin-bottom: var(--space-sm);">🌡️</div>
+                <h5 style="font-size: var(--font-size-md); font-weight: var(--font-weight-semibold); margin-bottom: 8px; color: var(--color-text-secondary);">
+                    Confidence
+                </h5>
+                <p style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); color: var(--color-text-primary); margin-bottom: 4px;">
+                    {{ summary.avg_confidence }}/5
+                </p>
+                <small style="color: var(--color-text-muted); font-size: var(--font-size-sm);">
+                    Average rating
+                </small>
+            </div>
+
+            <!-- Performance -->
+            <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-lg); text-align: center;">
+                <div style="font-size: 48px; margin-bottom: var(--space-sm);">🏆</div>
+                <h5 style="font-size: var(--font-size-md); font-weight: var(--font-weight-semibold); margin-bottom: 8px; color: var(--color-text-secondary);">
+                    Performance
+                </h5>
+                <p style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); color: var(--color-text-primary); margin-bottom: 4px;">
+                    {% if summary.accuracy >= 90 %}
+                        Excellent!
+                    {% elif summary.accuracy >= 75 %}
+                        Great Job!
+                    {% elif summary.accuracy >= 60 %}
+                        Good Work!
+                    {% else %}
+                        Keep Practicing!
+                    {% endif %}
+                </p>
+                <small style="color: var(--color-text-muted); font-size: var(--font-size-sm);">
+                    {% if summary.accuracy >= 80 %}
+                        You're mastering this topic
+                    {% else %}
+                        Review and try again
+                    {% endif %}
+                </small>
+            </div>
+        </div>
+
+        <!-- Summary Message -->
+        <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: var(--radius-lg); padding: var(--space-md); margin-bottom: var(--space-lg); color: var(--color-info);">
+            <h5 style="font-weight: var(--font-weight-semibold); margin-bottom: var(--space-sm); display: flex; align-items: center; gap: 8px;">
+                ℹ️ Session Summary
+            </h5>
+            <p style="margin: 0; line-height: var(--line-height-relaxed);">
+                {% if summary.title %}
+                    <strong>{{ summary.title }}</strong><br>
+                {% endif %}
+                You answered <strong>{{ summary.questions.total }} questions</strong> in
+                <strong>{{ summary.duration.formatted }}</strong>.
+
+                {% if summary.accuracy >= 80 %}
+                    You're doing great! Consider moving to more challenging topics or helping others.
+                {% elif summary.accuracy >= 60 %}
+                    Good progress! A few more practice sessions will help solidify your understanding.
+                {% else %}
+                    Don't worry! Review the concepts and try again. Learning takes practice.
+                {% endif %}
+            </p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div style="display: grid; grid-template-columns: {% if document %}repeat(3, 1fr){% else %}1fr 1fr{% endif %}; gap: var(--space-sm); margin-bottom: var(--space-md);">
+            {% if document %}
+            <!-- Document-based session actions -->
+            <a href="{{ url_for('documents.view', id=document.id) }}"
+               class="btn btn-primary"
+               style="white-space: nowrap;">
+                📄 Back to Document
+            </a>
+            <a href="{{ url_for('mc_study.start', deck_id=deck.id, document_id=document.id) }}"
+               class="btn btn-primary"
+               style="white-space: nowrap; background: var(--color-success); border-color: var(--color-success);">
+                🔄 Study Again
+            </a>
+            <a href="{{ url_for('documents.questions', id=document.id) }}"
+               class="btn btn-secondary"
+               style="white-space: nowrap;">
+                ✓ All Questions
+            </a>
+            {% else %}
+            <!-- Regular deck actions -->
+            <a href="{{ url_for('mc_study.start', deck_id=deck.id) }}"
+               class="btn btn-primary"
+               style="white-space: nowrap;">
+                🔄 Study Again
+            </a>
+            <a href="{{ url_for('decks.view', id=deck.id) }}"
+               class="btn btn-secondary"
+               style="white-space: nowrap;">
+                ← Back to Deck
+            </a>
+            {% endif %}
+        </div>
+
+        <!-- Additional Options -->
+        <div style="text-align: center;">
+            <a href="{{ url_for('mc_study.sessions') }}?deck_id={{ deck.id }}"
+               style="color: var(--color-text-tertiary); text-decoration: none; font-size: var(--font-size-sm); transition: var(--transition-base); display: inline-flex; align-items: center; gap: 4px;"
+               onmouseover="this.style.color='var(--color-text-primary)'"
+               onmouseout="this.style.color='var(--color-text-tertiary)'">
+                📅 View Session History
+            </a>
+            {% if not document %}
+            <span style="margin: 0 12px; color: var(--color-text-muted);">|</span>
+            <a href="{{ url_for('mc_generation.generate_request', deck_id=deck.id) }}"
+               style="color: var(--color-text-tertiary); text-decoration: none; font-size: var(--font-size-sm); transition: var(--transition-base); display: inline-flex; align-items: center; gap: 4px;"
+               onmouseover="this.style.color='var(--color-text-primary)'"
+               onmouseout="this.style.color='var(--color-text-tertiary)'">
+                ➕ Generate More Questions
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const accuracy = {{ summary.accuracy }};
+
+        if (window.FlashFlow) {
+            if (accuracy >= 90) {
+                FlashFlow.showToast('Outstanding performance! 🌟', 'success', 4000);
+            } else if (accuracy >= 75) {
+                FlashFlow.showToast('Great work! Keep it up! 💪', 'success', 4000);
+            } else if (accuracy >= 60) {
+                FlashFlow.showToast('Good effort! Practice makes perfect! 📚', 'info', 4000);
+            } else {
+                FlashFlow.showToast('Keep practicing! You\'ll improve! 🎯', 'info', 4000);
+            }
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="padding-top: 120px; padding-bottom: 60px;">
+    <div class="container" style="max-width: 900px;">
+        <!-- Header Card -->
+        <div style="background: var(--gradient-primary); border-radius: var(--radius-xl); padding: var(--space-xl); text-align: center; margin-bottom: var(--space-xl); position: relative; overflow: hidden; box-shadow: var(--shadow-primary);">
+            <!-- Radial glow -->
+            <div style="position: absolute; top: -50%; right: -50%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%); pointer-events: none;"></div>
+
+            <div style="position: relative; z-index: 1;">
+                <div style="font-size: 48px; margin-bottom: var(--space-sm);">☁️</div>
+                <h1 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); margin-bottom: 8px; color: white;">
+                    Upload Document
+                </h1>
+                <p style="font-size: var(--font-size-md); color: rgba(255, 255, 255, 0.9); margin: 0;">
+                    Add study materials to your library
+                </p>
+            </div>
+        </div>
+
+        <!-- Info Alert -->
+        <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: var(--radius-lg); padding: var(--space-md); margin-bottom: var(--space-xl);">
+            <div style="display: flex; gap: 12px;">
+                <div style="flex-shrink: 0; font-size: 20px;">ℹ️</div>
+                <div style="font-size: var(--font-size-sm); color: var(--color-text-secondary); line-height: var(--line-height-relaxed);">
+                    <strong style="display: block; margin-bottom: 8px; color: var(--color-text-primary);">Supported formats:</strong>
+                    PDF, TXT, EPUB, DOCX
+                    <br>
+                    <strong style="display: block; margin-top: 8px; margin-bottom: 8px; color: var(--color-text-primary);">Maximum file size:</strong>
+                    50 MB
+                    <br>
+                    <strong style="display: block; margin-top: 8px; margin-bottom: 8px; color: var(--color-text-primary);">Processing:</strong>
+                    Documents are uploaded to Gemini AI for intelligent processing
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload Form -->
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-xl); padding: var(--space-xl); margin-bottom: var(--space-xl);">
+            <form method="POST" enctype="multipart/form-data" id="uploadForm">
+                {{ form.hidden_tag() }}
+
+                <!-- File Upload -->
+                <div style="margin-bottom: var(--space-lg);">
+                    <label style="display: block; font-size: var(--font-size-md); font-weight: var(--font-weight-semibold); margin-bottom: 8px; color: var(--color-text-primary); display: flex; align-items: center; gap: 8px;">
+                        📎 Select Document
+                    </label>
+                    {{ form.document(class="form-input", id="documentFile", style="width: 100%;") }}
+                    {% if form.document.errors %}
+                        <div style="color: var(--color-danger); margin-top: 8px; font-size: var(--font-size-sm);">
+                            {% for error in form.document.errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Title Input -->
+                <div style="margin-bottom: var(--space-lg);">
+                    <label style="display: block; font-size: var(--font-size-md); font-weight: var(--font-weight-semibold); margin-bottom: 8px; color: var(--color-text-primary); display: flex; align-items: center; gap: 8px;">
+                        📝 Document Title (Optional)
+                    </label>
+                    {{ form.title(class="form-input", placeholder="e.g., Introduction to Python", style="width: 100%;") }}
+                    <div style="font-size: var(--font-size-sm); color: var(--color-text-muted); margin-top: 6px;">
+                        {{ form.title.description }}
+                    </div>
+                    {% if form.title.errors %}
+                        <div style="color: var(--color-danger); margin-top: 8px; font-size: var(--font-size-sm);">
+                            {% for error in form.title.errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- File Preview -->
+                <div id="filePreview" style="display: none; margin-bottom: var(--space-lg);">
+                    <div style="background: var(--overlay-light); border: 1px solid var(--color-border-medium); border-radius: var(--radius-lg); padding: var(--space-md);">
+                        <h3 style="font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); margin-bottom: var(--space-sm); color: var(--color-text-secondary);">Selected File:</h3>
+                        <div style="display: flex; align-items: center; gap: var(--space-sm);">
+                            <div style="width: 48px; height: 48px; border-radius: var(--radius-md); background: rgba(102, 126, 234, 0.1); display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                                📄
+                            </div>
+                            <div>
+                                <div id="fileName" style="font-weight: var(--font-weight-semibold); color: var(--color-text-primary);"></div>
+                                <div id="fileSize" style="font-size: var(--font-size-sm); color: var(--color-text-muted);"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upload Progress -->
+                <div id="uploadProgress" style="display: none; margin-bottom: var(--space-lg);">
+                    <div style="margin-bottom: var(--space-sm);">
+                        <strong style="color: var(--color-text-primary);">Uploading...</strong>
+                    </div>
+                    <div style="height: 8px; background: var(--overlay-medium); border-radius: var(--radius-md); overflow: hidden;">
+                        <div id="progressBar" style="height: 100%; background: var(--gradient-primary); width: 0%; transition: width 0.3s ease; border-radius: var(--radius-md);"></div>
+                    </div>
+                    <div id="progressText" style="font-size: var(--font-size-sm); color: var(--color-text-tertiary); margin-top: 6px;">0%</div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div style="display: flex; gap: var(--space-sm); flex-wrap: wrap;">
+                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                        ☁️ Upload Document
+                    </button>
+                    <a href="{{ url_for('documents.library') }}" class="btn btn-secondary">
+                        ← Back to Library
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Help Section -->
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-xl); padding: var(--space-lg);">
+            <h3 style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); margin-bottom: var(--space-md); color: var(--color-text-primary); display: flex; align-items: center; gap: 8px;">
+                ❓ What happens after upload?
+            </h3>
+            <ol style="margin: 0; padding-left: 24px; color: var(--color-text-tertiary); line-height: 2;">
+                <li>Your document is saved securely on the server</li>
+                <li>The file is uploaded to Gemini AI for intelligent processing</li>
+                <li>Gemini analyzes the content and makes it searchable</li>
+                <li>You can generate questions or chat about the document content</li>
+                <li>Documents are cached for 48 hours in Gemini for fast access</li>
+            </ol>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('documentFile');
+    const filePreview = document.getElementById('filePreview');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+    const uploadForm = document.getElementById('uploadForm');
+    const uploadProgress = document.getElementById('uploadProgress');
+    const progressBar = document.getElementById('progressBar');
+    const progressText = document.getElementById('progressText');
+    const submitBtn = document.getElementById('submitBtn');
+
+    // File selection preview
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            filePreview.style.display = 'block';
+
+            // Show toast
+            FlashFlow.showToast('File selected: ' + file.name, 'info', 2000);
+        } else {
+            filePreview.style.display = 'none';
+        }
+    });
+
+    // Form submission with progress
+    uploadForm.addEventListener('submit', function(e) {
+        const file = fileInput.files[0];
+        if (!file) {
+            e.preventDefault();
+            FlashFlow.showToast('Please select a file to upload', 'warning', 3000);
+            return;
+        }
+
+        // Show progress bar
+        uploadProgress.style.display = 'block';
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Uploading...';
+
+        // Simulate upload progress (real progress would require AJAX)
+        let progress = 0;
+        const interval = setInterval(() => {
+            progress += 10;
+            if (progress <= 90) {
+                progressBar.style.width = progress + '%';
+                progressText.textContent = progress + '%';
+            } else {
+                clearInterval(interval);
+                progressBar.style.width = '100%';
+                progressText.textContent = 'Processing...';
+            }
+        }, 200);
+    });
+
+    function formatFileSize(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+    }
+
+    // Show welcome toast
+    FlashFlow.showToast('Select a document to upload (PDF, TXT, EPUB, DOCX)', 'info', 4000);
+});
+</script>
+{% endblock %}

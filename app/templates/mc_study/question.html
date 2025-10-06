@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="padding-top: 100px; padding-bottom: 60px;">
+    <div style="max-width: 800px; margin: 0 auto;">
+        <!-- Progress Bar -->
+        <div style="margin-bottom: var(--space-lg);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="color: var(--color-text-tertiary); font-size: var(--font-size-sm);">Progress</span>
+                <span style="font-weight: var(--font-weight-bold); color: var(--color-text-secondary);">
+                    {{ progress.current }} / {{ progress.total }}
+                </span>
+            </div>
+            <div style="height: 8px; background: var(--overlay-medium); border-radius: 4px; overflow: hidden;">
+                <div style="height: 100%; background: var(--gradient-primary); width: {{ progress.percentage }}%; transition: width 0.5s ease; border-radius: 4px;"></div>
+            </div>
+        </div>
+
+        <!-- Session Stats -->
+        {% if session_stats.success %}
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-md); margin-bottom: var(--space-lg); text-align: center;">
+            <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-md); padding: var(--space-sm);">
+                <div style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--color-success);">
+                    {{ session_stats.correct_count }}
+                </div>
+                <small style="color: var(--color-text-muted);">Correct</small>
+            </div>
+            <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-md); padding: var(--space-sm);">
+                <div style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--color-primary);">
+                    {{ session_stats.accuracy }}%
+                </div>
+                <small style="color: var(--color-text-muted);">Accuracy</small>
+            </div>
+            <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-md); padding: var(--space-sm);">
+                <div style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--color-info);">
+                    {{ session_stats.total_questions }}
+                </div>
+                <small style="color: var(--color-text-muted);">Answered</small>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Question Card -->
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); margin-bottom: var(--space-lg); overflow: hidden;">
+            <!-- Card Header -->
+            <div style="background: var(--gradient-primary); padding: var(--space-md); color: white;">
+                <h5 style="margin: 0; font-weight: var(--font-weight-bold); display: flex; align-items: center; gap: 8px;">
+                    ❓ Question {{ progress.current }}
+                </h5>
+            </div>
+
+            <!-- Card Body -->
+            <div style="padding: var(--space-xl);">
+                <!-- Question Text -->
+                <h4 style="font-size: var(--font-size-xl); font-weight: var(--font-weight-semibold); margin-bottom: var(--space-lg); color: var(--color-text-primary); line-height: var(--line-height-relaxed);">
+                    {{ card.question_text }}
+                </h4>
+
+                <!-- Answer Form -->
+                <form method="POST" action="{{ url_for('mc_study.submit_answer', deck_id=deck.id) }}" id="answer-form">
+                    {{ form.hidden_tag() }}
+
+                    <!-- Hidden form fields -->
+                    {{ form.card_id() }}
+                    {{ form.session_id() }}
+
+                    <!-- Choices -->
+                    <div style="margin-bottom: var(--space-lg);" id="choices-container">
+                        {% for letter in ['A', 'B', 'C', 'D'] %}
+                        <div class="choice-card"
+                             data-choice="{{ letter }}"
+                             style="background: var(--overlay-light);
+                                    border: 2px solid var(--color-border-medium);
+                                    border-radius: var(--radius-md);
+                                    padding: var(--space-md);
+                                    margin-bottom: 12px;
+                                    cursor: pointer;
+                                    transition: all 0.2s ease;">
+                            <label style="display: flex; align-items: center; gap: 12px; cursor: pointer; margin: 0; width: 100%;">
+                                <input type="radio"
+                                       name="selected_choice"
+                                       value="{{ letter }}"
+                                       id="choice-{{ letter }}"
+                                       required
+                                       style="width: 20px; height: 20px; cursor: pointer; accent-color: var(--color-primary); flex-shrink: 0;">
+                                <span style="flex: 1; font-size: var(--font-size-md);">
+                                    <strong style="color: var(--color-primary);">{{ letter }}.</strong> {{ choices[letter] }}
+                                </span>
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Confidence Rating -->
+                    <div class="form-group">
+                        <label class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                            🌡️ How confident are you?
+                        </label>
+                        {{ form.confidence_rating(class="form-select", style="font-size: var(--font-size-md); padding: 12px;") }}
+                    </div>
+
+                    <!-- Submit Button -->
+                    <div style="display: grid; gap: var(--space-xs);">
+                        <button type="submit"
+                                class="btn btn-primary btn-lg"
+                                id="submit-btn"
+                                disabled
+                                style="width: 100%;">
+                            ✓ Submit Answer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Quit Option -->
+        <div style="text-align: center;">
+            <form method="POST" action="{{ url_for('mc_study.reset_session') }}" style="display: inline;">
+                {{ csrf_token() }}
+                <input type="hidden" name="deck_id" value="{{ deck.id }}">
+                <button type="submit"
+                        class="btn btn-secondary"
+                        onclick="return confirmQuit()"
+                        style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: var(--color-danger);">
+                    ✖️ Quit Session
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.choice-card:hover {
+    background: var(--overlay-medium) !important;
+    border-color: var(--color-primary) !important;
+    transform: translateX(4px);
+}
+
+.choice-card.selected {
+    background: rgba(102, 126, 234, 0.1) !important;
+    border-color: var(--color-primary) !important;
+}
+
+.choice-card.selected label strong {
+    color: var(--color-primary) !important;
+}
+</style>
+
+<script>
+// Enable submit button when answer is selected
+const radioButtons = document.querySelectorAll('input[name="selected_choice"]');
+const submitBtn = document.getElementById('submit-btn');
+const choiceCards = document.querySelectorAll('.choice-card');
+
+radioButtons.forEach(radio => {
+    radio.addEventListener('change', function() {
+        // Enable submit button
+        submitBtn.disabled = false;
+
+        // Update visual selection
+        choiceCards.forEach(card => {
+            card.classList.remove('selected');
+        });
+
+        const selectedCard = this.closest('.choice-card');
+        if (selectedCard) {
+            selectedCard.classList.add('selected');
+        }
+    });
+});
+
+// Click anywhere on card to select
+choiceCards.forEach(card => {
+    card.addEventListener('click', function(e) {
+        // Don't interfere if clicking directly on radio button
+        if (e.target.type !== 'radio') {
+            const radio = this.querySelector('input[type="radio"]');
+            if (radio) {
+                radio.checked = true;
+                radio.dispatchEvent(new Event('change'));
+            }
+        }
+    });
+});
+
+// Track time spent on question
+let startTime = Date.now();
+document.getElementById('answer-form').addEventListener('submit', function(e) {
+    const timeSpent = Math.floor((Date.now() - startTime) / 1000);
+
+    // Create hidden input for time if it doesn't exist
+    let timeInput = document.getElementById('time-spent');
+    if (!timeInput) {
+        timeInput = document.createElement('input');
+        timeInput.type = 'hidden';
+        timeInput.name = 'time_spent';
+        timeInput.id = 'time-spent';
+        this.appendChild(timeInput);
+    }
+    timeInput.value = timeSpent;
+
+    // Show loading state
+    if (window.FlashFlow) {
+        FlashFlow.showButtonLoading(submitBtn);
+    } else {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="loading-spinner" style="width: 20px; height: 20px; border-width: 2px; display: inline-block; vertical-align: middle; margin-right: 8px;"></span>Submitting...';
+    }
+});
+
+// Keyboard shortcuts (A, B, C, D)
+document.addEventListener('keydown', function(e) {
+    if (['a', 'b', 'c', 'd'].includes(e.key.toLowerCase()) && !e.ctrlKey && !e.metaKey) {
+        const letter = e.key.toUpperCase();
+        const radio = document.getElementById('choice-' + letter);
+        if (radio && !radio.disabled) {
+            radio.checked = true;
+            radio.dispatchEvent(new Event('change'));
+            e.preventDefault();
+        }
+    }
+});
+
+// Confirm quit
+function confirmQuit() {
+    if (window.FlashFlow && window.FlashFlow.confirmDialog) {
+        return false; // Let async handle it
+    }
+    return confirm('Are you sure you want to quit this session? Your progress will be lost.');
+}
+
+// Use FlashFlow confirm if available
+if (window.FlashFlow && window.FlashFlow.confirmDialog) {
+    document.querySelector('form[action*="reset_session"] button').addEventListener('click', function(e) {
+        e.preventDefault();
+        const form = this.closest('form');
+        FlashFlow.confirmDialog('Are you sure you want to quit this session? Your progress will be lost.').then(confirmed => {
+            if (confirmed) {
+                form.submit();
+            }
+        });
+    });
+}
+
+// Show keyboard hint toast
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.FlashFlow) {
+        FlashFlow.showToast('💡 Tip: Use A, B, C, D keys to select answers', 'info', 4000);
+    }
+});
+</script>
+{% endblock %}

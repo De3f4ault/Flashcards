@@ -1,87 +1,142 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="card-title mb-1">
-                    <i class="bi bi-plus-circle me-2"></i>Add New Card
-                </h4>
-                <div class="text-muted">{{ deck.name }}</div>
+<div style="padding-top: calc(var(--navbar-height) + var(--space-2xl)); padding-bottom: var(--space-2xl); min-height: 100vh;">
+    <div class="container" style="max-width: 800px;">
+
+        <!-- Page Header -->
+        <div style="text-align: center; margin-bottom: var(--space-xl);">
+            <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; background: var(--gradient-primary); border-radius: var(--radius-xl); margin-bottom: var(--space-md); box-shadow: var(--shadow-lg);">
+                <span style="font-size: 32px;">➕</span>
             </div>
-            <div class="card-body">
-                <form method="POST">
-                    {{ form.hidden_tag() }}
-
-                    <div class="mb-4">
-                        {{ form.front_text.label(class="form-label fw-bold") }}
-                        {{ form.front_text(class="form-control" + (" is-invalid" if form.front_text.errors else "")) }}
-                        {% for error in form.front_text.errors %}
-                            <div class="invalid-feedback">{{ error }}</div>
-                        {% endfor %}
-                        <div class="form-text">Enter the question, term, or prompt</div>
-                    </div>
-
-                    <div class="mb-4">
-                        {{ form.back_text.label(class="form-label fw-bold") }}
-                        {{ form.back_text(class="form-control" + (" is-invalid" if form.back_text.errors else "")) }}
-                        {% for error in form.back_text.errors %}
-                            <div class="invalid-feedback">{{ error }}</div>
-                        {% endfor %}
-                        <div class="form-text">Enter the answer, definition, or explanation</div>
-                    </div>
-
-                    <div class="d-flex justify-content-between">
-                        <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-secondary">Cancel</a>
-                        {{ form.submit(class="btn btn-primary") }}
-                    </div>
-                </form>
-            </div>
+            <h1 style="font-size: var(--font-size-3xl); font-weight: var(--font-weight-extrabold); margin-bottom: 8px;">Add New Card</h1>
+            <p style="color: var(--color-text-tertiary); font-size: var(--font-size-md);">{{ deck.name }}</p>
         </div>
 
-        <!-- Preview Card -->
-        <div class="card mt-4" id="card-preview" style="display: none;">
-            <div class="card-header">
-                <h6 class="card-title mb-0">
-                    <i class="bi bi-eye me-2"></i>Preview
+        <!-- Create Form -->
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-xl); padding: var(--space-xl); box-shadow: var(--shadow-lg);">
+            <form method="POST">
+                {{ form.hidden_tag() }}
+
+                <!-- Front Text Field -->
+                <div class="form-group">
+                    <label for="{{ form.front_text.id }}" class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 20px;">❓</span>
+                        {{ form.front_text.label.text }}
+                    </label>
+                    {{ form.front_text(class="form-textarea" + (" error" if form.front_text.errors else ""), placeholder="Enter the question, term, or prompt...", rows=4, id="front_text", style="font-size: var(--font-size-md);") }}
+                    {% for error in form.front_text.errors %}
+                        <div class="form-error">{{ error }}</div>
+                    {% endfor %}
+                    <div class="form-help">Enter the question, term, or prompt</div>
+                </div>
+
+                <!-- Back Text Field -->
+                <div class="form-group">
+                    <label for="{{ form.back_text.id }}" class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 20px;">💡</span>
+                        {{ form.back_text.label.text }}
+                    </label>
+                    {{ form.back_text(class="form-textarea" + (" error" if form.back_text.errors else ""), placeholder="Enter the answer, definition, or explanation...", rows=4, id="back_text", style="font-size: var(--font-size-md);") }}
+                    {% for error in form.back_text.errors %}
+                        <div class="form-error">{{ error }}</div>
+                    {% endfor %}
+                    <div class="form-help">Enter the answer, definition, or explanation</div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div style="display: flex; gap: 12px; margin-top: var(--space-xl);">
+                    <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-secondary" style="flex: 1;">
+                        Cancel
+                    </a>
+                    {{ form.submit(class="btn btn-primary", style="flex: 2;") }}
+                </div>
+            </form>
+        </div>
+
+        <!-- Live Preview Card -->
+        <div id="card-preview" style="display: none; margin-top: var(--space-md); opacity: 0; transition: opacity 0.3s ease;">
+            <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-primary); border-radius: var(--radius-xl); padding: var(--space-lg); box-shadow: var(--shadow-md);">
+                <h6 style="font-weight: var(--font-weight-bold); margin-bottom: var(--space-md); display: flex; align-items: center; gap: 8px; color: var(--color-primary);">
+                    <span>👁️</span> Live Preview
                 </h6>
-            </div>
-            <div class="card-body text-center">
-                <div class="mb-3">
-                    <div class="fw-bold mb-2">FRONT:</div>
-                    <div id="preview-front" class="border rounded p-3 mb-3"></div>
-                    <div class="fw-bold mb-2">BACK:</div>
-                    <div id="preview-back" class="border rounded p-3"></div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md);">
+                    <!-- Front Preview -->
+                    <div>
+                        <div style="background: rgba(102, 126, 234, 0.1); border: 1px solid var(--color-border-primary); border-radius: var(--radius-md); padding: var(--space-md); min-height: 120px;">
+                            <div style="font-weight: var(--font-weight-semibold); font-size: var(--font-size-xs); color: var(--color-primary); text-transform: uppercase; margin-bottom: 8px;">Front</div>
+                            <div id="preview-front" style="color: var(--color-text-secondary); line-height: var(--line-height-relaxed);">Enter front text...</div>
+                        </div>
+                    </div>
+
+                    <!-- Back Preview -->
+                    <div>
+                        <div style="background: rgba(52, 199, 89, 0.1); border: 1px solid rgba(52, 199, 89, 0.3); border-radius: var(--radius-md); padding: var(--space-md); min-height: 120px;">
+                            <div style="font-weight: var(--font-weight-semibold); font-size: var(--font-size-xs); color: var(--color-success); text-transform: uppercase; margin-bottom: 8px;">Back</div>
+                            <div id="preview-back" style="color: var(--color-text-secondary); line-height: var(--line-height-relaxed);">Enter back text...</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- Tips Card -->
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-lg); margin-top: var(--space-md);">
+            <h6 style="font-weight: var(--font-weight-bold); margin-bottom: var(--space-sm); display: flex; align-items: center; gap: 8px;">
+                <span>💡</span> Tips for Effective Cards
+            </h6>
+            <ul style="margin: 0; padding-left: 24px; color: var(--color-text-tertiary); font-size: var(--font-size-sm); line-height: var(--line-height-relaxed);">
+                <li><strong>Keep it simple:</strong> One concept per card works best</li>
+                <li><strong>Be specific:</strong> Clear questions get clearer answers</li>
+                <li><strong>Use examples:</strong> Add context to help memory retention</li>
+                <li><strong>Think both ways:</strong> Could you answer if the card was flipped?</li>
+            </ul>
+        </div>
     </div>
 </div>
+{% endblock %}
 
+{% block scripts %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const frontInput = document.getElementById('front_text');
-    const backInput = document.getElementById('back_text');
-    const preview = document.getElementById('card-preview');
-    const previewFront = document.getElementById('preview-front');
-    const previewBack = document.getElementById('preview-back');
+    document.addEventListener('DOMContentLoaded', function() {
+        const frontInput = document.getElementById('front_text');
+        const backInput = document.getElementById('back_text');
+        const preview = document.getElementById('card-preview');
+        const previewFront = document.getElementById('preview-front');
+        const previewBack = document.getElementById('preview-back');
 
-    function updatePreview() {
-        const frontText = frontInput.value.trim();
-        const backText = backInput.value.trim();
+        function updatePreview() {
+            const frontText = frontInput.value.trim();
+            const backText = backInput.value.trim();
 
-        if (frontText || backText) {
-            previewFront.textContent = frontText || 'Enter front text...';
-            previewBack.textContent = backText || 'Enter back text...';
-            preview.style.display = 'block';
-        } else {
-            preview.style.display = 'none';
+            if (frontText || backText) {
+                previewFront.textContent = frontText || 'Enter front text...';
+                previewBack.textContent = backText || 'Enter back text...';
+
+                if (preview.style.display === 'none') {
+                    preview.style.display = 'block';
+                    setTimeout(() => {
+                        preview.style.opacity = '1';
+                    }, 10);
+                }
+            } else {
+                preview.style.opacity = '0';
+                setTimeout(() => {
+                    if (!frontInput.value.trim() && !backInput.value.trim()) {
+                        preview.style.display = 'none';
+                    }
+                }, 300);
+            }
         }
-    }
 
-    frontInput.addEventListener('input', updatePreview);
-    backInput.addEventListener('input', updatePreview);
-});
+        frontInput.addEventListener('input', updatePreview);
+        backInput.addEventListener('input', updatePreview);
+
+        // Auto-focus first input
+        frontInput.focus();
+
+        FlashFlow.showToast('Create a new flashcard for your deck', 'info', 3000);
+    });
 </script>
 {% endblock %}

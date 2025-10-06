@@ -1,0 +1,364 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="padding-top: 80px; height: 100vh; display: flex; overflow: hidden;">
+    <div class="container" style="max-width: 100%; height: 100%; display: flex; gap: 0; padding: 0;">
+        <!-- Sidebar - Sessions List -->
+        <div id="chat-sidebar" style="width: 280px; background: var(--color-bg-secondary); border-right: 1px solid var(--color-border-light); display: flex; flex-direction: column; overflow: hidden;">
+            <!-- Sidebar Header -->
+            <div style="padding: var(--space-md); border-bottom: 1px solid var(--color-border-light); display: flex; justify-content: space-between; align-items: center;">
+                <h3 style="font-size: var(--font-size-md); font-weight: var(--font-weight-bold); margin: 0; color: var(--color-text-primary);">
+                    💬 Chats
+                </h3>
+                <a href="{{ url_for('chat.new_session') }}" style="width: 32px; height: 32px; border-radius: var(--radius-md); background: var(--gradient-primary); display: flex; align-items: center; justify-content: center; color: white; text-decoration: none; transition: var(--transition-base);" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform=''">
+                    ➕
+                </a>
+            </div>
+
+            <!-- Sessions List -->
+            <div id="sessions-list" style="flex: 1; overflow-y: auto; padding: var(--space-xs);">
+                {% for s in sessions %}
+                <a href="{{ url_for('chat.session', session_id=s.id) }}" style="display: block; padding: 12px; border-radius: var(--radius-md); margin-bottom: 4px; text-decoration: none; transition: var(--transition-base); {% if s.id == current_session_id %}background: var(--gradient-primary); color: white;{% else %}background: transparent; color: var(--color-text-primary);{% endif %}" onmouseover="if({{ s.id }} != {{ current_session_id }}) this.style.background='var(--overlay-light)'" onmouseout="if({{ s.id }} != {{ current_session_id }}) this.style.background='transparent'">
+                    <div style="display: flex; justify-content: space-between; align-items: start; gap: 8px;">
+                        <div style="flex: 1; min-width: 0;">
+                            <div style="font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 4px;">
+                                {{ s.title }}
+                            </div>
+                            <div style="font-size: var(--font-size-xs); {% if s.id == current_session_id %}color: rgba(255,255,255,0.8);{% else %}color: var(--color-text-muted);{% endif %}">
+                                {{ s._format_time_ago() }}
+                            </div>
+                        </div>
+                        {% if s.document %}
+                        <span style="font-size: 16px;">📄</span>
+                        {% endif %}
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Main Chat Interface -->
+        <div style="flex: 1; display: flex; flex-direction: column; background: var(--color-bg-primary); overflow: hidden;">
+            <!-- Chat Header -->
+            <div style="background: var(--color-bg-secondary); border-bottom: 1px solid var(--color-border-light); padding: var(--space-md); display: flex; justify-content: space-between; align-items: center;">
+                <div style="flex: 1; min-width: 0;">
+                    <h2 style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); margin: 0 0 4px 0; color: var(--color-text-primary);">
+                        {{ session.title }}
+                    </h2>
+                    {% if session.document %}
+                    <div style="font-size: var(--font-size-sm); color: var(--color-primary); display: flex; align-items: center; gap: 8px;">
+                        <span>📄 {{ session.document.original_filename }}</span>
+                        <form method="POST" action="{{ url_for('chat.detach_document', session_id=session.id) }}" style="display: inline;" onsubmit="return confirm('Remove this document from the chat?');">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <button type="submit" style="background: none; border: none; color: var(--color-danger); cursor: pointer; padding: 0; font-size: 14px;" title="Remove document">
+                                ❌
+                            </button>
+                        </form>
+                    </div>
+                    {% else %}
+                    <div style="font-size: var(--font-size-sm); color: var(--color-text-muted);">
+                        No document attached
+                    </div>
+                    {% endif %}
+                </div>
+                <div style="position: relative;">
+                    <button onclick="toggleDropdown()" style="background: var(--overlay-medium); border: 1px solid var(--color-border-medium); border-radius: var(--radius-md); padding: 8px 12px; color: var(--color-text-primary); cursor: pointer; font-size: 16px;">
+                        ⋮
+                    </button>
+                    <div id="chatDropdown" style="display: none; position: absolute; right: 0; top: 100%; margin-top: 4px; background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-md); box-shadow: var(--shadow-lg); min-width: 180px; z-index: 1000;">
+                        <button onclick="openRenameModal()" style="width: 100%; text-align: left; padding: 10px 16px; background: none; border: none; color: var(--color-text-primary); cursor: pointer; font-size: var(--font-size-sm); display: flex; align-items: center; gap: 8px;" onmouseover="this.style.background='var(--overlay-light)'" onmouseout="this.style.background='none'">
+                            ✏️ Rename
+                        </button>
+                        <button onclick="openAttachModal()" style="width: 100%; text-align: left; padding: 10px 16px; background: none; border: none; color: var(--color-text-primary); cursor: pointer; font-size: var(--font-size-sm); display: flex; align-items: center; gap: 8px;" onmouseover="this.style.background='var(--overlay-light)'" onmouseout="this.style.background='none'">
+                            📎 Attach Document
+                        </button>
+                        <div style="height: 1px; background: var(--color-border-light); margin: 4px 0;"></div>
+                        <form method="POST" action="{{ url_for('chat.delete_session', session_id=session.id) }}" onsubmit="return confirm('Delete this chat session?');" style="margin: 0;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                            <button type="submit" style="width: 100%; text-align: left; padding: 10px 16px; background: none; border: none; color: var(--color-danger); cursor: pointer; font-size: var(--font-size-sm); display: flex; align-items: center; gap: 8px;" onmouseover="this.style.background='var(--overlay-light)'" onmouseout="this.style.background='none'">
+                                🗑️ Delete
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Messages Container -->
+            <div id="messages-container" style="flex: 1; overflow-y: auto; padding: var(--space-md); background: var(--color-bg-primary); scroll-behavior: smooth;">
+                {% for message in messages %}
+                <div style="margin-bottom: var(--space-md); {% if message.role == 'user' %}text-align: right;{% endif %}">
+                    <div style="display: inline-block; max-width: 75%; text-align: left;">
+                        <div style="padding: var(--space-md); border-radius: var(--radius-lg); {% if message.role == 'user' %}background: var(--gradient-primary); color: white;{% else %}background: var(--color-bg-secondary); color: var(--color-text-primary); border: 1px solid var(--color-border-light);{% endif %} {% if message.has_error %}border: 2px solid var(--color-danger);{% endif %}">
+                            <div style="word-wrap: break-word; line-height: var(--line-height-relaxed);">
+                                {% if message.role == 'assistant' %}
+                                <div>{{ message.content|safe }}</div>
+                                {% else %}
+                                {{ message.content }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div style="margin-top: 4px; font-size: var(--font-size-xs); color: var(--color-text-muted);">
+                            {{ message.formatted_timestamp }}
+                            {% if message.tokens_used > 0 %}
+                            <span style="margin-left: 8px;">{{ message.tokens_used }} tokens</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Typing Indicator -->
+            <div id="typing-indicator" style="display: none; padding: var(--space-md); padding-top: 0;">
+                <div style="display: inline-block; background: var(--color-bg-secondary); padding: var(--space-md); border-radius: var(--radius-lg); border: 1px solid var(--color-border-light);">
+                    <div style="display: flex; gap: 4px;">
+                        <span style="width: 8px; height: 8px; background: var(--color-text-muted); border-radius: 50%; animation: typing 1.4s infinite;"></span>
+                        <span style="width: 8px; height: 8px; background: var(--color-text-muted); border-radius: 50%; animation: typing 1.4s infinite 0.2s;"></span>
+                        <span style="width: 8px; height: 8px; background: var(--color-text-muted); border-radius: 50%; animation: typing 1.4s infinite 0.4s;"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div style="background: var(--color-bg-secondary); border-top: 1px solid var(--color-border-light); padding: var(--space-md);">
+                <form id="message-form" style="display: flex; gap: var(--space-sm);">
+                    <textarea id="message-input" class="form-textarea" rows="2" placeholder="Type your message here... (Shift+Enter for new line)" required style="flex: 1; resize: vertical; min-height: 60px; max-height: 200px;"></textarea>
+                    <button type="submit" id="send-button" class="btn btn-primary" style="align-self: flex-end;">
+                        📤
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rename Modal -->
+<div id="renameModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+    <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-xl); max-width: 500px; width: 90%;">
+        <form method="POST" action="{{ url_for('chat.rename_session', session_id=session.id) }}">
+            {{ message_form.hidden_tag() }}
+            <div style="padding: var(--space-lg); border-bottom: 1px solid var(--color-border-light);">
+                <h3 style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); margin: 0; color: var(--color-text-primary);">Rename Chat</h3>
+            </div>
+            <div style="padding: var(--space-lg);">
+                <label style="display: block; font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); margin-bottom: 6px; color: var(--color-text-secondary);">New Title</label>
+                <input type="text" name="title" class="form-input" value="{{ session.title }}" required style="width: 100%;">
+            </div>
+            <div style="padding: var(--space-lg); border-top: 1px solid var(--color-border-light); display: flex; gap: var(--space-sm); justify-content: flex-end;">
+                <button type="button" onclick="closeRenameModal()" class="btn btn-secondary">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Attach Document Modal -->
+<div id="attachModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+    <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-xl); max-width: 500px; width: 90%;">
+        <form method="POST" id="attach-document-form">
+            {{ attach_form.hidden_tag() }}
+            <div style="padding: var(--space-lg); border-bottom: 1px solid var(--color-border-light);">
+                <h3 style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); margin: 0; color: var(--color-text-primary);">Attach Document</h3>
+            </div>
+            <div style="padding: var(--space-lg);">
+                <label style="display: block; font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); margin-bottom: 6px; color: var(--color-text-secondary);">Select Document</label>
+                {{ attach_form.document_id(class="form-input", style="width: 100%;") }}
+                <p style="font-size: var(--font-size-xs); color: var(--color-text-muted); margin-top: 8px; margin-bottom: 0;">
+                    ℹ️ Attaching a document allows the AI to reference its content in conversations.
+                </p>
+            </div>
+            <div style="padding: var(--space-lg); border-top: 1px solid var(--color-border-light); display: flex; gap: var(--space-sm); justify-content: flex-end;">
+                <button type="button" onclick="closeAttachModal()" class="btn btn-secondary">Cancel</button>
+                <button type="submit" class="btn btn-primary">Attach</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    @keyframes typing {
+        0%, 60%, 100% { transform: translateY(0); }
+        30% { transform: translateY(-10px); }
+    }
+
+    @media (max-width: 768px) {
+        #chat-sidebar {
+            width: 0 !important;
+            overflow: hidden;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const messageForm = document.getElementById('message-form');
+    const messageInput = document.getElementById('message-input');
+    const sendButton = document.getElementById('send-button');
+    const messagesContainer = document.getElementById('messages-container');
+    const typingIndicator = document.getElementById('typing-indicator');
+    const sessionId = {{ session.id }};
+
+    let isSubmitting = false;
+
+    // Auto-scroll to bottom on load
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    // Send message function
+    async function sendMessage() {
+        if (isSubmitting) return;
+
+        const message = messageInput.value.trim();
+        if (!message) return;
+
+        isSubmitting = true;
+        messageInput.disabled = true;
+        sendButton.disabled = true;
+
+        // Add user message to UI
+        appendMessage('user', message);
+        messageInput.value = '';
+
+        // Show typing indicator
+        typingIndicator.style.display = 'block';
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+        try {
+            const response = await fetch(`/chat/${sessionId}/send`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ message: message })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            typingIndicator.style.display = 'none';
+
+            if (data.success) {
+                appendMessage('assistant', data.assistant_message.content, data.assistant_message.tokens_used);
+            } else {
+                appendMessage('assistant', data.error || 'Error generating response', 0, true);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            typingIndicator.style.display = 'none';
+            appendMessage('assistant', 'Failed to send message. Please try again.', 0, true);
+        } finally {
+            messageInput.disabled = false;
+            sendButton.disabled = false;
+            messageInput.focus();
+            isSubmitting = false;
+        }
+    }
+
+    // Form submission
+    messageForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        sendMessage();
+    });
+
+    // Enter key handling
+    messageInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            e.stopPropagation();
+            sendMessage();
+        }
+    });
+
+    // Append message to UI
+    function appendMessage(role, content, tokens = 0, isError = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.style.marginBottom = 'var(--space-md)';
+        if (role === 'user') messageDiv.style.textAlign = 'right';
+
+        const bubbleStyle = role === 'user'
+            ? 'background: var(--gradient-primary); color: white;'
+            : 'background: var(--color-bg-secondary); color: var(--color-text-primary); border: 1px solid var(--color-border-light);';
+
+        const errorStyle = isError ? 'border: 2px solid var(--color-danger);' : '';
+
+        messageDiv.innerHTML = `
+            <div style="display: inline-block; max-width: 75%; text-align: left;">
+                <div style="padding: var(--space-md); border-radius: var(--radius-lg); ${bubbleStyle} ${errorStyle}">
+                    <div style="word-wrap: break-word; line-height: var(--line-height-relaxed);">${escapeHtml(content)}</div>
+                </div>
+                <div style="margin-top: 4px; font-size: var(--font-size-xs); color: var(--color-text-muted);">
+                    Just now
+                    ${tokens > 0 ? `<span style="margin-left: 8px;">${tokens} tokens</span>` : ''}
+                </div>
+            </div>
+        `;
+
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+
+    // Attach document form
+    const attachForm = document.getElementById('attach-document-form');
+    if (attachForm) {
+        attachForm.addEventListener('submit', function(e) {
+            const select = attachForm.querySelector('select[name="document_id"]');
+            const docId = select.value;
+            attachForm.action = `/chat/${sessionId}/attach-document/${docId}`;
+        });
+    }
+});
+
+// Dropdown toggle
+function toggleDropdown() {
+    const dropdown = document.getElementById('chatDropdown');
+    dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+}
+
+// Close dropdown when clicking outside
+document.addEventListener('click', function(e) {
+    const dropdown = document.getElementById('chatDropdown');
+    if (!e.target.closest('button[onclick="toggleDropdown()"]') && !e.target.closest('#chatDropdown')) {
+        dropdown.style.display = 'none';
+    }
+});
+
+// Modal functions
+function openRenameModal() {
+    document.getElementById('renameModal').style.display = 'flex';
+    document.getElementById('chatDropdown').style.display = 'none';
+}
+
+function closeRenameModal() {
+    document.getElementById('renameModal').style.display = 'none';
+}
+
+function openAttachModal() {
+    document.getElementById('attachModal').style.display = 'flex';
+    document.getElementById('chatDropdown').style.display = 'none';
+}
+
+function closeAttachModal() {
+    document.getElementById('attachModal').style.display = 'none';
+}
+
+// Close modals on overlay click
+document.getElementById('renameModal').addEventListener('click', function(e) {
+    if (e.target === this) closeRenameModal();
+});
+
+document.getElementById('attachModal').addEventListener('click', function(e) {
+    if (e.target === this) closeAttachModal();
+});
+</script>
+{% endblock %}

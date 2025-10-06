@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="padding-top: 100px; padding-bottom: 60px;">
+    <div style="max-width: 800px; margin: 0 auto;">
+        <!-- Result Card -->
+        <div style="background: var(--color-bg-secondary);
+                    border: 2px solid {% if feedback.is_correct %}var(--color-success){% else %}var(--color-danger){% endif %};
+                    border-radius: var(--radius-lg);
+                    margin-bottom: var(--space-lg);
+                    overflow: hidden;">
+            <!-- Card Header -->
+            <div style="background: {% if feedback.is_correct %}var(--color-success){% else %}var(--color-danger){% endif %};
+                        padding: var(--space-md);
+                        color: white;
+                        text-align: center;">
+                <h3 style="margin: 0; font-weight: var(--font-weight-bold); display: flex; align-items: center; justify-content: center; gap: 12px;">
+                    {% if feedback.is_correct %}
+                        ✓ Correct!
+                    {% else %}
+                        ✗ Not Quite
+                    {% endif %}
+                </h3>
+            </div>
+
+            <!-- Card Body -->
+            <div style="padding: var(--space-xl);">
+                <!-- Question -->
+                <h5 style="font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); margin-bottom: var(--space-md); color: var(--color-text-primary);">
+                    {{ feedback.question }}
+                </h5>
+
+                <!-- Your Answer -->
+                <div style="background: {% if feedback.is_correct %}rgba(52, 199, 89, 0.1){% else %}rgba(239, 68, 68, 0.1){% endif %};
+                            border: 1px solid {% if feedback.is_correct %}rgba(52, 199, 89, 0.3){% else %}rgba(239, 68, 68, 0.3){% endif %};
+                            border-radius: var(--radius-md);
+                            padding: var(--space-md);
+                            margin-bottom: var(--space-md);">
+                    <strong style="color: var(--color-text-primary);">Your Answer:</strong>
+                    <span style="background: {% if feedback.is_correct %}var(--color-success){% else %}var(--color-danger){% endif %};
+                                 color: white;
+                                 padding: 4px 10px;
+                                 border-radius: var(--radius-2xl);
+                                 font-size: var(--font-size-sm);
+                                 font-weight: var(--font-weight-bold);
+                                 margin: 0 8px;">
+                        {{ feedback.selected_choice }}
+                    </span>
+                    <span style="color: var(--color-text-secondary);">
+                        {{ feedback.choices[feedback.selected_choice] }}
+                    </span>
+                </div>
+
+                {% if not feedback.is_correct %}
+                <!-- Correct Answer -->
+                <div style="background: rgba(52, 199, 89, 0.1);
+                            border: 1px solid rgba(52, 199, 89, 0.3);
+                            border-radius: var(--radius-md);
+                            padding: var(--space-md);
+                            margin-bottom: var(--space-md);">
+                    <strong style="color: var(--color-text-primary);">Correct Answer:</strong>
+                    <span style="background: var(--color-success);
+                                 color: white;
+                                 padding: 4px 10px;
+                                 border-radius: var(--radius-2xl);
+                                 font-size: var(--font-size-sm);
+                                 font-weight: var(--font-weight-bold);
+                                 margin: 0 8px;">
+                        {{ feedback.correct_answer }}
+                    </span>
+                    <span style="color: var(--color-text-secondary);">
+                        {{ feedback.choices[feedback.correct_answer] }}
+                    </span>
+                </div>
+
+                <!-- Misconception Explanation -->
+                {% if feedback.misconception %}
+                <div style="background: var(--overlay-light);
+                            border-left: 4px solid var(--color-warning);
+                            border-radius: var(--radius-md);
+                            padding: var(--space-md);
+                            margin-bottom: var(--space-md);">
+                    <h6 style="font-weight: var(--font-weight-semibold);
+                               margin-bottom: 8px;
+                               color: var(--color-text-secondary);
+                               display: flex;
+                               align-items: center;
+                               gap: 8px;">
+                        💡 Why this is a common mistake:
+                    </h6>
+                    <p style="margin: 0; color: var(--color-text-tertiary); line-height: var(--line-height-relaxed);">
+                        {{ feedback.misconception }}
+                    </p>
+                </div>
+                {% endif %}
+                {% else %}
+                <!-- Success Message -->
+                <div style="background: rgba(59, 130, 246, 0.1);
+                            border: 1px solid rgba(59, 130, 246, 0.3);
+                            border-radius: var(--radius-md);
+                            padding: var(--space-md);
+                            margin-bottom: var(--space-md);
+                            color: var(--color-info);
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;">
+                    ⭐ {{ feedback.message }}
+                </div>
+                {% endif %}
+
+                <!-- Stats -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); text-align: center; margin-top: var(--space-lg); padding-top: var(--space-lg); border-top: 1px solid var(--color-border-light);">
+                    <div>
+                        <div style="color: var(--color-text-muted); font-size: var(--font-size-sm); margin-bottom: 4px;">
+                            Time Spent
+                        </div>
+                        <div style="font-weight: var(--font-weight-bold); color: var(--color-text-secondary); font-size: var(--font-size-lg);">
+                            {{ feedback.time_spent }}
+                        </div>
+                    </div>
+                    <div>
+                        <div style="color: var(--color-text-muted); font-size: var(--font-size-sm); margin-bottom: 4px;">
+                            Your Confidence
+                        </div>
+                        <div style="font-weight: var(--font-weight-bold); color: var(--color-text-secondary); font-size: var(--font-size-lg);">
+                            {{ feedback.confidence }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Continue Button -->
+        <div style="display: grid; gap: var(--space-xs);">
+            {% if is_complete %}
+                <a href="{{ url_for('mc_study.complete', deck_id=deck.id) }}"
+                   class="btn btn-primary btn-lg"
+                   style="width: 100%; background: var(--color-success); border-color: var(--color-success);">
+                    🏁 View Results
+                </a>
+            {% else %}
+                <a href="{{ url_for('mc_study.question', deck_id=deck.id) }}"
+                   class="btn btn-primary btn-lg"
+                   style="width: 100%;">
+                    → Next Question
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-advance after delay (optional)
+        const isCorrect = {{ 'true' if feedback.is_correct else 'false' }};
+
+        if (window.FlashFlow) {
+            if (isCorrect) {
+                FlashFlow.showToast('Great job! Keep going!', 'success', 2000);
+            } else {
+                FlashFlow.showToast('Review the explanation and try to understand why', 'info', 3000);
+            }
+        }
+
+        // Keyboard shortcut to continue (Enter key)
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.ctrlKey && !e.metaKey) {
+                const continueBtn = document.querySelector('a.btn-primary');
+                if (continueBtn) {
+                    continueBtn.click();
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

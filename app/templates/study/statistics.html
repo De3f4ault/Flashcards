@@ -1,204 +1,248 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h1 class="h2 mb-1">Study Statistics</h1>
-                <h5 class="text-muted">{{ deck.name }}</h5>
-                <p class="text-muted">Detailed analysis of your learning progress</p>
-            </div>
-            <div>
-                <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left me-2"></i>Back to Deck
-                </a>
-            </div>
+<div class="container" style="max-width: 1400px; padding-top: 120px; padding-bottom: 60px;">
+    <!-- Header -->
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; flex-wrap: wrap; gap: 16px;">
+        <div>
+            <h1 style="font-size: 2rem; font-weight: 800; margin: 0 0 8px 0;">Study Statistics</h1>
+            <h2 style="font-size: 1.25rem; font-weight: 600; color: var(--color-primary); margin: 0 0 8px 0;">{{ deck.name }}</h2>
+            <p style="color: var(--color-text-tertiary); margin: 0;">Detailed analysis of your learning progress</p>
         </div>
+        <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-secondary">
+            ← Back to Deck
+        </a>
     </div>
-</div>
 
-<!-- Overall Statistics -->
-<div class="row mb-4">
-    <div class="col-md-3 mb-3">
-        <div class="card text-center">
-            <div class="card-body">
-                <i class="bi bi-card-text fs-1 text-primary mb-2"></i>
-                <div class="h4 mb-1">{{ stats.total_cards }}</div>
-                <div class="text-muted small">Total Cards</div>
+    <!-- Overall Statistics Grid -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 40px;">
+        <!-- Total Cards -->
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: 16px; padding: 24px; text-align: center; transition: all 0.3s ease;">
+            <div style="font-size: 3rem; margin-bottom: 12px;">🃏</div>
+            <div style="font-size: 2rem; font-weight: 900; margin-bottom: 8px; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                {{ stats.total_cards }}
             </div>
+            <div style="color: var(--color-text-muted); font-size: 0.9rem;">Total Cards</div>
         </div>
-    </div>
-    <div class="col-md-3 mb-3">
-        <div class="card text-center">
-            <div class="card-body">
-                <i class="bi bi-check-circle fs-1 text-success mb-2"></i>
-                <div class="h4 mb-1">{{ stats.studied_cards }}</div>
-                <div class="text-muted small">Cards Studied</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 mb-3">
-        <div class="card text-center">
-            <div class="card-body">
-                <i class="bi bi-target fs-1 text-info mb-2"></i>
-                <div class="h4 mb-1">{{ stats.avg_accuracy }}%</div>
-                <div class="text-muted small">Average Accuracy</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 mb-3">
-        <div class="card text-center">
-            <div class="card-body">
-                <i class="bi bi-arrow-repeat fs-1 text-warning mb-2"></i>
-                <div class="h4 mb-1">{{ stats.cards_needing_review }}</div>
-                <div class="text-muted small">Need Review</div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Performance Distribution -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h6 class="card-title mb-0">
-                    <i class="bi bi-pie-chart me-2"></i>Performance Distribution
-                </h6>
+        <!-- Cards Studied -->
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: 16px; padding: 24px; text-align: center; transition: all 0.3s ease;">
+            <div style="font-size: 3rem; margin-bottom: 12px;">✅</div>
+            <div style="font-size: 2rem; font-weight: 900; margin-bottom: 8px; background: var(--gradient-green); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                {{ stats.studied_cards }}
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <h6 class="fw-bold mb-3">By Accuracy</h6>
-                        <div class="mb-2">
-                            <div class="d-flex justify-content-between">
-                                <span class="small">Mastered (90%+)</span>
-                                <span class="small fw-bold text-success">
-                                    {{ cards_with_stats|selectattr('accuracy', 'ge', 90)|list|length }}
-                                </span>
-                            </div>
-                            <div class="progress progress-sm">
-                                <div class="progress-bar bg-success" style="width: {{ ((cards_with_stats|selectattr('accuracy', 'ge', 90)|list|length) / stats.total_cards * 100) if stats.total_cards > 0 else 0 }}%"></div>
-                            </div>
+            <div style="color: var(--color-text-muted); font-size: 0.9rem;">Cards Studied</div>
+        </div>
+
+        <!-- Average Accuracy -->
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: 16px; padding: 24px; text-align: center; transition: all 0.3s ease;">
+            <div style="font-size: 3rem; margin-bottom: 12px;">🎯</div>
+            <div style="font-size: 2rem; font-weight: 900; margin-bottom: 8px; color: var(--color-info);">
+                {{ stats.avg_accuracy }}%
+            </div>
+            <div style="color: var(--color-text-muted); font-size: 0.9rem;">Average Accuracy</div>
+        </div>
+
+        <!-- Need Review -->
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: 16px; padding: 24px; text-align: center; transition: all 0.3s ease;">
+            <div style="font-size: 3rem; margin-bottom: 12px;">🔄</div>
+            <div style="font-size: 2rem; font-weight: 900; margin-bottom: 8px; color: var(--color-warning);">
+                {{ stats.cards_needing_review }}
+            </div>
+            <div style="color: var(--color-text-muted); font-size: 0.9rem;">Need Review</div>
+        </div>
+    </div>
+
+    <!-- Performance Distribution -->
+    <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: 16px; overflow: hidden; margin-bottom: 40px;">
+        <div style="background: var(--overlay-medium); padding: 20px 24px; border-bottom: 1px solid var(--color-border-light);">
+            <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 12px;">
+                📊 Performance Distribution
+            </h3>
+        </div>
+        <div style="padding: 32px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 40px;">
+                <!-- By Accuracy -->
+                <div>
+                    <h4 style="font-size: 1rem; font-weight: 700; margin: 0 0 20px 0;">By Accuracy</h4>
+
+                    <!-- Mastered -->
+                    <div style="margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="font-size: 0.9rem; color: var(--color-text-tertiary);">Mastered (90%+)</span>
+                            <span style="font-weight: 700; color: var(--color-success);">
+                                {{ cards_with_stats|selectattr('accuracy', 'ge', 90)|list|length }}
+                            </span>
                         </div>
-                        <div class="mb-2">
-                            <div class="d-flex justify-content-between">
-                                <span class="small">Good (70-89%)</span>
-                                <span class="small fw-bold text-info">
-                                    {{ cards_with_stats|selectattr('accuracy', 'ge', 70)|selectattr('accuracy', 'lt', 90)|list|length }}
-                                </span>
-                            </div>
-                            <div class="progress progress-sm">
-                                <div class="progress-bar bg-info" style="width: {{ ((cards_with_stats|selectattr('accuracy', 'ge', 70)|selectattr('accuracy', 'lt', 90)|list|length) / stats.total_cards * 100) if stats.total_cards > 0 else 0 }}%"></div>
-                            </div>
-                        </div>
-                        <div class="mb-2">
-                            <div class="d-flex justify-content-between">
-                                <span class="small">Needs Work (<70%)</span>
-                                <span class="small fw-bold text-danger">
-                                    {{ cards_with_stats|selectattr('accuracy', 'lt', 70)|list|length }}
-                                </span>
-                            </div>
-                            <div class="progress progress-sm">
-                                <div class="progress-bar bg-danger" style="width: {{ ((cards_with_stats|selectattr('accuracy', 'lt', 70)|list|length) / stats.total_cards * 100) if stats.total_cards > 0 else 0 }}%"></div>
-                            </div>
+                        <div style="height: 10px; background: var(--overlay-medium); border-radius: 5px; overflow: hidden;">
+                            <div style="height: 100%; width: {{ ((cards_with_stats|selectattr('accuracy', 'ge', 90)|list|length) / stats.total_cards * 100) if stats.total_cards > 0 else 0 }}%; background: var(--gradient-green); transition: width 0.6s ease;"></div>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <h6 class="fw-bold mb-3">Study Progress</h6>
-                        <div class="mb-2">
-                            <div class="d-flex justify-content-between">
-                                <span class="small">Studied Cards</span>
-                                <span class="small fw-bold">{{ stats.studied_cards }} / {{ stats.total_cards }}</span>
-                            </div>
-                            <div class="progress progress-sm">
-                                <div class="progress-bar" style="width: {{ (stats.studied_cards / stats.total_cards * 100) if stats.total_cards > 0 else 0 }}%"></div>
-                            </div>
+
+                    <!-- Good -->
+                    <div style="margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="font-size: 0.9rem; color: var(--color-text-tertiary);">Good (70-89%)</span>
+                            <span style="font-weight: 700; color: var(--color-info);">
+                                {{ cards_with_stats|selectattr('accuracy', 'ge', 70)|selectattr('accuracy', 'lt', 90)|list|length }}
+                            </span>
                         </div>
-                        <div class="mb-2">
-                            <div class="d-flex justify-content-between">
-                                <span class="small">Total Study Sessions</span>
-                                <span class="small fw-bold">{{ stats.total_study_sessions }}</span>
-                            </div>
+                        <div style="height: 10px; background: var(--overlay-medium); border-radius: 5px; overflow: hidden;">
+                            <div style="height: 100%; width: {{ ((cards_with_stats|selectattr('accuracy', 'ge', 70)|selectattr('accuracy', 'lt', 90)|list|length) / stats.total_cards * 100) if stats.total_cards > 0 else 0 }}%; background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%); transition: width 0.6s ease;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Needs Work -->
+                    <div style="margin-bottom: 0;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="font-size: 0.9rem; color: var(--color-text-tertiary);">Needs Work (<70%)</span>
+                            <span style="font-weight: 700; color: var(--color-danger);">
+                                {{ cards_with_stats|selectattr('accuracy', 'lt', 70)|list|length }}
+                            </span>
+                        </div>
+                        <div style="height: 10px; background: var(--overlay-medium); border-radius: 5px; overflow: hidden;">
+                            <div style="height: 100%; width: {{ ((cards_with_stats|selectattr('accuracy', 'lt', 70)|list|length) / stats.total_cards * 100) if stats.total_cards > 0 else 0 }}%; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); transition: width 0.6s ease;"></div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Study Progress -->
+                <div>
+                    <h4 style="font-size: 1rem; font-weight: 700; margin: 0 0 20px 0;">Study Progress</h4>
+
+                    <!-- Studied Cards Progress -->
+                    <div style="margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                            <span style="font-size: 0.9rem; color: var(--color-text-tertiary);">Studied Cards</span>
+                            <span style="font-weight: 700;">{{ stats.studied_cards }} / {{ stats.total_cards }}</span>
+                        </div>
+                        <div style="height: 10px; background: var(--overlay-medium); border-radius: 5px; overflow: hidden;">
+                            <div style="height: 100%; width: {{ (stats.studied_cards / stats.total_cards * 100) if stats.total_cards > 0 else 0 }}%; background: var(--gradient-primary); transition: width 0.6s ease;"></div>
+                        </div>
+                    </div>
+
+                    <!-- Total Study Sessions -->
+                    <div style="background: var(--overlay-light); border-radius: 12px; padding: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: var(--color-text-tertiary); font-size: 0.9rem;">Total Study Sessions</span>
+                            <span style="font-size: 1.5rem; font-weight: 900; color: var(--color-primary);">{{ stats.total_study_sessions }}</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Card Details -->
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h6 class="card-title mb-0">
-                    <i class="bi bi-list-ul me-2"></i>Individual Card Performance
-                </h6>
-                <small class="text-muted">Sorted by accuracy (lowest first)</small>
-            </div>
-            <div class="card-body">
-                {% if cards_with_stats %}
-                <div class="table-responsive">
-                    <table class="table table-sm">
-                        <thead>
-                            <tr>
-                                <th>Front</th>
-                                <th>Back</th>
-                                <th>Difficulty</th>
-                                <th>Accuracy</th>
-                                <th>Times Studied</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for card_stat in cards_with_stats %}
-                            <tr class="{% if card_stat.needs_review %}table-warning{% endif %}">
-                                <td>{{ card_stat.card.front_text|truncate(30) }}</td>
-                                <td class="text-muted">{{ card_stat.card.back_text|truncate(30) }}</td>
-                                <td>
-                                    <span class="badge {{ difficulty_badge_class(card_stat.card.difficulty) }}">
-                                        {{ card_stat.card.difficulty }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="badge {{ accuracy_badge_class(card_stat.accuracy) }}">
-                                        {{ card_stat.accuracy }}%
-                                    </span>
-                                </td>
-                                <td>{{ card_stat.card.times_studied }}</td>
-                                <td>
-                                    {% if card_stat.needs_review %}
-                                        <span class="badge bg-warning">Needs Review</span>
-                                    {% elif card_stat.accuracy >= 90 %}
-                                        <span class="badge bg-success">Mastered</span>
-                                    {% elif card_stat.card.times_studied == 0 %}
-                                        <span class="badge bg-secondary">New</span>
-                                    {% else %}
-                                        <span class="badge bg-info">In Progress</span>
-                                    {% endif %}
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-                {% else %}
-                <div class="text-center py-4">
-                    <i class="bi bi-info-circle display-4 text-muted mb-3"></i>
-                    <p class="text-muted">No cards in this deck yet.</p>
-                </div>
-                {% endif %}
-            </div>
+    <!-- Individual Card Performance -->
+    <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: 16px; overflow: hidden;">
+        <div style="background: var(--overlay-medium); padding: 20px 24px; border-bottom: 1px solid var(--color-border-light); display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700; display: flex; align-items: center; gap: 12px;">
+                📋 Individual Card Performance
+            </h3>
+            <small style="color: var(--color-text-muted); font-size: 0.85rem;">Sorted by accuracy (lowest first)</small>
         </div>
+
+        {% if cards_with_stats %}
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="background: var(--overlay-light); border-bottom: 1px solid var(--color-border-light);">
+                        <th style="padding: 16px 24px; text-align: left; font-weight: 600; color: var(--color-text-tertiary); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">Front</th>
+                        <th style="padding: 16px 24px; text-align: left; font-weight: 600; color: var(--color-text-tertiary); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">Back</th>
+                        <th style="padding: 16px 24px; text-align: left; font-weight: 600; color: var(--color-text-tertiary); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">Difficulty</th>
+                        <th style="padding: 16px 24px; text-align: left; font-weight: 600; color: var(--color-text-tertiary); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">Accuracy</th>
+                        <th style="padding: 16px 24px; text-align: left; font-weight: 600; color: var(--color-text-tertiary); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">Times Studied</th>
+                        <th style="padding: 16px 24px; text-align: left; font-weight: 600; color: var(--color-text-tertiary); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for card_stat in cards_with_stats %}
+                    <tr style="border-bottom: 1px solid var(--color-border-light); {% if card_stat.needs_review %}background: rgba(234, 179, 8, 0.05);{% endif %} transition: background 0.2s ease;">
+                        <td style="padding: 16px 24px;">{{ card_stat.card.front_text|truncate(30) }}</td>
+                        <td style="padding: 16px 24px; color: var(--color-text-muted);">{{ card_stat.card.back_text|truncate(30) }}</td>
+                        <td style="padding: 16px 24px;">
+                            <span style="padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; {% if card_stat.card.difficulty == 'easy' %}background: rgba(52, 199, 89, 0.2); color: var(--color-success);{% elif card_stat.card.difficulty == 'medium' %}background: rgba(234, 179, 8, 0.2); color: var(--color-warning);{% elif card_stat.card.difficulty == 'hard' %}background: rgba(239, 68, 68, 0.2); color: var(--color-danger);{% else %}background: var(--overlay-medium); color: var(--color-text-tertiary);{% endif %}">
+                                {{ card_stat.card.difficulty }}
+                            </span>
+                        </td>
+                        <td style="padding: 16px 24px;">
+                            <span style="padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; {% if card_stat.accuracy >= 90 %}background: rgba(52, 199, 89, 0.2); color: var(--color-success);{% elif card_stat.accuracy >= 70 %}background: rgba(59, 130, 246, 0.2); color: var(--color-info);{% else %}background: rgba(239, 68, 68, 0.2); color: var(--color-danger);{% endif %}">
+                                {{ card_stat.accuracy }}%
+                            </span>
+                        </td>
+                        <td style="padding: 16px 24px; font-weight: 600;">{{ card_stat.card.times_studied }}</td>
+                        <td style="padding: 16px 24px;">
+                            {% if card_stat.needs_review %}
+                                <span style="padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; background: rgba(234, 179, 8, 0.2); color: var(--color-warning);">Needs Review</span>
+                            {% elif card_stat.accuracy >= 90 %}
+                                <span style="padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; background: rgba(52, 199, 89, 0.2); color: var(--color-success);">Mastered</span>
+                            {% elif card_stat.card.times_studied == 0 %}
+                                <span style="padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; background: var(--overlay-medium); color: var(--color-text-tertiary);">New</span>
+                            {% else %}
+                                <span style="padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; background: rgba(59, 130, 246, 0.2); color: var(--color-info);">In Progress</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 60px 24px;">
+            <div style="font-size: 4rem; margin-bottom: 16px; opacity: 0.3;">ℹ️</div>
+            <p style="color: var(--color-text-muted); margin: 0;">No cards in this deck yet.</p>
+        </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
 
-<style>
-.progress-sm {
-    height: 8px;
-}
-</style>
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate stat cards on load
+        const statCards = document.querySelectorAll('[style*="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr))"] > div');
+        statCards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                card.style.transition = 'all 0.5s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 100);
+        });
+
+        // Add hover effects to stat cards
+        statCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-4px)';
+                this.style.borderColor = 'var(--color-border-primary)';
+                this.style.boxShadow = 'var(--shadow-lg)';
+            });
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.borderColor = 'var(--color-border-light)';
+                this.style.boxShadow = 'none';
+            });
+        });
+
+        // Add hover effect to table rows
+        const rows = document.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            row.addEventListener('mouseenter', function() {
+                this.style.background = 'var(--overlay-light)';
+            });
+            row.addEventListener('mouseleave', function() {
+                if (!this.style.background.includes('234, 179, 8')) {
+                    this.style.background = 'transparent';
+                } else {
+                    this.style.background = 'rgba(234, 179, 8, 0.05)';
+                }
+            });
+        });
+
+        // Show summary toast
+        FlashFlow.showToast('📊 Statistics loaded for {{ deck.name }}', 'info', 3000);
+    });
+</script>
+{% endblock %}

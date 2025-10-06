@@ -1,76 +1,243 @@
 {% extends "base.html" %}
 
-{% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
-        <div class="card">
-            <div class="card-header text-center">
-                <h4 class="card-title mb-1">
-                    <i class="bi bi-play-circle me-2"></i>Study Session
-                </h4>
-                <h5 class="text-muted mb-0">{{ deck.name }}</h5>
+{% block hero %}
+<!-- Study Hero Section -->
+<div class="hero-section" style="height: 55vh; min-height: 400px;">
+    <div class="hero-overlay"></div>
+    <div class="hero-content" style="max-width: 700px;">
+        <div class="hero-badge">STUDY SESSION</div>
+        <h1 class="hero-title" style="font-size: var(--font-size-3xl); margin-bottom: 16px;">{{ deck.name }}</h1>
+        <p class="hero-description">Configure your study session and start learning. Choose how you want to study and how many cards to review.</p>
+
+        <!-- Quick Stats -->
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <div class="hero-stat-value">{{ stats.total_cards }}</div>
+                <div class="hero-stat-label">Total Cards</div>
             </div>
-            <div class="card-body">
-                <!-- Deck Info -->
-                <div class="text-center mb-4">
-                    <div class="row">
-                        <div class="col-4">
-                            <div class="h4 text-primary">{{ stats.total_cards }}</div>
-                            <div class="small text-muted">Total Cards</div>
-                        </div>
-                        <div class="col-4">
-                            <div class="h4 text-warning">{{ stats.unstudied_cards }}</div>
-                            <div class="small text-muted">New Cards</div>
-                        </div>
-                        <div class="col-4">
-                            <div class="h4 text-info">{{ stats.cards_needing_review }}</div>
-                            <div class="small text-muted">Need Review</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Study Options Form -->
-                <form method="POST">
-                    {{ form.hidden_tag() }}
-
-                    <div class="mb-4">
-                        {{ form.study_mode.label(class="form-label fw-bold") }}
-                        {{ form.study_mode(class="form-select") }}
-                        <div class="form-text">Choose how cards are ordered during study</div>
-                    </div>
-
-                    <div class="mb-4">
-                        {{ form.card_limit.label(class="form-label fw-bold") }}
-                        {{ form.card_limit(class="form-select") }}
-                        <div class="form-text">Limit the number of cards to study</div>
-                    </div>
-
-                    <div class="d-grid gap-2">
-                        {{ form.submit(class="btn btn-primary btn-lg") }}
-                        <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-outline-secondary">
-                            <i class="bi bi-arrow-left me-2"></i>Back to Deck
-                        </a>
-                    </div>
-                </form>
+            <div class="hero-stat">
+                <div class="hero-stat-value" style="color: var(--color-warning);">{{ stats.unstudied_cards }}</div>
+                <div class="hero-stat-label">New Cards</div>
             </div>
-        </div>
-
-        <!-- Study Tips -->
-        <div class="card mt-4">
-            <div class="card-header">
-                <h6 class="card-title mb-0">
-                    <i class="bi bi-lightbulb me-2"></i>Study Tips
-                </h6>
-            </div>
-            <div class="card-body">
-                <ul class="small text-muted mb-0">
-                    <li>Be honest with yourself when marking answers</li>
-                    <li>Take your time to think before revealing the answer</li>
-                    <li>Review incorrect answers to understand your mistakes</li>
-                    <li>Study regularly for better retention</li>
-                </ul>
+            <div class="hero-stat">
+                <div class="hero-stat-value" style="color: var(--color-info);">{{ stats.cards_needing_review }}</div>
+                <div class="hero-stat-label">Need Review</div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block content %}
+<!-- Study Configuration -->
+<div class="content-section" style="padding-top: var(--space-xl);">
+    <div class="container" style="max-width: 700px;">
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-xl); padding: var(--space-xl); box-shadow: var(--shadow-lg);">
+
+            <!-- Form Header -->
+            <div style="text-align: center; margin-bottom: var(--space-xl);">
+                <div style="width: 64px; height: 64px; margin: 0 auto 16px; border-radius: var(--radius-lg); background: var(--gradient-primary); display: flex; align-items: center; justify-content: center; font-size: 32px; box-shadow: var(--shadow-primary);">
+                    ⚙️
+                </div>
+                <h2 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); margin-bottom: 8px;">
+                    Configure Study Session
+                </h2>
+                <p style="color: var(--color-text-tertiary);">
+                    Customize your study experience to match your learning goals
+                </p>
+            </div>
+
+            <!-- Study Form -->
+            <form method="POST">
+                {{ form.hidden_tag() }}
+
+                <!-- Study Mode -->
+                <div class="form-group" style="margin-bottom: var(--space-lg);">
+                    <label class="form-label" style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                        <span style="font-size: 20px;">🎯</span>
+                        <span style="font-weight: var(--font-weight-bold); font-size: var(--font-size-md);">
+                            {{ form.study_mode.label.text }}
+                        </span>
+                    </label>
+                    {{ form.study_mode(class="form-select", style="width: 100%;") }}
+                    <div class="form-help" style="margin-top: 8px; display: flex; align-items: start; gap: 8px;">
+                        <span style="color: var(--color-primary); margin-top: 2px;">💡</span>
+                        <span>Choose how cards are ordered during your study session</span>
+                    </div>
+                </div>
+
+                <!-- Card Limit -->
+                <div class="form-group" style="margin-bottom: var(--space-xl);">
+                    <label class="form-label" style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                        <span style="font-size: 20px;">🔢</span>
+                        <span style="font-weight: var(--font-weight-bold); font-size: var(--font-size-md);">
+                            {{ form.card_limit.label.text }}
+                        </span>
+                    </label>
+                    {{ form.card_limit(class="form-select", style="width: 100%;") }}
+                    <div class="form-help" style="margin-top: 8px; display: flex; align-items: start; gap: 8px;">
+                        <span style="color: var(--color-primary); margin-top: 2px;">💡</span>
+                        <span>Limit the number of cards to study in this session</span>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    {{ form.submit(
+                        class="btn btn-primary btn-lg",
+                        style="width: 100%; font-size: var(--font-size-lg); padding: 18px;"
+                    ) }}
+                    <a href="{{ url_for('decks.view', id=deck.id) }}"
+                       class="btn btn-secondary"
+                       style="width: 100%; text-align: center;">
+                        ← Back to Deck
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Study Tips Section -->
+<div class="content-section">
+    <div class="container" style="max-width: 700px;">
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-lg);">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: var(--space-md);">
+                <div style="font-size: 24px;">💡</div>
+                <h3 style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); margin: 0;">
+                    Study Tips for Success
+                </h3>
+            </div>
+
+            <div style="display: grid; gap: 12px;">
+                <div style="display: flex; gap: 12px; padding: 12px; background: var(--overlay-light); border-radius: var(--radius-md);">
+                    <span style="font-size: 20px; flex-shrink: 0;">✓</span>
+                    <div>
+                        <div style="font-weight: var(--font-weight-semibold); color: var(--color-text-secondary); margin-bottom: 4px;">
+                            Be Honest With Yourself
+                        </div>
+                        <div style="font-size: var(--font-size-sm); color: var(--color-text-tertiary);">
+                            Mark your answers honestly to get accurate progress tracking and better results
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; padding: 12px; background: var(--overlay-light); border-radius: var(--radius-md);">
+                    <span style="font-size: 20px; flex-shrink: 0;">⏱️</span>
+                    <div>
+                        <div style="font-weight: var(--font-weight-semibold); color: var(--color-text-secondary); margin-bottom: 4px;">
+                            Take Your Time
+                        </div>
+                        <div style="font-size: var(--font-size-sm); color: var(--color-text-tertiary);">
+                            Think before revealing the answer. Active recall strengthens memory
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; padding: 12px; background: var(--overlay-light); border-radius: var(--radius-md);">
+                    <span style="font-size: 20px; flex-shrink: 0;">🔄</span>
+                    <div>
+                        <div style="font-weight: var(--font-weight-semibold); color: var(--color-text-secondary); margin-bottom: 4px;">
+                            Review Mistakes
+                        </div>
+                        <div style="font-size: var(--font-size-sm); color: var(--color-text-tertiary);">
+                            Learn from incorrect answers to understand where you need more practice
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; padding: 12px; background: var(--overlay-light); border-radius: var(--radius-md);">
+                    <span style="font-size: 20px; flex-shrink: 0;">📅</span>
+                    <div>
+                        <div style="font-weight: var(--font-weight-semibold); color: var(--color-text-secondary); margin-bottom: 4px;">
+                            Study Regularly
+                        </div>
+                        <div style="font-size: var(--font-size-sm); color: var(--color-text-tertiary);">
+                            Consistent daily practice leads to better long-term retention
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div style="height: 80px;"></div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Form Select Styling */
+    .form-select {
+        width: 100%;
+        padding: 14px 16px;
+        background: var(--color-bg-primary);
+        border: 1px solid var(--color-border-medium);
+        border-radius: var(--radius-md);
+        color: var(--color-text-primary);
+        font-size: var(--font-size-md);
+        transition: var(--transition-base);
+        cursor: pointer;
+    }
+
+    .form-select:hover {
+        border-color: var(--color-border-strong);
+    }
+
+    .form-select:focus {
+        outline: none;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .hero-section {
+            height: auto !important;
+            min-height: 350px !important;
+        }
+
+        .hero-stats {
+            flex-direction: column;
+            gap: 16px;
+            align-items: stretch;
+        }
+
+        .hero-stat {
+            text-align: center;
+            padding: 12px;
+            background: var(--overlay-light);
+            border-radius: var(--radius-md);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show welcome message
+        FlashFlow.showToast('Configure your study session below', 'info', 3000);
+
+        // Add keyboard shortcut (Enter to start)
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.target.matches('select')) {
+                const form = document.querySelector('form');
+                if (form) {
+                    form.submit();
+                }
+            }
+        });
+
+        // Highlight form selections
+        document.querySelectorAll('.form-select').forEach(select => {
+            select.addEventListener('change', function() {
+                this.style.borderColor = 'var(--color-primary)';
+                setTimeout(() => {
+                    this.style.borderColor = '';
+                }, 1000);
+            });
+        });
+    });
+</script>
 {% endblock %}

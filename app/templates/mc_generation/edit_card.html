@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="padding-top: 100px; padding-bottom: 60px;">
+    <div style="max-width: 900px; margin: 0 auto;">
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; flex-wrap: wrap; gap: 16px;">
+            <div>
+                <h2 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); margin-bottom: 8px;">
+                    ✏️ Edit MC Question
+                </h2>
+                <p style="color: var(--color-text-tertiary); margin: 0;">
+                    Deck: <a href="{{ url_for('decks.view', id=deck.id) }}" style="color: var(--color-primary-light); text-decoration: underline;">{{ deck.name }}</a>
+                </p>
+            </div>
+            <a href="{{ url_for('decks.view', id=deck.id) }}"
+               class="btn btn-secondary"
+               style="white-space: nowrap;">
+                ← Back to Deck
+            </a>
+        </div>
+
+        <!-- Form Card -->
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-xl);">
+            <form method="POST" action="{{ url_for('mc_generation.edit_card', card_id=card.id) }}">
+                {{ form.hidden_tag() }}
+
+                <!-- Question Text -->
+                <div class="form-group">
+                    <label class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                        ❓ Question <span style="color: var(--color-danger);">*</span>
+                    </label>
+                    {{ form.question_text(class="form-textarea", rows="3") }}
+                    {% if form.question_text.errors %}
+                        <div class="form-error">{{ form.question_text.errors[0] }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Choices Section -->
+                <h5 style="font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); margin-bottom: var(--space-md); display: flex; align-items: center; gap: 8px;">
+                    📋 Answer Choices
+                </h5>
+
+                {% for letter in ['a', 'b', 'c', 'd'] %}
+                <div class="form-group">
+                    <label class="form-label">
+                        Choice {{ letter.upper() }} <span style="color: var(--color-danger);">*</span>
+                    </label>
+                    {% set field = form['choice_' + letter] %}
+                    {{ field(class="form-input") }}
+                    {% if field.errors %}
+                        <div class="form-error">{{ field.errors[0] }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                <!-- Correct Answer -->
+                <div class="form-group">
+                    <label class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                        ✓ Correct Answer <span style="color: var(--color-danger);">*</span>
+                    </label>
+                    {{ form.correct_answer(class="form-select") }}
+                </div>
+
+                <!-- Misconceptions Section -->
+                <h5 style="font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; margin-top: var(--space-lg);">
+                    💡 Misconception Explanations
+                </h5>
+                <p style="font-size: var(--font-size-sm); color: var(--color-text-muted); margin-bottom: var(--space-md);">
+                    Explain why each incorrect answer might be chosen
+                </p>
+
+                {% for letter in ['a', 'b', 'c', 'd'] %}
+                <div class="form-group">
+                    <label class="form-label">
+                        Why {{ letter.upper() }} is wrong (if not correct)
+                    </label>
+                    {% set field = form['misconception_' + letter] %}
+                    {{ field(class="form-textarea", rows="2") }}
+                </div>
+                {% endfor %}
+
+                <!-- Submit -->
+                <div style="display: grid; gap: var(--space-xs); margin-top: var(--space-lg);">
+                    {{ form.submit(class="btn btn-primary btn-lg", style="width: 100%;") }}
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-focus first input
+        const firstInput = document.querySelector('textarea[name="question_text"]');
+        if (firstInput) {
+            firstInput.focus();
+            // Move cursor to end
+            firstInput.setSelectionRange(firstInput.value.length, firstInput.value.length);
+        }
+
+        // Show toast
+        if (window.FlashFlow) {
+            FlashFlow.showToast('Edit your MC question and save changes', 'info', 3000);
+        }
+    });
+</script>
+{% endblock %}

@@ -1,106 +1,174 @@
 {% extends "base.html" %}
 
+{% block hero %}
+<!-- Deck Hero Section -->
+<div class="hero-section" style="height: 60vh; min-height: 450px;">
+    <div class="hero-overlay"></div>
+    <div class="hero-content" style="max-width: 900px;">
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+            <div class="hero-badge">
+                {% if deck.is_public %}PUBLIC DECK{% else %}PRIVATE DECK{% endif %}
+            </div>
+            {% if current_user.is_authenticated and deck.user_id != current_user.id %}
+            <div class="hero-badge" style="background: rgba(52, 199, 89, 0.2); border-color: rgba(52, 199, 89, 0.3);">
+                SHARED DECK
+            </div>
+            {% endif %}
+        </div>
+
+        <h1 class="hero-title" style="margin-bottom: 16px;">{{ deck.name }}</h1>
+
+        {% if deck.description %}
+        <p class="hero-description">{{ deck.description }}</p>
+        {% else %}
+        <p class="hero-description" style="font-style: italic; opacity: 0.7;">No description provided</p>
+        {% endif %}
+
+        <div style="display: flex; gap: 24px; margin-bottom: 32px; flex-wrap: wrap; font-size: var(--font-size-sm); color: var(--color-text-muted);">
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="bi bi-person"></i>
+                <span>{{ deck.owner.username }}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="bi bi-clock"></i>
+                <span>{{ deck.created_at.strftime('%B %d, %Y') }}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <i class="bi bi-card-text"></i>
+                <span>{{ stats.total_cards }} cards</span>
+            </div>
+        </div>
+
+        <div class="hero-buttons">
+            {% if deck.can_be_studied() %}
+            <a href="{{ url_for('study.start', deck_id=deck.id) }}" class="btn btn-primary btn-lg">
+                ▶️ Start Studying
+            </a>
+            {% else %}
+            <button class="btn btn-secondary btn-lg" disabled style="opacity: 0.5; cursor: not-allowed;">
+                ℹ️ No Cards to Study
+            </button>
+            {% endif %}
+
+            {% if current_user.is_authenticated and deck.user_id == current_user.id %}
+            <button class="btn btn-secondary" onclick="toggleDropdown(event, 'hero-dropdown')">
+                ⚙️ Manage
+            </button>
+
+            <!-- Dropdown Menu -->
+            <div id="hero-dropdown"
+                 class="deck-dropdown"
+                 style="display: none; position: absolute; margin-top: 8px; min-width: 220px; background: var(--color-bg-secondary); border: 1px solid var(--color-border-medium); border-radius: var(--radius-md); padding: 8px; z-index: var(--z-dropdown); box-shadow: var(--shadow-xl);">
+                <a href="{{ url_for('decks.edit', id=deck.id) }}" class="dropdown-item">
+                    ✏️ Edit Deck
+                </a>
+                <a href="{{ url_for('decks.cards', deck_id=deck.id) }}" class="dropdown-item">
+                    📋 Manage Cards
+                </a>
+                <a href="{{ url_for('decks.create_card', deck_id=deck.id) }}" class="dropdown-item">
+                    ➕ Add Card
+                </a>
+                <a href="{{ url_for('decks.bulk_create_cards', deck_id=deck.id) }}" class="dropdown-item">
+                    📦 Bulk Import
+                </a>
+                {% if current_user.has_ai_access() %}
+                <div style="height: 1px; background: var(--color-border-light); margin: 8px 0;"></div>
+                <a href="{{ url_for('ai.generate_cards', deck_id=deck.id) }}" class="dropdown-item" style="color: var(--color-primary);">
+                    ✨ Generate Cards with AI
+                </a>
+                {% endif %}
+                <div style="height: 1px; background: var(--color-border-light); margin: 8px 0;"></div>
+                <a href="{{ url_for('decks.delete', id=deck.id) }}"
+                   class="dropdown-item"
+                   style="color: var(--color-danger);"
+                   onclick="return confirm('Are you sure you want to delete this deck?');">
+                    🗑️ Delete Deck
+                </a>
+            </div>
+            {% else %}
+            <a href="{{ url_for('decks.duplicate', id=deck.id) }}" class="btn btn-secondary">
+                📄 Copy Deck
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
 {% block content %}
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="d-flex justify-content-between align-items-start">
-            <div>
-                <div class="d-flex align-items-center mb-2">
-                    <h1 class="h2 mb-0 me-3">{{ deck.name }}</h1>
-                    {% if deck.is_public %}
-                        <span class="badge bg-success">Public</span>
-                    {% else %}
-                        <span class="badge bg-secondary">Private</span>
-                    {% endif %}
-                </div>
-                {% if deck.description %}
-                    <p class="text-muted mb-2">{{ deck.description }}</p>
-                {% endif %}
-                <div class="small text-muted">
-                    <i class="bi bi-person me-1"></i>Created by {{ deck.owner.username }}
-                    <span class="mx-2">•</span>
-                    <i class="bi bi-clock me-1"></i>{{ deck.created_at|timeago }}
-                </div>
+<!-- Statistics Section -->
+<div class="content-section" style="padding-top: var(--space-lg);">
+    <div class="container">
+        <div class="quick-stats" style="margin-top: 0;">
+            <div class="quick-stat-card hover-lift-sm">
+                <div class="quick-stat-icon">🃏</div>
+                <div class="quick-stat-value">{{ stats.total_cards }}</div>
+                <div class="quick-stat-label">Total Cards</div>
             </div>
-            <div class="text-end">
-                {% if current_user.is_authenticated and deck.user_id == current_user.id %}
-                    <div class="btn-group mb-2">
-                        <a href="{{ url_for('decks.edit', id=deck.id) }}" class="btn btn-outline-primary">
-                            <i class="bi bi-pencil me-1"></i>Edit
-                        </a>
-                        <button type="button" class="btn btn-outline-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown">
-                            <span class="visually-hidden">Toggle Dropdown</span>
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ url_for('decks.cards', deck_id=deck.id) }}">
-                                <i class="bi bi-card-list me-2"></i>Manage Cards
-                            </a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('decks.create_card', deck_id=deck.id) }}">
-                                <i class="bi bi-plus me-2"></i>Add Card
-                            </a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('decks.bulk_create_cards', deck_id=deck.id) }}">
-                                <i class="bi bi-stack me-2"></i>Bulk Import
-                            </a></li>
-
-                            {% if current_user.has_ai_access() %}
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-primary" href="{{ url_for('ai.generate_cards', deck_id=deck.id) }}">
-                                <i class="bi bi-stars me-2"></i>Generate Cards with AI
-                            </a></li>
-                            {% endif %}
-
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="{{ url_for('decks.delete', id=deck.id) }}">
-                                <i class="bi bi-trash me-2"></i>Delete Deck
-                            </a></li>
-                        </ul>
-                    </div>
-                {% else %}
-                    <a href="{{ url_for('decks.duplicate', id=deck.id) }}" class="btn btn-outline-success mb-2">
-                        <i class="bi bi-copy me-1"></i>Copy Deck
-                    </a>
-                {% endif %}
-                <br>
-                {% if deck.can_be_studied() %}
-                    <a href="{{ url_for('study.start', deck_id=deck.id) }}" class="btn btn-primary btn-lg">
-                        <i class="bi bi-play-circle me-2"></i>Start Studying
-                    </a>
-                {% else %}
-                    <button class="btn btn-outline-secondary btn-lg" disabled>
-                        <i class="bi bi-info-circle me-2"></i>No Cards to Study
-                    </button>
-                {% endif %}
+            <div class="quick-stat-card hover-lift-sm">
+                <div class="quick-stat-icon">📊</div>
+                <div class="quick-stat-value">{{ stats.avg_difficulty|round(1) }}/5</div>
+                <div class="quick-stat-label">Avg Difficulty</div>
+            </div>
+            <div class="quick-stat-card hover-lift-sm">
+                <div class="quick-stat-icon">🎯</div>
+                <div class="quick-stat-value">{{ stats.avg_accuracy|round(1) }}%</div>
+                <div class="quick-stat-label">Accuracy</div>
+            </div>
+            <div class="quick-stat-card hover-lift-sm">
+                <div class="quick-stat-icon">⏱️</div>
+                <div class="quick-stat-value">{{ stats.total_studies }}</div>
+                <div class="quick-stat-label">Study Sessions</div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- AI Generation Card (Only show if user owns deck and has AI access) -->
+<!-- AI Features Section (Owner Only) -->
 {% if current_user.is_authenticated and deck.user_id == current_user.id and current_user.has_ai_access() %}
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card border-primary">
-            <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                <h6 class="card-title mb-0">
-                    <i class="bi bi-stars me-2"></i>AI-Powered Card Generation
-                </h6>
+<div class="content-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">✨ AI-Powered Features</h2>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: var(--space-sm);">
+            <!-- AI Card Generation Feature Card -->
+            <div class="feature-card" style="height: auto; min-height: 280px;">
+                <div class="feature-card-content">
+                    <div class="feature-badge">AI POWERED</div>
+                    <h3 class="feature-title" style="font-size: var(--font-size-xl);">Generate Flashcards</h3>
+                    <p class="feature-description">
+                        Create multiple study cards instantly using AI. Just provide a topic and let AI do the work for you.
+                    </p>
+                </div>
+                <a href="{{ url_for('ai.generate_cards', deck_id=deck.id) }}" class="btn btn-primary">
+                    ✨ Generate Cards
+                </a>
             </div>
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <p class="mb-2">
-                            <strong>Generate flashcards instantly using AI!</strong>
-                        </p>
-                        <p class="small text-muted mb-0">
-                            Just provide a topic, and AI will create multiple study cards for you.
-                            Perfect for quickly building decks on any subject.
-                        </p>
+
+            <!-- MC Questions Feature Card -->
+            <div class="feature-card" style="height: auto; min-height: 280px; background: linear-gradient(180deg, #1a2e1a 0%, #0f0f0f 100%);">
+                <div class="feature-card-content">
+                    <div class="feature-badge" style="background: rgba(52, 199, 89, 0.2); border-color: rgba(52, 199, 89, 0.3); color: var(--color-success);">
+                        EXAM PREP
                     </div>
-                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                        <a href="{{ url_for('ai.generate_cards', deck_id=deck.id) }}" class="btn btn-primary">
-                            <i class="bi bi-magic me-2"></i>Generate Cards
-                        </a>
-                    </div>
+                    <h3 class="feature-title" style="font-size: var(--font-size-xl);">Multiple Choice Questions</h3>
+                    <p class="feature-description">
+                        Test your knowledge with AI-generated MC questions, complete with detailed explanations.
+                    </p>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <a href="{{ url_for('mc_generation.generate_request', deck_id=deck.id) }}"
+                       class="btn btn-primary"
+                       style="flex: 1; background: var(--color-success); padding: 10px;">
+                        ✨ Generate
+                    </a>
+                    <a href="{{ url_for('mc_study.start', deck_id=deck.id) }}"
+                       class="btn btn-secondary"
+                       style="flex: 1; padding: 10px;">
+                        ▶️ Study
+                    </a>
                 </div>
             </div>
         </div>
@@ -108,116 +176,40 @@
 </div>
 {% endif %}
 
-<!-- MC Questions Section (NEW) -->
-{% if current_user.is_authenticated and deck.user_id == current_user.id and current_user.has_ai_access() %}
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card border-success">
-            <div class="card-header bg-success text-white">
-                <h6 class="card-title mb-0">
-                    <i class="bi bi-check2-square me-2"></i>Multiple Choice Questions
-                </h6>
-            </div>
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <p class="mb-2">
-                            <strong>Test your knowledge with MC questions!</strong>
-                        </p>
-                        <p class="small text-muted mb-0">
-                            Generate multiple choice questions with AI, complete with explanations for common misconceptions. Perfect for exam preparation.
-                        </p>
-                    </div>
-                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
-                        <div class="d-grid gap-2">
-                            <a href="{{ url_for('mc_generation.generate_request', deck_id=deck.id) }}"
-                               class="btn btn-success">
-                                <i class="bi bi-stars me-1"></i>Generate MC Questions
-                            </a>
-                            <a href="{{ url_for('mc_study.start', deck_id=deck.id) }}"
-                               class="btn btn-outline-success">
-                                <i class="bi bi-play-circle me-1"></i>Study MC Questions
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-{% endif %}
-
-<!-- Statistics Cards -->
-<div class="row mb-4">
-    <div class="col-md-3 mb-3">
-        <div class="card text-center">
-            <div class="card-body">
-                <i class="bi bi-card-text fs-1 text-primary mb-2"></i>
-                <div class="h4 mb-1">{{ stats.total_cards }}</div>
-                <div class="text-muted small">Total Cards</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 mb-3">
-        <div class="card text-center">
-            <div class="card-body">
-                <i class="bi bi-bar-chart fs-1 text-info mb-2"></i>
-                <div class="h4 mb-1">{{ stats.avg_difficulty|round(1) }}/5</div>
-                <div class="text-muted small">Avg Difficulty</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 mb-3">
-        <div class="card text-center">
-            <div class="card-body">
-                <i class="bi bi-target fs-1 text-success mb-2"></i>
-                <div class="h4 mb-1">{{ stats.avg_accuracy|round(1) }}%</div>
-                <div class="text-muted small">Accuracy</div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 mb-3">
-        <div class="card text-center">
-            <div class="card-body">
-                <i class="bi bi-clock-history fs-1 text-warning mb-2"></i>
-                <div class="h4 mb-1">{{ stats.total_studies }}</div>
-                <div class="text-muted small">Study Sessions</div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Quick Add Card Form -->
+<!-- Quick Add Card Form (Owner Only) -->
 {% if quick_form and current_user.is_authenticated and deck.user_id == current_user.id %}
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h6 class="card-title mb-0">
-                    <i class="bi bi-plus-circle me-2"></i>Quick Add Card
-                </h6>
+<div class="content-section">
+    <div class="container">
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-lg);">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: var(--space-md);">
+                <div style="width: 40px; height: 40px; border-radius: var(--radius-md); background: rgba(102, 126, 234, 0.1); display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                    ➕
+                </div>
+                <h3 style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); margin: 0;">Quick Add Card</h3>
             </div>
-            <div class="card-body">
-                <form method="POST">
-                    {{ quick_form.hidden_tag() }}
-                    <div class="row">
-                        <div class="col-md-5 mb-3">
-                            {{ quick_form.front_text.label(class="form-label") }}
-                            {{ quick_form.front_text(class="form-control") }}
-                        </div>
-                        <div class="col-md-5 mb-3">
-                            {{ quick_form.back_text.label(class="form-label") }}
-                            {{ quick_form.back_text(class="form-control") }}
-                        </div>
-                        <div class="col-md-2 mb-3">
-                            <label class="form-label">&nbsp;</label>
-                            <div>
-                                {{ quick_form.submit(class="btn btn-success w-100") }}
-                            </div>
-                        </div>
+
+            <form method="POST">
+                {{ quick_form.hidden_tag() }}
+                <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: var(--space-sm); align-items: end;">
+                    <div>
+                        {{ quick_form.front_text.label(class="form-label", style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--color-text-secondary);") }}
+                        {{ quick_form.front_text(
+                            class="form-input",
+                            placeholder="Enter front of card..."
+                        ) }}
                     </div>
-                </form>
-            </div>
+                    <div>
+                        {{ quick_form.back_text.label(class="form-label", style="display: block; margin-bottom: 8px; font-weight: 600; color: var(--color-text-secondary);") }}
+                        {{ quick_form.back_text(
+                            class="form-input",
+                            placeholder="Enter back of card..."
+                        ) }}
+                    </div>
+                    <div>
+                        {{ quick_form.submit(class="btn btn-primary", style="width: 100%; min-width: 120px;") }}
+                    </div>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -225,133 +217,277 @@
 
 <!-- Study Recommendations -->
 {% if study_stats.total_cards > 0 %}
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h6 class="card-title mb-0">
-                    <i class="bi bi-lightbulb me-2"></i>Study Recommendations
-                </h6>
-            </div>
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        {% set recommendation, rec_type = study_recommendation(study_stats) %}
-                        <div class="alert alert-{{ rec_type }} mb-0 py-2">
-                            {{ recommendation }}
-                        </div>
-                    </div>
-                    <div class="ms-3">
-                        {% if study_stats.cards_needing_review > 0 %}
-                            <a href="{{ url_for('study.review', deck_id=deck.id) }}" class="btn btn-warning btn-sm">
-                                <i class="bi bi-arrow-repeat me-1"></i>Review Cards
-                            </a>
-                        {% endif %}
-                        <a href="{{ url_for('study.statistics', deck_id=deck.id) }}" class="btn btn-outline-info btn-sm">
-                            <i class="bi bi-graph-up me-1"></i>Detailed Stats
-                        </a>
-                    </div>
+<div class="content-section">
+    <div class="container">
+        <div class="attention-card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-md);">
+            <div style="flex: 1; min-width: 300px;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                    <div style="font-size: 24px;">💡</div>
+                    <h4 style="font-size: var(--font-size-md); font-weight: var(--font-weight-bold); margin: 0;">Study Recommendation</h4>
                 </div>
+                {% set recommendation, rec_type = study_recommendation(study_stats) %}
+                <p style="color: var(--color-text-tertiary); margin: 0; font-size: var(--font-size-base);">
+                    {{ recommendation }}
+                </p>
+            </div>
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                {% if study_stats.cards_needing_review > 0 %}
+                <a href="{{ url_for('study.review', deck_id=deck.id) }}" class="btn btn-secondary btn-sm">
+                    🔄 Review Cards
+                </a>
+                {% endif %}
+                <a href="{{ url_for('study.statistics', deck_id=deck.id) }}" class="btn btn-secondary btn-sm">
+                    📈 Detailed Stats
+                </a>
             </div>
         </div>
     </div>
 </div>
 {% endif %}
 
-<!-- Recent Cards Preview -->
+<!-- Recent Cards Section -->
 {% if deck.flashcards %}
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h6 class="card-title mb-0">
-                    <i class="bi bi-card-list me-2"></i>Recent Cards
-                </h6>
-                <a href="{{ url_for('decks.cards', deck_id=deck.id) }}" class="btn btn-outline-primary btn-sm">
-                    View All Cards
-                </a>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    {% for card in deck.flashcards[:6] %}
-                    <div class="col-md-6 mb-3">
-                        <div class="border rounded p-3">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <strong class="small">Front:</strong>
-                                <div class="d-flex gap-1">
-                                    {% if card.ai_generated %}
-                                        <span class="badge bg-gradient" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);" title="AI Generated">
-                                            <i class="bi bi-stars"></i> AI
-                                        </span>
-                                    {% endif %}
-                                    <span class="badge {{ difficulty_badge_class(card.difficulty) }}">
-                                        {{ difficulty_label(card.difficulty) }}
-                                    </span>
-                                    {% if card.times_studied > 0 %}
-                                        <span class="badge {{ accuracy_badge_class(card.get_accuracy()) }}">
-                                            {{ card.get_accuracy() }}%
-                                        </span>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="mb-2">{{ card.front_text|truncate(60) }}</div>
-                            <div class="small text-muted">
-                                <strong>Back:</strong> {{ card.back_text|truncate(60) }}
-                            </div>
-                            <div class="small text-muted mt-2">
-                                <i class="bi bi-eye me-1"></i>Studied {{ card.times_studied }} times
-                            </div>
+<div class="content-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">🃏 Recent Cards</h2>
+            <a href="{{ url_for('decks.cards', deck_id=deck.id) }}" class="view-all">
+                View all {{ stats.total_cards }} cards →
+            </a>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: var(--space-sm);">
+            {% for card in deck.flashcards[:6] %}
+            <div class="review-item" style="flex-direction: column; align-items: stretch; padding: var(--space-md); cursor: pointer;" onclick="flipCard(this)">
+                <!-- Card Header -->
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                    <span style="font-size: var(--font-size-xs); font-weight: var(--font-weight-bold); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.5px;">
+                        Card #{{ loop.index }}
+                    </span>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end;">
+                        {% if card.ai_generated %}
+                        <span class="badge badge-primary" style="background: var(--gradient-primary); border: none;" title="AI Generated">
+                            ✨ AI
+                        </span>
+                        {% endif %}
+                        {% if card.times_studied > 0 %}
+                        <span class="badge badge-success">
+                            🎯 {{ card.get_accuracy() }}%
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Card Content (Flip Container) -->
+                <div class="card-flip-container" style="position: relative; min-height: 100px;">
+                    <div class="card-front" style="display: block;">
+                        <div style="font-weight: var(--font-weight-semibold); color: var(--color-text-secondary); font-size: var(--font-size-xs); margin-bottom: 6px;">
+                            FRONT
+                        </div>
+                        <div style="color: var(--color-text-primary); line-height: 1.5;">
+                            {{ card.front_text if card.front_text|length <= 100 else card.front_text[:100] + '...' }}
                         </div>
                     </div>
-                    {% endfor %}
+                    <div class="card-back" style="display: none;">
+                        <div style="font-weight: var(--font-weight-semibold); color: var(--color-text-secondary); font-size: var(--font-size-xs); margin-bottom: 6px;">
+                            BACK
+                        </div>
+                        <div style="color: var(--color-text-primary); line-height: 1.5;">
+                            {{ card.back_text if card.back_text|length <= 100 else card.back_text[:100] + '...' }}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card Footer -->
+                <div style="display: flex; justify-content: between; align-items: center; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--color-border-light); font-size: var(--font-size-xs); color: var(--color-text-muted);">
+                    <span>👁️ Studied {{ card.times_studied }} times</span>
+                    <span style="font-style: italic; font-size: 11px; color: var(--color-text-muted); opacity: 0.7;">Click to flip</span>
                 </div>
             </div>
+            {% endfor %}
         </div>
     </div>
 </div>
 {% endif %}
-<!-- MC Cards Preview (NEW) -->
+
+<!-- MC Cards Section -->
 {% if mc_cards %}
-<div class="row mt-4">
-    <div class="col-12">
-        <div class="card border-success">
-            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                <h6 class="card-title mb-0">
-                    <i class="bi bi-check2-square me-2"></i>Multiple Choice Questions ({{ mc_card_count }})
-                </h6>
-                <a href="{{ url_for('mc_study.start', deck_id=deck.id) }}" class="btn btn-light btn-sm">
-                    Study All MC Questions
-                </a>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    {% for card in mc_cards %}
-                    <div class="col-md-6 mb-3">
-                        <div class="border border-success rounded p-3">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <small class="text-muted">Q{{ loop.index }}</small>
-                                <div class="d-flex gap-1">
-                                    <span class="badge bg-success">Difficulty: {{ card.difficulty }}/5</span>
-                                    {% set stats = card.get_accuracy_stats() %}
-                                    {% if stats.times_attempted > 0 %}
-                                        <span class="badge bg-info">{{ stats.accuracy }}% correct</span>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="fw-bold mb-2">{{ card.question_text|truncate(80) }}</div>
-                            <div class="small">
-                                <div class="text-success">✓ {{ card.get_choices_dict()[card.correct_answer]|truncate(60) }}</div>
-                            </div>
-                            <div class="small text-muted mt-2">
-                                <i class="bi bi-eye me-1"></i>Attempted {{ stats.times_attempted }} times
-                            </div>
-                        </div>
+<div class="content-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title" style="color: var(--color-success);">☑️ Multiple Choice Questions ({{ mc_card_count }})</h2>
+            <a href="{{ url_for('mc_study.start', deck_id=deck.id) }}" class="view-all" style="color: var(--color-success);">
+                Study all questions →
+            </a>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: var(--space-sm);">
+            {% for card in mc_cards %}
+            <div style="background: var(--color-bg-secondary); border: 1px solid rgba(52, 199, 89, 0.2); border-radius: var(--radius-md); padding: var(--space-md); transition: var(--transition-base);" class="hover-lift-sm">
+                <!-- MC Card Header -->
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px;">
+                    <span style="font-size: var(--font-size-xs); font-weight: var(--font-weight-bold); color: var(--color-success); text-transform: uppercase; letter-spacing: 0.5px;">
+                        Question #{{ loop.index }}
+                    </span>
+                    <div style="display: flex; gap: 6px;">
+                        <span class="badge" style="background: rgba(52, 199, 89, 0.1); border-color: rgba(52, 199, 89, 0.3); color: var(--color-success);">
+                            📊 {{ card.difficulty }}/5
+                        </span>
+                        {% set stats = card.get_accuracy_stats() %}
+                        {% if stats.times_attempted > 0 %}
+                        <span class="badge badge-primary">
+                            🎯 {{ stats.accuracy }}%
+                        </span>
+                        {% endif %}
                     </div>
-                    {% endfor %}
+                </div>
+
+                <!-- Question Text -->
+                <div style="font-weight: var(--font-weight-semibold); color: var(--color-text-primary); margin-bottom: 12px; line-height: 1.5;">
+                    {{ card.question_text if card.question_text|length <= 100 else card.question_text[:100] + '...' }}
+                </div>
+
+                <!-- Correct Answer Preview -->
+                <div style="background: rgba(52, 199, 89, 0.05); border-left: 3px solid var(--color-success); padding: 8px 12px; border-radius: 4px; font-size: var(--font-size-sm);">
+                    <div style="color: var(--color-success); font-weight: var(--font-weight-semibold); font-size: var(--font-size-xs); margin-bottom: 4px;">
+                        ✓ CORRECT ANSWER
+                    </div>
+                    <div style="color: var(--color-text-secondary);">
+                        {{ card.get_choices_dict()[card.correct_answer] if card.get_choices_dict()[card.correct_answer]|length <= 70 else card.get_choices_dict()[card.correct_answer][:70] + '...' }}
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--color-border-light); font-size: var(--font-size-xs); color: var(--color-text-muted);">
+                    👁️ Attempted {{ stats.times_attempted }} times
                 </div>
             </div>
+            {% endfor %}
         </div>
     </div>
 </div>
 {% endif %}
+
+<div style="height: 80px;"></div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Dropdown Styles */
+    .dropdown-item {
+        display: block;
+        padding: 10px 12px;
+        color: var(--color-text-secondary);
+        text-decoration: none;
+        border-radius: var(--radius-sm);
+        font-size: var(--font-size-sm);
+        transition: var(--transition-fast);
+        white-space: nowrap;
+    }
+
+    .dropdown-item:hover {
+        background: var(--overlay-light);
+        color: var(--color-text-primary);
+    }
+
+    /* Form Label Styling */
+    .form-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: var(--color-text-secondary);
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .hero-section {
+            height: auto !important;
+            min-height: 400px !important;
+        }
+
+        .hero-buttons {
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .hero-buttons .btn {
+            width: 100%;
+        }
+
+        .quick-stats {
+            grid-template-columns: repeat(2, 1fr) !important;
+        }
+
+        /* Quick Add Form - Stack Vertically */
+        form > div[style*="grid-template-columns"] {
+            grid-template-columns: 1fr !important;
+        }
+
+        /* Recent Cards Grid */
+        div[style*="grid-template-columns: repeat(auto-fill, minmax(380px, 1fr))"] {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Dropdown Toggle
+    function toggleDropdown(event, dropdownId) {
+        event.stopPropagation();
+
+        // Close all other dropdowns
+        document.querySelectorAll('.deck-dropdown').forEach(dropdown => {
+            if (dropdown.id !== dropdownId) {
+                dropdown.style.display = 'none';
+            }
+        });
+
+        // Toggle current dropdown
+        const dropdown = document.getElementById(dropdownId);
+        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!event.target.closest('.btn')) {
+            document.querySelectorAll('.deck-dropdown').forEach(dropdown => {
+                dropdown.style.display = 'none';
+            });
+        }
+    });
+
+    // Card Flip Function
+    function flipCard(cardElement) {
+        const front = cardElement.querySelector('.card-front');
+        const back = cardElement.querySelector('.card-back');
+
+        if (front.style.display !== 'none') {
+            front.style.display = 'none';
+            back.style.display = 'block';
+        } else {
+            front.style.display = 'block';
+            back.style.display = 'none';
+        }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show welcome toast
+        {% if current_user.is_authenticated and deck.user_id == current_user.id %}
+            FlashFlow.showToast('Managing deck: {{ deck.name }}', 'info', 3000);
+        {% else %}
+            FlashFlow.showToast('Viewing public deck: {{ deck.name }}', 'info', 3000);
+        {% endif %}
+
+        // Add keyboard shortcut to start studying (Space key)
+        document.addEventListener('keydown', function(e) {
+            if (e.code === 'Space' && !e.target.matches('input, textarea') && {{ 'true' if deck.can_be_studied() else 'false' }}) {
+                e.preventDefault();
+                window.location.href = "{{ url_for('study.start', deck_id=deck.id) }}";
+            }
+        });
+    });
+</script>
 {% endblock %}

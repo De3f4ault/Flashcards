@@ -1,81 +1,175 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
-        <div class="card">
-            <div class="card-body text-center py-5">
-                <div class="display-1 mb-4">🎉</div>
-                <h2 class="fw-bold mb-3">Study Session Complete!</h2>
-                <h5 class="text-muted mb-4">{{ deck.name }}</h5>
+<div class="content-section" style="padding-top: calc(var(--navbar-height) + var(--space-2xl)); padding-bottom: var(--space-2xl); min-height: 100vh; display: flex; align-items: center;">
+    <div class="container" style="max-width: 800px;">
 
-                <!-- Results -->
-                <div class="row mb-4">
-                    <div class="col-md-3 mb-3">
-                        <div class="h3 text-primary">{{ results.total_studied }}</div>
-                        <div class="text-muted">Cards Studied</div>
+        <!-- Celebration Card -->
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-xl); padding: var(--space-2xl); box-shadow: var(--shadow-xl); text-align: center;">
+
+            <!-- Celebration Icon -->
+            <div style="font-size: 120px; margin-bottom: 24px; animation: celebrationBounce 1s ease-out;">
+                🎉
+            </div>
+
+            <!-- Title -->
+            <h1 style="font-size: var(--font-size-3xl); font-weight: var(--font-weight-bold); margin-bottom: 12px;">
+                Study Session Complete!
+            </h1>
+            <h2 style="font-size: var(--font-size-xl); color: var(--color-text-tertiary); margin-bottom: var(--space-xl);">
+                {{ deck.name }}
+            </h2>
+
+            <!-- Results Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--space-md); margin-bottom: var(--space-xl);">
+                <div style="background: var(--overlay-light); border-radius: var(--radius-lg); padding: var(--space-lg);">
+                    <div style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--color-primary); margin-bottom: 8px;">
+                        {{ results.total_studied }}
                     </div>
-                    <div class="col-md-3 mb-3">
-                        <div class="h3 text-success">{{ results.correct_count }}</div>
-                        <div class="text-muted">Correct</div>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <div class="h3 text-danger">{{ results.incorrect_count }}</div>
-                        <div class="text-muted">Incorrect</div>
-                    </div>
-                    <div class="col-md-3 mb-3">
-                        <div class="h3 text-info">{{ results.accuracy }}%</div>
-                        <div class="text-muted">Accuracy</div>
+                    <div style="color: var(--color-text-muted); font-size: var(--font-size-sm);">
+                        Cards Studied
                     </div>
                 </div>
 
-                <!-- Performance Badge -->
-                <div class="mb-4">
-                    {% if results.accuracy >= 90 %}
-                        <div class="alert alert-success">
-                            <i class="bi bi-trophy me-2"></i>
-                            <strong>Excellent!</strong> You've mastered this material!
-                        </div>
-                    {% elif results.accuracy >= 70 %}
-                        <div class="alert alert-info">
-                            <i class="bi bi-star me-2"></i>
-                            <strong>Good job!</strong> Keep practicing to improve!
-                        </div>
-                    {% else %}
-                        <div class="alert alert-warning">
-                            <i class="bi bi-arrow-repeat me-2"></i>
-                            <strong>Keep studying!</strong> Review the cards you missed.
-                        </div>
-                    {% endif %}
+                <div style="background: rgba(52, 199, 89, 0.1); border-radius: var(--radius-lg); padding: var(--space-lg);">
+                    <div style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--color-success); margin-bottom: 8px;">
+                        {{ results.correct_count }}
+                    </div>
+                    <div style="color: var(--color-success); font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold);">
+                        Correct
+                    </div>
                 </div>
 
-                <!-- Action Buttons -->
-                <div class="d-flex justify-content-center gap-3 flex-wrap">
-                    <a href="{{ url_for('study.start', deck_id=deck.id) }}" class="btn btn-primary">
-                        <i class="bi bi-arrow-repeat me-2"></i>Study Again
-                    </a>
-                    <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-outline-primary">
-                        <i class="bi bi-eye me-2"></i>View Deck
-                    </a>
-                    <a href="{{ url_for('study.statistics', deck_id=deck.id) }}" class="btn btn-outline-info">
-                        <i class="bi bi-graph-up me-2"></i>View Stats
-                    </a>
-                    <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-secondary">
-                        <i class="bi bi-house me-2"></i>Dashboard
-                    </a>
+                <div style="background: rgba(239, 68, 68, 0.1); border-radius: var(--radius-lg); padding: var(--space-lg);">
+                    <div style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--color-danger); margin-bottom: 8px;">
+                        {{ results.incorrect_count }}
+                    </div>
+                    <div style="color: var(--color-danger); font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold);">
+                        Incorrect
+                    </div>
                 </div>
+
+                <div style="background: rgba(59, 130, 246, 0.1); border-radius: var(--radius-lg); padding: var(--space-lg);">
+                    <div style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--color-info); margin-bottom: 8px;">
+                        {{ results.accuracy }}%
+                    </div>
+                    <div style="color: var(--color-info); font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold);">
+                        Accuracy
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Feedback -->
+            <div style="margin-bottom: var(--space-xl);">
+                {% if results.accuracy >= 90 %}
+                <div style="background: rgba(52, 199, 89, 0.1); border: 1px solid rgba(52, 199, 89, 0.3); border-radius: var(--radius-lg); padding: var(--space-lg);">
+                    <div style="font-size: 32px; margin-bottom: 12px;">🏆</div>
+                    <div style="font-weight: var(--font-weight-bold); color: var(--color-success); font-size: var(--font-size-lg); margin-bottom: 8px;">
+                        Excellent!
+                    </div>
+                    <div style="color: var(--color-text-secondary);">
+                        You've mastered this material! Keep up the outstanding work!
+                    </div>
+                </div>
+                {% elif results.accuracy >= 70 %}
+                <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: var(--radius-lg); padding: var(--space-lg);">
+                    <div style="font-size: 32px; margin-bottom: 12px;">⭐</div>
+                    <div style="font-weight: var(--font-weight-bold); color: var(--color-info); font-size: var(--font-size-lg); margin-bottom: 8px;">
+                        Good Job!
+                    </div>
+                    <div style="color: var(--color-text-secondary);">
+                        Keep practicing to improve your accuracy and retention!
+                    </div>
+                </div>
+                {% else %}
+                <div style="background: rgba(234, 179, 8, 0.1); border: 1px solid rgba(234, 179, 8, 0.3); border-radius: var(--radius-lg); padding: var(--space-lg);">
+                    <div style="font-size: 32px; margin-bottom: 12px;">🔄</div>
+                    <div style="font-weight: var(--font-weight-bold); color: var(--color-warning); font-size: var(--font-size-lg); margin-bottom: 8px;">
+                        Keep Studying!
+                    </div>
+                    <div style="color: var(--color-text-secondary);">
+                        Review the cards you missed to strengthen your understanding.
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                <a href="{{ url_for('study.start', deck_id=deck.id) }}" class="btn btn-primary">
+                    🔄 Study Again
+                </a>
+                <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-secondary">
+                    👁️ View Deck
+                </a>
+                <a href="{{ url_for('study.statistics', deck_id=deck.id) }}" class="btn btn-secondary">
+                    📈 View Stats
+                </a>
+                <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">
+                    🏠 Dashboard
+                </a>
             </div>
         </div>
 
         <!-- Motivational Quote -->
-        <div class="card mt-4">
-            <div class="card-body text-center">
-                <blockquote class="blockquote mb-0">
-                    <p class="mb-3">"The expert in anything was once a beginner."</p>
-                    <footer class="blockquote-footer">Helen Hayes</footer>
-                </blockquote>
-            </div>
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-lg); margin-top: var(--space-md); text-align: center;">
+            <blockquote style="margin: 0;">
+                <p style="font-size: var(--font-size-lg); font-style: italic; color: var(--color-text-secondary); margin-bottom: 12px; line-height: 1.6;">
+                    "The expert in anything was once a beginner."
+                </p>
+                <footer style="color: var(--color-text-muted); font-size: var(--font-size-sm);">
+                    — Helen Hayes
+                </footer>
+            </blockquote>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    @keyframes celebrationBounce {
+        0% {
+            transform: scale(0) rotate(0deg);
+            opacity: 0;
+        }
+        50% {
+            transform: scale(1.2) rotate(180deg);
+        }
+        100% {
+            transform: scale(1) rotate(360deg);
+            opacity: 1;
+        }
+    }
+
+    @media (max-width: 768px) {
+        div[style*="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))"] {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Celebration confetti effect (simple)
+        const accuracy = {{ results.accuracy }};
+
+        if (accuracy >= 90) {
+            FlashFlow.showToast('🏆 Excellent performance! You crushed it!', 'success', 4000);
+        } else if (accuracy >= 70) {
+            FlashFlow.showToast('⭐ Great job! Keep it up!', 'info', 4000);
+        } else {
+            FlashFlow.showToast('Keep practicing! You\'re improving!', 'warning', 4000);
+        }
+
+        // Add sparkle effect to results
+        setTimeout(() => {
+            document.querySelectorAll('[style*="font-size: var(--font-size-2xl)"]').forEach((el, index) => {
+                el.style.animation = `pulse 0.5s ease-out ${index * 0.1}s`;
+            });
+        }, 500);
+    });
+</script>
 {% endblock %}

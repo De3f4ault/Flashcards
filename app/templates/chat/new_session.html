@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="padding-top: 120px; padding-bottom: 60px;">
+    <div class="container" style="max-width: 900px;">
+        <!-- Header Card -->
+        <div style="background: var(--gradient-primary); border-radius: var(--radius-xl); padding: var(--space-xl); text-align: center; margin-bottom: var(--space-xl); position: relative; overflow: hidden; box-shadow: var(--shadow-primary);">
+            <div style="position: absolute; top: -50%; right: -50%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%); pointer-events: none;"></div>
+
+            <div style="position: relative; z-index: 1;">
+                <div style="font-size: 48px; margin-bottom: var(--space-sm);">💬</div>
+                <h1 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); margin-bottom: 8px; color: white;">
+                    Start New Chat Session
+                </h1>
+                <p style="font-size: var(--font-size-md); color: rgba(255, 255, 255, 0.9); margin: 0;">
+                    Begin a conversation with your AI study assistant
+                </p>
+            </div>
+        </div>
+
+        <!-- Main Form -->
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-xl); padding: var(--space-xl); margin-bottom: var(--space-xl);">
+            <form method="POST">
+                {{ form.hidden_tag() }}
+
+                <!-- Session Title -->
+                <div style="margin-bottom: var(--space-lg);">
+                    <label style="display: block; font-size: var(--font-size-md); font-weight: var(--font-weight-semibold); margin-bottom: 8px; color: var(--color-text-primary); display: flex; align-items: center; gap: 8px;">
+                        📝 Session Title (Optional)
+                    </label>
+                    {{ form.title(class="form-input", placeholder="e.g., Python Study Help, Math Homework, etc.", style="width: 100%;") }}
+                    {% if form.title.errors %}
+                        <div style="color: var(--color-danger); margin-top: 8px; font-size: var(--font-size-sm);">
+                            {% for error in form.title.errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <div style="font-size: var(--font-size-sm); color: var(--color-text-muted); margin-top: 6px;">
+                        Leave blank for automatic title generation from your first message
+                    </div>
+                </div>
+
+                <!-- Attach Document -->
+                <div style="margin-bottom: var(--space-lg);">
+                    <label style="display: block; font-size: var(--font-size-md); font-weight: var(--font-weight-semibold); margin-bottom: 8px; color: var(--color-text-primary); display: flex; align-items: center; gap: 8px;">
+                        📎 Attach Document (Optional)
+                    </label>
+                    {{ form.document_id(class="form-input", style="width: 100%;") }}
+                    {% if form.document_id.errors %}
+                        <div style="color: var(--color-danger); margin-top: 8px; font-size: var(--font-size-sm);">
+                            {% for error in form.document_id.errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                    <div style="font-size: var(--font-size-sm); color: var(--color-text-muted); margin-top: 6px;">
+                        ℹ️ Attaching a document allows the AI to reference its content during the conversation
+                    </div>
+                </div>
+
+                <!-- Tips Alert -->
+                <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: var(--radius-lg); padding: var(--space-md); margin-bottom: var(--space-lg);">
+                    <h3 style="font-size: var(--font-size-md); font-weight: var(--font-weight-semibold); margin-bottom: var(--space-sm); color: var(--color-text-primary); display: flex; align-items: center; gap: 8px;">
+                        💡 Tips for effective conversations:
+                    </h3>
+                    <ul style="margin: 0; padding-left: 24px; color: var(--color-text-tertiary); font-size: var(--font-size-sm); line-height: 1.8;">
+                        <li>Be specific with your questions</li>
+                        <li>Attach relevant documents for context-aware answers</li>
+                        <li>Ask for clarification if you don't understand something</li>
+                        <li>Request examples or step-by-step explanations when needed</li>
+                    </ul>
+                </div>
+
+                <!-- Action Buttons -->
+                <div style="display: flex; gap: var(--space-sm); justify-content: flex-end; flex-wrap: wrap;">
+                    <a href="{{ url_for('chat.index') }}" class="btn btn-secondary">
+                        ❌ Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        💬 Start Chat
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Quick Start Options -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-md);">
+            <!-- General Chat -->
+            <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-lg); text-align: center; transition: var(--transition-base);" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='var(--color-border-primary)'" onmouseout="this.style.transform=''; this.style.borderColor='var(--color-border-light)'">
+                <div style="width: 64px; height: 64px; margin: 0 auto var(--space-md); border-radius: var(--radius-xl); background: rgba(102, 126, 234, 0.1); display: flex; align-items: center; justify-content: center; font-size: 32px;">
+                    💬
+                </div>
+                <h3 style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); margin-bottom: var(--space-sm); color: var(--color-text-primary);">
+                    General Chat
+                </h3>
+                <p style="font-size: var(--font-size-sm); color: var(--color-text-tertiary); margin-bottom: var(--space-md); line-height: var(--line-height-relaxed);">
+                    Start a conversation without any document. Perfect for general questions and study help.
+                </p>
+                <form method="POST">
+                    {{ form.hidden_tag() }}
+                    <input type="hidden" name="title" value="General Chat">
+                    <input type="hidden" name="document_id" value="0">
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        Start General Chat →
+                    </button>
+                </form>
+            </div>
+
+            <!-- Document Chat -->
+            <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-lg); text-align: center; transition: var(--transition-base);" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='var(--color-border-primary)'" onmouseout="this.style.transform=''; this.style.borderColor='var(--color-border-light)'">
+                <div style="width: 64px; height: 64px; margin: 0 auto var(--space-md); border-radius: var(--radius-xl); background: rgba(52, 199, 89, 0.1); display: flex; align-items: center; justify-content: center; font-size: 32px;">
+                    📄
+                </div>
+                <h3 style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); margin-bottom: var(--space-sm); color: var(--color-text-primary);">
+                    Document Chat
+                </h3>
+                <p style="font-size: var(--font-size-sm); color: var(--color-text-tertiary); margin-bottom: var(--space-md); line-height: var(--line-height-relaxed);">
+                    Discuss a specific document with AI. Choose a document above to get started.
+                </p>
+                <a href="{{ url_for('documents.library') }}" class="btn btn-secondary" style="width: 100%; background: rgba(52, 199, 89, 0.1); color: var(--color-success); border-color: rgba(52, 199, 89, 0.3);">
+                    Upload Document First →
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show welcome toast
+        FlashFlow.showToast('Configure your chat session or use quick start options below', 'info', 4000);
+
+        // Auto-focus first input
+        const titleInput = document.querySelector('input[name="title"]');
+        if (titleInput) {
+            titleInput.focus();
+        }
+    });
+</script>
+{% endblock %}

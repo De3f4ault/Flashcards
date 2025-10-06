@@ -1,99 +1,264 @@
 {% extends "base.html" %}
 
+{% block hero %}
+<!-- Review Hero Section -->
+<div class="hero-section" style="height: 50vh; min-height: 380px;">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <div class="hero-badge" style="background: rgba(234, 179, 8, 0.2); border-color: rgba(234, 179, 8, 0.3); color: var(--color-warning);">
+            REVIEW MODE
+        </div>
+        <h1 class="hero-title" style="font-size: var(--font-size-3xl); margin-bottom: 16px;">Review Cards</h1>
+        <p class="hero-description">{{ deck.name }}</p>
+        <p style="color: var(--color-text-tertiary); font-size: var(--font-size-md); margin-top: 8px;">
+            Focus on cards that need more practice to strengthen your knowledge
+        </p>
+    </div>
+</div>
+{% endblock %}
+
 {% block content %}
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h1 class="h2 mb-1">Review Cards</h1>
-                <h5 class="text-muted">{{ deck.name }}</h5>
-                <p class="text-muted">Focus on cards that need more practice</p>
-            </div>
-            <div>
-                <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left me-2"></i>Back to Deck
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-
 {% if cards %}
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="alert alert-warning">
-            <i class="bi bi-exclamation-triangle me-2"></i>
-            <strong>{{ cards|length }} cards need review.</strong> These are cards with low accuracy or high difficulty.
+<!-- Alert Banner -->
+<div class="content-section" style="padding-top: var(--space-lg); padding-bottom: 0;">
+    <div class="container">
+        <div class="attention-card" style="border-left-color: var(--color-warning);">
+            <div style="display: flex; align-items: start; gap: 16px;">
+                <div style="font-size: 32px; line-height: 1;">⚠️</div>
+                <div style="flex: 1;">
+                    <div style="font-weight: var(--font-weight-bold); font-size: var(--font-size-lg); margin-bottom: 8px; color: var(--color-text-primary);">
+                        {{ cards|length }} Card{{ 's' if cards|length != 1 else '' }} Need Review
+                    </div>
+                    <div style="color: var(--color-text-tertiary); font-size: var(--font-size-base);">
+                        These cards have low accuracy or high difficulty. Take your time to review them carefully.
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<div class="row">
-    {% for card in cards %}
-    <div class="col-md-6 col-lg-4 mb-4">
-        <div class="card h-100">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <h6 class="card-title mb-0">Card {{ loop.index }}</h6>
-                    <div>
-                        <span class="badge {{ difficulty_badge_class(card.difficulty) }} me-1">
-                            {{ difficulty_label(card.difficulty) }}
+<!-- Cards Grid -->
+<div class="content-section">
+    <div class="container">
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: var(--space-sm);">
+            {% for card in cards %}
+            <div class="review-item hover-lift-sm"
+                 style="flex-direction: column; align-items: stretch; padding: var(--space-md); cursor: pointer; background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-md);"
+                 onclick="flipReviewCard(this)">
+
+                <!-- Card Header -->
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 16px;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="width: 32px; height: 32px; background: rgba(234, 179, 8, 0.1); border: 1px solid rgba(234, 179, 8, 0.3); border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; font-weight: var(--font-weight-bold); color: var(--color-warning); font-size: var(--font-size-sm);">
+                            {{ loop.index }}
+                        </div>
+                        <span style="font-size: var(--font-size-xs); font-weight: var(--font-weight-bold); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.5px;">
+                            Review Card
                         </span>
+                    </div>
+
+                    <!-- Badges -->
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end;">
                         {% if card.times_studied > 0 %}
-                            <span class="badge {{ accuracy_badge_class(card.get_accuracy()) }}">
-                                {{ card.get_accuracy() }}%
-                            </span>
+                        <span class="badge" style="
+                            {% if card.get_accuracy() >= 80 %}
+                                background: rgba(52, 199, 89, 0.1); border-color: rgba(52, 199, 89, 0.3); color: var(--color-success);
+                            {% elif card.get_accuracy() >= 50 %}
+                                background: rgba(234, 179, 8, 0.1); border-color: rgba(234, 179, 8, 0.3); color: var(--color-warning);
+                            {% else %}
+                                background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: var(--color-danger);
+                            {% endif %}
+                        ">
+                            🎯 {{ card.get_accuracy() }}%
+                        </span>
                         {% else %}
-                            <span class="badge bg-secondary">New</span>
+                        <span class="badge badge-dark">NEW</span>
                         {% endif %}
                     </div>
                 </div>
 
-                <div class="mb-3">
-                    <div class="small fw-bold text-muted mb-1">FRONT:</div>
-                    <div class="mb-2">{{ card.front_text }}</div>
-                    <div class="small fw-bold text-muted mb-1">BACK:</div>
-                    <div class="text-muted">{{ card.back_text }}</div>
+                <!-- Card Content (Flip Container) -->
+                <div class="card-flip-container" style="position: relative; min-height: 120px; margin-bottom: 16px;">
+                    <div class="card-front" style="display: block;">
+                        <div style="font-weight: var(--font-weight-semibold); color: var(--color-text-muted); font-size: var(--font-size-xs); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
+                            Front
+                        </div>
+                        <div style="color: var(--color-text-primary); line-height: 1.6; font-size: var(--font-size-base);">
+                            {{ card.front_text }}
+                        </div>
+                    </div>
+                    <div class="card-back" style="display: none;">
+                        <div style="font-weight: var(--font-weight-semibold); color: var(--color-text-muted); font-size: var(--font-size-xs); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
+                            Back
+                        </div>
+                        <div style="color: var(--color-text-primary); line-height: 1.6; font-size: var(--font-size-base);">
+                            {{ card.back_text }}
+                        </div>
+                    </div>
                 </div>
 
-                <div class="small text-muted">
-                    <i class="bi bi-eye me-1"></i>Studied {{ card.times_studied }} times
-                    {% if card.times_studied > 0 %}
-                        <span class="mx-2">•</span>
-                        <i class="bi bi-check-circle me-1"></i>{{ card.times_correct }} correct
-                    {% endif %}
+                <!-- Card Footer -->
+                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid var(--color-border-light); font-size: var(--font-size-xs); color: var(--color-text-muted);">
+                    <div style="display: flex; gap: 12px;">
+                        <span>👁️ {{ card.times_studied }} studies</span>
+                        {% if card.times_studied > 0 %}
+                        <span>✓ {{ card.times_correct }} correct</span>
+                        {% endif %}
+                    </div>
+                    <span style="font-style: italic; opacity: 0.7;">Click to flip</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Action Section -->
+<div class="content-section" style="padding-bottom: var(--space-2xl);">
+    <div class="container" style="text-align: center;">
+        <div style="max-width: 500px; margin: 0 auto;">
+            <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-lg);">
+                <div style="font-size: 48px; margin-bottom: 16px;">🎯</div>
+                <h3 style="font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); margin-bottom: 12px;">
+                    Ready to Practice?
+                </h3>
+                <p style="color: var(--color-text-tertiary); margin-bottom: 24px;">
+                    Start a study session with these cards to improve your accuracy and retention
+                </p>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <a href="{{ url_for('study.start', deck_id=deck.id) }}" class="btn btn-primary btn-lg">
+                        ▶️ Study These Cards
+                    </a>
+                    <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-secondary">
+                        ← Back to Deck
+                    </a>
                 </div>
             </div>
         </div>
     </div>
-    {% endfor %}
-</div>
-
-<div class="row mt-4">
-    <div class="col-12 text-center">
-        <a href="{{ url_for('study.start', deck_id=deck.id) }}" class="btn btn-primary btn-lg">
-            <i class="bi bi-play-circle me-2"></i>Study These Cards
-        </a>
-    </div>
 </div>
 
 {% else %}
-<div class="row">
-    <div class="col-12">
-        <div class="text-center py-5">
-            <i class="bi bi-check-circle display-1 text-success mb-3"></i>
-            <h4 class="text-success">All cards are mastered!</h4>
-            <p class="text-muted">No cards currently need review. Great job!</p>
-            <div class="d-flex justify-content-center gap-3">
+<!-- Empty State - All Mastered -->
+<div class="content-section" style="padding-top: var(--space-2xl); padding-bottom: var(--space-2xl);">
+    <div class="container">
+        <div class="empty-state">
+            <div class="empty-state-icon" style="font-size: 80px; color: var(--color-success);">✓</div>
+            <h2 class="empty-state-title" style="color: var(--color-success);">All Cards Are Mastered!</h2>
+            <p class="empty-state-description">
+                Excellent work! No cards currently need review. You've mastered this deck. Keep up the great work!
+            </p>
+            <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-top: var(--space-lg);">
                 <a href="{{ url_for('study.start', deck_id=deck.id) }}" class="btn btn-primary">
-                    <i class="bi bi-play-circle me-2"></i>Study All Cards
+                    ▶️ Study All Cards
                 </a>
-                <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left me-2"></i>Back to Deck
+                <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-secondary">
+                    ← Back to Deck
                 </a>
             </div>
         </div>
     </div>
 </div>
 {% endif %}
+
+<div style="height: 60px;"></div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Review Card Styling */
+    .review-item {
+        transition: var(--transition-base);
+        position: relative;
+    }
+
+    .review-item:hover {
+        border-color: rgba(234, 179, 8, 0.5) !important;
+        box-shadow: 0 4px 12px rgba(234, 179, 8, 0.2);
+    }
+
+    /* Flip Animation */
+    .card-flip-container .card-front,
+    .card-flip-container .card-back {
+        transition: opacity 0.3s ease;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .hero-section {
+            height: auto !important;
+            min-height: 300px !important;
+            padding: var(--space-xl) 4%;
+        }
+
+        div[style*="grid-template-columns: repeat(auto-fill, minmax(340px, 1fr))"] {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Flip Review Card Function
+    function flipReviewCard(cardElement) {
+        const front = cardElement.querySelector('.card-front');
+        const back = cardElement.querySelector('.card-back');
+
+        if (front.style.display !== 'none') {
+            front.style.opacity = '0';
+            setTimeout(() => {
+                front.style.display = 'none';
+                back.style.display = 'block';
+                back.style.opacity = '0';
+                setTimeout(() => {
+                    back.style.opacity = '1';
+                }, 10);
+            }, 300);
+        } else {
+            back.style.opacity = '0';
+            setTimeout(() => {
+                back.style.display = 'none';
+                front.style.display = 'block';
+                front.style.opacity = '0';
+                setTimeout(() => {
+                    front.style.opacity = '1';
+                }, 10);
+            }, 300);
+        }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if cards %}
+            FlashFlow.showToast('{{ cards|length }} card{{ "s" if cards|length != 1 else "" }} need{{ "" if cards|length != 1 else "s" }} your attention', 'warning', 4000);
+        {% else %}
+            FlashFlow.showToast('Great job! All cards are mastered! 🎉', 'success', 4000);
+        {% endif %}
+
+        // Keyboard shortcut: Space to start study
+        document.addEventListener('keydown', function(e) {
+            if (e.code === 'Space' && !e.target.matches('input, textarea')) {
+                e.preventDefault();
+                const studyBtn = document.querySelector('a[href*="study.start"]');
+                if (studyBtn) {
+                    studyBtn.click();
+                }
+            }
+        });
+
+        // Add stagger animation to cards
+        const cards = document.querySelectorAll('.review-item');
+        cards.forEach((card, index) => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            setTimeout(() => {
+                card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, index * 50);
+        });
+    });
+</script>
 {% endblock %}

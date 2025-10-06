@@ -4,284 +4,283 @@
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% if title %}{{ title }} - {% endif %}FlashCards</title>
+    <title>{% if title %}{{ title }} - {% endif %}FlashFlow</title>
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap Grid Only (for layout) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap-grid.min.css" rel="stylesheet">
+
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <!-- Custom CSS -->
+
+    <!-- FlashFlow CSS - Card Carousel Design System -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/components.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layouts.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/utilities.css') }}">
 
-    <style>
-        :root {
-            --primary-color: #4f46e5;
-            --primary-hover: #4338ca;
-            --secondary-color: #f8fafc;
-            --text-color: #1e293b;
-            --border-color: #e2e8f0;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--secondary-color);
-            color: var(--text-color);
-        }
-
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 1.5rem;
-            color: var(--primary-color) !important;
-        }
-
-        .navbar {
-            background-color: white !important;
-            border-bottom: 1px solid var(--border-color);
-            padding: 1rem 0;
-        }
-
-        .nav-link {
-            color: var(--text-color) !important;
-            font-weight: 500;
-            margin: 0 0.5rem;
-            padding: 0.5rem 1rem !important;
-            border-radius: 0.5rem;
-            transition: all 0.3s ease;
-        }
-
-        .nav-link:hover {
-            background-color: #f1f5f9;
-            color: var(--primary-color) !important;
-        }
-
-        .nav-link.active {
-            background-color: var(--primary-color);
-            color: white !important;
-        }
-
-        .btn-primary {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
-        }
-
-        .btn-primary:hover {
-            background-color: var(--primary-hover);
-            border-color: var(--primary-hover);
-        }
-
-        .card {
-            border: none;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            border-radius: 0.75rem;
-        }
-
-        .main-content {
-            min-height: calc(100vh - 200px);
-            padding: 2rem 0;
-        }
-
-        .alert {
-            border: none;
-            border-radius: 0.5rem;
-        }
-
-        .badge {
-            font-weight: 500;
-        }
-
-        .badge-success { background-color: #22c55e; }
-        .badge-info { background-color: #3b82f6; }
-        .badge-warning { background-color: #f59e0b; }
-        .badge-danger { background-color: #ef4444; }
-        .badge-dark { background-color: #374151; }
-        .badge-secondary { background-color: #6b7280; }
-
-        .footer {
-            background-color: white;
-            border-top: 1px solid var(--border-color);
-            padding: 2rem 0;
-            margin-top: 3rem;
-            color: #64748b;
-        }
-
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .user-avatar {
-            width: 32px;
-            height: 32px;
-            background-color: var(--primary-color);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-            font-size: 0.875rem;
-        }
-
-        @media (max-width: 768px) {
-            .navbar-nav {
-                text-align: center;
-                margin-top: 1rem;
-            }
-
-            .nav-link {
-                margin: 0.25rem 0;
-            }
-        }
-    </style>
+    <!-- Page-specific CSS -->
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-light">
-        <div class="container">
-            <a class="navbar-brand" href="{{ url_for('main.index') }}">
-                <i class="bi bi-collection-fill me-2"></i>FlashCards
+    <nav class="navbar">
+        <div class="logo">
+            <a href="{{ url_for('main.index') }}" style="text-decoration: none; color: inherit;">
+                FlashFlow
             </a>
+        </div>
 
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+        <!-- Mobile Menu Toggle -->
+        <button class="mobile-menu-toggle hide-desktop"
+                style="background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 8px;"
+                onclick="toggleMobileMenu()"
+                aria-label="Toggle menu">
+            ☰
+        </button>
 
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    {% if current_user.is_authenticated %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('main.dashboard') }}">
-                                <i class="bi bi-speedometer2 me-1"></i>Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('decks.index') }}">
-                                <i class="bi bi-collection me-1"></i>My Decks
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('decks.create') }}">
-                                <i class="bi bi-plus-circle me-1"></i>Create Deck
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('decks.public') }}">
-                                <i class="bi bi-globe me-1"></i>Browse Public
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {% if request.endpoint and 'documents' in request.endpoint %}active{% endif %}"
-                               href="{{ url_for('documents.library') }}" title="My Documents">
-                                <i class="bi bi-file-earmark-text me-1"></i>Documents
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link {% if request.endpoint and 'chat' in request.endpoint %}active{% endif %}"
-                               href="{{ url_for('chat.index') }}" title="AI Chat Assistant">
-                                <i class="bi bi-chat-dots me-1"></i>AI Chat
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('mc_metrics.dashboard') }}" title="Phase 1 Metrics">
-                                <i class="bi bi-graph-up me-1"></i>Metrics
-                            </a>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('decks.public') }}">
-                                <i class="bi bi-globe me-1"></i>Browse Decks
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('main.about') }}">
-                                <i class="bi bi-info-circle me-1"></i>About
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('main.help') }}">
-                                <i class="bi bi-question-circle me-1"></i>Help
-                            </a>
-                        </li>
-                    {% endif %}
-                </ul>
+        <div class="nav-links" id="navLinks">
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('main.dashboard') }}"
+                   class="nav-link {% if request.endpoint == 'main.dashboard' %}active{% endif %}">
+                    Dashboard
+                </a>
+                <a href="{{ url_for('decks.index') }}"
+                   class="nav-link {% if request.endpoint and 'decks' in request.endpoint %}active{% endif %}">
+                    My Decks
+                </a>
+                <a href="{{ url_for('decks.public') }}"
+                   class="nav-link {% if request.endpoint == 'decks.public' %}active{% endif %}">
+                    Explore
+                </a>
+                <a href="{{ url_for('documents.library') }}"
+                   class="nav-link {% if request.endpoint and 'documents' in request.endpoint %}active{% endif %}"
+                   title="My Documents">
+                    Documents
+                </a>
+                <a href="{{ url_for('chat.index') }}"
+                   class="nav-link {% if request.endpoint and 'chat' in request.endpoint %}active{% endif %}"
+                   title="AI Chat">
+                    AI Chat
+                </a>
+                <a href="{{ url_for('mc_metrics.dashboard') }}"
+                   class="nav-link {% if request.endpoint and 'mc_metrics' in request.endpoint %}active{% endif %}"
+                   title="Metrics">
+                    Analytics
+                </a>
 
-                <ul class="navbar-nav">
-                    {% if current_user.is_authenticated %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('auth.profile') }}">
-                                <div class="user-profile">
-                                    <div class="user-avatar">{{ current_user.username[0].upper() }}</div>
-                                    <span>{{ current_user.username }}</span>
-                                </div>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('auth.account') }}">
-                                <i class="bi bi-gear me-1"></i>Settings
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('auth.logout') }}">
-                                <i class="bi bi-box-arrow-right me-1"></i>Logout
-                            </a>
-                        </li>
-                    {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ url_for('auth.login') }}">
-                                <i class="bi bi-box-arrow-in-right me-1"></i>Login
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link btn btn-primary text-white ms-2" href="{{ url_for('auth.register') }}">
-                                <i class="bi bi-person-plus me-1"></i>Sign Up
-                            </a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </div>
+                <div class="search-container">
+                    <span class="search-icon" title="Search decks">🔍</span>
+                </div>
+
+                <a href="{{ url_for('auth.profile') }}" class="profile-icon" title="{{ current_user.username }}">
+                    {{ current_user.username[0].upper() }}
+                </a>
+            {% else %}
+                <a href="{{ url_for('decks.public') }}" class="nav-link">
+                    Explore
+                </a>
+                <a href="{{ url_for('main.about') }}" class="nav-link">
+                    About
+                </a>
+                <a href="{{ url_for('main.help') }}" class="nav-link">
+                    Help
+                </a>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-secondary btn-sm">
+                    Login
+                </a>
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-sm">
+                    Sign Up
+                </a>
+            {% endif %}
         </div>
     </nav>
 
     <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
-            <div class="container mt-3">
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                {% endfor %}
+            <div style="padding-top: 80px;">
+                <div class="container">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ 'danger' if category == 'error' else category }} animate-fadeIn"
+                             data-auto-dismiss="true"
+                             role="alert">
+                            {{ message }}
+                            <button type="button"
+                                    class="btn-close"
+                                    style="background: none; border: none; color: inherit; opacity: 0.7; cursor: pointer; float: right; font-size: 1.5rem; line-height: 1; margin-left: 16px;"
+                                    onclick="this.parentElement.style.display='none'"
+                                    aria-label="Close">
+                                &times;
+                            </button>
+                        </div>
+                    {% endfor %}
+                </div>
             </div>
         {% endif %}
     {% endwith %}
 
+    <!-- Hero Section Block (optional - for dashboard/landing pages) -->
+    {% block hero %}{% endblock %}
+
     <!-- Main Content -->
-    <div class="container main-content">
+    <main class="main-content">
         {% block content %}{% endblock %}
-    </div>
+    </main>
 
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
-            <div class="row">
-                <div class="col-md-6">
-                    <p class="mb-0">&copy; 2025 FlashCards. Built with Flask and Bootstrap.</p>
+            <div class="footer-content">
+                <div class="footer-text">
+                    &copy; 2025 FlashFlow. Built with Flask and powered by AI.
                 </div>
-                <div class="col-md-6 text-md-end">
-                    <a href="{{ url_for('main.about') }}" class="text-decoration-none me-3">About</a>
-                    <a href="{{ url_for('main.help') }}" class="text-decoration-none me-3">Help</a>
-                    <a href="#" class="text-decoration-none">Contact</a>
+                <div class="footer-links">
+                    <a href="{{ url_for('main.about') }}" class="footer-link">About</a>
+                    <a href="{{ url_for('main.help') }}" class="footer-link">Help</a>
+                    <a href="#" class="footer-link">Contact</a>
                 </div>
             </div>
         </div>
     </footer>
 
-    <!-- Bootstrap JS -->
+    <!-- Bootstrap JS (for collapsible nav on mobile) -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <!-- Custom JS -->
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+
+    <!-- Global initialization -->
+    <script>
+        // Make CSRF token available for AJAX requests
+        if (window.FlashFlow) {
+            window.csrfToken = FlashFlow.getCSRFToken();
+        }
+
+        /**
+         * Toggle mobile navigation menu
+         */
+        function toggleMobileMenu() {
+            const navLinks = document.getElementById('navLinks');
+            const isVisible = navLinks.style.display === 'flex' && navLinks.style.position === 'absolute';
+
+            if (isVisible) {
+                // Hide menu
+                navLinks.style.display = '';
+                navLinks.style.position = '';
+                navLinks.style.top = '';
+                navLinks.style.right = '';
+                navLinks.style.background = '';
+                navLinks.style.padding = '';
+                navLinks.style.borderRadius = '';
+                navLinks.style.boxShadow = '';
+                navLinks.style.minWidth = '';
+                navLinks.style.flexDirection = '';
+            } else {
+                // Show menu
+                navLinks.style.display = 'flex';
+                navLinks.style.flexDirection = 'column';
+                navLinks.style.position = 'absolute';
+                navLinks.style.top = '70px';
+                navLinks.style.right = '20px';
+                navLinks.style.background = 'var(--color-bg-secondary)';
+                navLinks.style.padding = '20px';
+                navLinks.style.borderRadius = 'var(--radius-lg)';
+                navLinks.style.boxShadow = 'var(--shadow-xl)';
+                navLinks.style.minWidth = '200px';
+                navLinks.style.zIndex = 'var(--z-dropdown)';
+                navLinks.style.border = '1px solid var(--color-border-light)';
+            }
+        }
+
+        // Initialize on DOM ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle logout confirmation
+            const logoutLinks = document.querySelectorAll('a[href*="logout"]');
+            logoutLinks.forEach(link => {
+                link.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    if (window.FlashFlow && window.FlashFlow.confirmDialog) {
+                        const confirmed = await FlashFlow.confirmDialog('Are you sure you want to log out?');
+                        if (confirmed) {
+                            window.location.href = this.href;
+                        }
+                    } else {
+                        // Fallback to native confirm if FlashFlow not loaded
+                        if (confirm('Are you sure you want to log out?')) {
+                            window.location.href = this.href;
+                        }
+                    }
+                });
+            });
+
+            // Close mobile menu when clicking outside
+            document.addEventListener('click', function(e) {
+                const navLinks = document.getElementById('navLinks');
+                const toggle = document.querySelector('.mobile-menu-toggle');
+
+                if (navLinks && toggle &&
+                    !navLinks.contains(e.target) &&
+                    !toggle.contains(e.target) &&
+                    window.innerWidth <= 768) {
+                    // Reset mobile menu styles
+                    const isVisible = navLinks.style.display === 'flex' && navLinks.style.position === 'absolute';
+                    if (isVisible) {
+                        navLinks.style.display = '';
+                        navLinks.style.position = '';
+                        navLinks.style.top = '';
+                        navLinks.style.right = '';
+                        navLinks.style.background = '';
+                        navLinks.style.padding = '';
+                        navLinks.style.borderRadius = '';
+                        navLinks.style.boxShadow = '';
+                        navLinks.style.minWidth = '';
+                        navLinks.style.flexDirection = '';
+                        navLinks.style.zIndex = '';
+                        navLinks.style.border = '';
+                    }
+                }
+            });
+
+            // Handle window resize - reset mobile menu on desktop
+            let resizeTimer;
+            window.addEventListener('resize', function() {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(function() {
+                    const navLinks = document.getElementById('navLinks');
+                    if (window.innerWidth > 768 && navLinks) {
+                        // Reset all mobile menu styles on desktop
+                        navLinks.style.display = '';
+                        navLinks.style.position = '';
+                        navLinks.style.top = '';
+                        navLinks.style.right = '';
+                        navLinks.style.background = '';
+                        navLinks.style.padding = '';
+                        navLinks.style.borderRadius = '';
+                        navLinks.style.boxShadow = '';
+                        navLinks.style.minWidth = '';
+                        navLinks.style.flexDirection = '';
+                        navLinks.style.zIndex = '';
+                        navLinks.style.border = '';
+                    }
+                }, 250);
+            });
+
+            // Enhance form submissions with loading states
+            document.querySelectorAll('form').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    if (submitBtn && !submitBtn.disabled && window.FlashFlow) {
+                        FlashFlow.showButtonLoading(submitBtn);
+                    }
+                });
+            });
+        });
+    </script>
 
     <!-- Page-specific scripts -->
     {% block scripts %}{% endblock %}

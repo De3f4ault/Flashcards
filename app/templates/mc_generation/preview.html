@@ -1,0 +1,295 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="padding-top: 100px; padding-bottom: 60px;">
+    <div style="max-width: 1000px; margin: 0 auto;">
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; flex-wrap: wrap; gap: 16px;">
+            <div>
+                <h2 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); margin-bottom: 8px;">
+                    👁️ Preview Generated Questions
+                </h2>
+                <p style="color: var(--color-text-tertiary); margin: 0;">
+                    Topic: <strong style="color: var(--color-text-secondary);">{{ topic }}</strong> | Deck: <strong style="color: var(--color-text-secondary);">{{ deck.name }}</strong>
+                </p>
+            </div>
+            <a href="{{ url_for('mc_generation.cancel_preview') }}"
+               class="btn btn-secondary"
+               style="white-space: nowrap; background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: var(--color-danger);">
+                ✖️ Cancel
+            </a>
+        </div>
+
+        <!-- Instructions -->
+        <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: var(--radius-lg); padding: var(--space-md); margin-bottom: var(--space-lg); color: var(--color-info);">
+            <strong>ℹ️ Review your questions:</strong> Select the questions you want to keep. You can regenerate or delete any question before saving.
+        </div>
+
+        <!-- Questions Preview Form -->
+        <form method="POST" action="{{ url_for('mc_generation.save_questions', deck_id=deck.id) }}" id="save-form">
+            <!-- CSRF Token -->
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+            <!-- Question Cards -->
+            {% for question in questions %}
+            {% set i = loop.index0 %}
+            <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); margin-bottom: var(--space-lg); overflow: hidden;" id="question-{{ i }}">
+                <!-- Card Header -->
+                <div style="background: var(--overlay-light); padding: var(--space-md); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; border-bottom: 1px solid var(--color-border-light);">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <input type="checkbox"
+                               name="selected_questions"
+                               value="{{ i }}"
+                               id="select-{{ i }}"
+                               checked
+                               style="width: 20px; height: 20px; cursor: pointer; accent-color: var(--color-primary);">
+                        <label for="select-{{ i }}" style="font-weight: var(--font-weight-bold); cursor: pointer; margin: 0;">
+                            Question {{ i + 1 }}
+                        </label>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button type="button"
+                                class="btn btn-secondary btn-sm"
+                                onclick="regenerateQuestion({{ loop.index0 }})"
+                                title="Regenerate this question">
+                            🔄 Regenerate
+                        </button>
+                        <button type="button"
+                                class="btn btn-secondary btn-sm"
+                                onclick="deleteQuestion({{ loop.index0 }})"
+                                title="Delete question"
+                                style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: var(--color-danger);">
+                            🗑️ Delete
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Card Body -->
+                <div style="padding: var(--space-lg);">
+                    <!-- Question Text -->
+                    <h5 style="font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); margin-bottom: var(--space-md); color: var(--color-text-primary);">
+                        {{ question.question_text }}
+                    </h5>
+
+                    <!-- Choices -->
+                    <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: var(--space-md);">
+                        {% for letter in ['A', 'B', 'C', 'D'] %}
+                        <div style="background: {% if letter == question.correct_answer %}rgba(52, 199, 89, 0.1){% else %}var(--overlay-light){% endif %};
+                                    border: 1px solid {% if letter == question.correct_answer %}rgba(52, 199, 89, 0.3){% else %}var(--color-border-medium){% endif %};
+                                    border-radius: var(--radius-md);
+                                    padding: var(--space-sm);">
+                            <div style="display: flex; align-items: flex-start; gap: 12px;">
+                                <span style="background: {% if letter == question.correct_answer %}var(--color-success){% else %}var(--overlay-medium){% endif %};
+                                             color: {% if letter == question.correct_answer %}white{% else %}var(--color-text-secondary){% endif %};
+                                             width: 32px;
+                                             height: 32px;
+                                             display: flex;
+                                             align-items: center;
+                                             justify-content: center;
+                                             border-radius: var(--radius-sm);
+                                             font-weight: var(--font-weight-bold);
+                                             flex-shrink: 0;">
+                                    {{ letter }}
+                                </span>
+                                <div style="flex: 1;">
+                                    <div style="font-weight: var(--font-weight-medium); color: var(--color-text-primary); margin-bottom: 4px;">
+                                        {{ question.choices[letter] }}
+                                        {% if letter == question.correct_answer %}
+                                            <span style="background: var(--color-success);
+                                                         color: white;
+                                                         padding: 4px 8px;
+                                                         border-radius: var(--radius-2xl);
+                                                         font-size: var(--font-size-xs);
+                                                         font-weight: var(--font-weight-bold);
+                                                         margin-left: 8px;">
+                                                ✓ Correct
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                    {% if letter != question.correct_answer and question.misconceptions.get(letter) %}
+                                        <div style="margin-top: 8px; padding: 8px; background: var(--overlay-light); border-radius: var(--radius-sm); font-size: var(--font-size-sm); color: var(--color-text-tertiary); font-style: italic;">
+                                            💡 {{ question.misconceptions[letter] }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Metadata -->
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <span style="background: rgba(102, 126, 234, 0.2);
+                                     border: 1px solid var(--color-border-primary);
+                                     color: var(--color-primary-light);
+                                     padding: 6px 12px;
+                                     border-radius: var(--radius-2xl);
+                                     font-size: var(--font-size-xs);
+                                     font-weight: var(--font-weight-bold);">
+                            Difficulty: {{ question.difficulty }}/5
+                        </span>
+                        {% if question.concept_tags %}
+                            {% for tag in question.concept_tags %}
+                                <span class="tag">{{ tag }}</span>
+                            {% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+
+            <!-- Action Buttons -->
+            <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-lg);">
+                <div style="margin-bottom: var(--space-md);">
+                    <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
+                        <input type="checkbox"
+                               id="confirm-review"
+                               required
+                               style="width: 20px; height: 20px; cursor: pointer; accent-color: var(--color-primary);">
+                        <span style="font-weight: var(--font-weight-semibold);">
+                            I've reviewed these questions and they look good
+                        </span>
+                    </label>
+                </div>
+
+                <div style="display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap;">
+                    <a href="{{ url_for('mc_generation.generate_request', deck_id=deck.id) }}"
+                       class="btn btn-secondary">
+                        🔄 Generate More
+                    </a>
+                    <button type="submit" class="btn btn-primary btn-lg" id="save-btn" disabled>
+                        ✓ Save Selected Questions
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+// Enable save button when checkbox is checked
+document.getElementById('confirm-review').addEventListener('change', function() {
+    document.getElementById('save-btn').disabled = !this.checked;
+});
+
+// Prevent double submission
+document.getElementById('save-form').addEventListener('submit', function(e) {
+    const saveBtn = document.getElementById('save-btn');
+    if (window.FlashFlow) {
+        FlashFlow.showButtonLoading(saveBtn);
+    } else {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<span class="loading-spinner" style="width: 20px; height: 20px; border-width: 2px; display: inline-block; vertical-align: middle; margin-right: 8px;"></span>Saving...';
+    }
+});
+
+// Regenerate question
+function regenerateQuestion(index) {
+    if (window.FlashFlow) {
+        FlashFlow.confirmDialog('Regenerate this question? This will replace it with a new one.').then(confirmed => {
+            if (confirmed) {
+                performRegenerate(index);
+            }
+        });
+    } else if (confirm('Regenerate this question? This will replace it with a new one.')) {
+        performRegenerate(index);
+    }
+}
+
+function performRegenerate(index) {
+    const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+
+    fetch(`/mc/question/${index}/regenerate`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            if (window.FlashFlow) {
+                FlashFlow.showToast('Regeneration failed: ' + data.error, 'error');
+            } else {
+                alert('Regeneration failed: ' + data.error);
+            }
+        }
+    })
+    .catch(error => {
+        if (window.FlashFlow) {
+            FlashFlow.showToast('Error: ' + error, 'error');
+        } else {
+            alert('Error: ' + error);
+        }
+    });
+}
+
+// Delete question
+function deleteQuestion(index) {
+    if (window.FlashFlow) {
+        FlashFlow.confirmDialog('Delete this question from the preview?').then(confirmed => {
+            if (confirmed) {
+                performDelete(index);
+            }
+        });
+    } else if (confirm('Delete this question from the preview?')) {
+        performDelete(index);
+    }
+}
+
+function performDelete(index) {
+    const csrfToken = document.querySelector('input[name="csrf_token"]').value;
+
+    fetch(`/mc/question/${index}/delete`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById(`question-${index}`).remove();
+            // Check if any questions remain
+            const remainingQuestions = document.querySelectorAll('[id^="question-"]');
+            if (remainingQuestions.length === 0) {
+                if (window.FlashFlow) {
+                    FlashFlow.showToast('All questions deleted. Redirecting...', 'warning');
+                }
+                setTimeout(() => {
+                    window.location.href = '{{ url_for("mc_generation.generate_request", deck_id=deck.id) }}';
+                }, 1500);
+            } else {
+                if (window.FlashFlow) {
+                    FlashFlow.showToast('Question deleted', 'success');
+                }
+            }
+        } else {
+            if (window.FlashFlow) {
+                FlashFlow.showToast('Delete failed: ' + data.error, 'error');
+            } else {
+                alert('Delete failed: ' + data.error);
+            }
+        }
+    })
+    .catch(error => {
+        if (window.FlashFlow) {
+            FlashFlow.showToast('Error: ' + error, 'error');
+        } else {
+            alert('Error: ' + error);
+        }
+    });
+}
+
+// Show toast on load
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.FlashFlow) {
+        FlashFlow.showToast('Review and select questions to save to your deck', 'info', 4000);
+    }
+});
+</script>
+{% endblock %}

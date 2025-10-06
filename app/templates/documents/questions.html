@@ -1,0 +1,220 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="{{ url_for('documents.view', id=document.id) }}" class="btn btn-sm btn-secondary mb-3">
+            <i class="bi bi-arrow-left me-1"></i>Back to Document
+        </a>
+
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                    <h4 class="mb-0">
+                        <i class="bi bi-question-circle me-2"></i>
+                        Questions from: {{ document.original_filename }}
+                    </h4>
+                    <span class="badge bg-light text-dark">{{ total_questions }} Question{{ 's' if total_questions != 1 else '' }}</span>
+                </div>
+            </div>
+            <div class="card-body">
+                {% if total_questions == 0 %}
+                <div class="alert alert-info">
+                    <h5><i class="bi bi-info-circle me-2"></i>No Questions Generated Yet</h5>
+                    <p class="mb-0">Go back to the document and generate some questions to get started!</p>
+                </div>
+                <a href="{{ url_for('documents.view', id=document.id) }}" class="btn btn-primary">
+                    <i class="bi bi-arrow-left me-1"></i>Back to Document
+                </a>
+                {% else %}
+                <!-- Action Buttons -->
+                <div class="mb-4">
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a href="{{ url_for('documents.study', id=document.id) }}" class="btn btn-success">
+                            <i class="bi bi-mortarboard me-1"></i>Study All Questions
+                        </a>
+                        <a href="{{ url_for('documents.view', id=document.id) }}" class="btn btn-outline-primary">
+                            <i class="bi bi-plus-circle me-1"></i>Generate More Questions
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Questions by Deck -->
+                {% for deck_name, deck_questions in questions_by_deck.items() %}
+                <div class="card mb-3">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">
+                            <i class="bi bi-collection me-2"></i>{{ deck_name }}
+                            <span class="badge bg-primary">{{ deck_questions|length }} question{{ 's' if deck_questions|length != 1 else '' }}</span>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th width="5%">#</th>
+                                        <th width="50%">Question</th>
+                                        <th width="15%">Difficulty</th>
+                                        <th width="15%">Accuracy</th>
+                                        <th width="15%">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for question in deck_questions %}
+                                    <tr>
+                                        <td>{{ loop.index }}</td>
+                                        <td>
+                                            <strong>{{ question.question_text[:100] }}{{ '...' if question.question_text|length > 100 else '' }}</strong>
+                                            {% if question.concept_tags %}
+                                            <div class="mt-1">
+                                                {% for tag in question.get_concept_tags_list() %}
+                                                <span class="badge bg-secondary">{{ tag }}</span>
+                                                {% endfor %}
+                                            </div>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% set difficulty_map = {1: 'Easy', 2: 'Medium-Easy', 3: 'Medium', 4: 'Hard', 5: 'Expert'} %}
+                                            {% set difficulty_color = {1: 'success', 2: 'info', 3: 'primary', 4: 'warning', 5: 'danger'} %}
+                                            <span class="badge bg-{{ difficulty_color[question.difficulty] }}">
+                                                {{ difficulty_map[question.difficulty] }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% set stats = question.get_accuracy_stats() %}
+                                            {% if stats.times_attempted > 0 %}
+                                                <span class="badge bg-{{ 'success' if stats.accuracy >= 70 else 'warning' if stats.accuracy >= 50 else 'danger' }}">
+                                                    {{ stats.accuracy }}%
+                                                </span>
+                                                <small class="text-muted d-block">{{ stats.times_correct }}/{{ stats.times_attempted }} correct</small>
+                                            {% else %}
+                                                <span class="badge bg-secondary">Not Attempted</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#questionModal{{ question.id }}">
+                                                    <i class="bi bi-eye"></i>
+                                                </button>
+                                                <a href="{{ url_for('mc_generation.edit_card', card_id=question.id) }}" class="btn btn-outline-warning">
+                                                    <i class="bi bi-pencil"></i>
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Question Preview Modal -->
+                                    <div class="modal fade" id="questionModal{{ question.id }}" tabindex="-1">
+                                        <div class="modal-dialog modal-lg">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Question Preview</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <h6>Question:</h6>
+                                                    <p class="lead">{{ question.question_text }}</p>
+
+                                                    <h6 class="mt-3">Choices:</h6>
+                                                    <ul class="list-group mb-3">
+                                                        {% set choices = question.get_choices_dict() %}
+                                                        {% for letter, text in choices.items() %}
+                                                        <li class="list-group-item {{ 'list-group-item-success' if letter == question.correct_answer else '' }}">
+                                                            <strong>{{ letter }}.</strong> {{ text }}
+                                                            {% if letter == question.correct_answer %}
+                                                            <span class="badge bg-success float-end">Correct</span>
+                                                            {% endif %}
+                                                        </li>
+                                                        {% endfor %}
+                                                    </ul>
+
+                                                    <h6>Misconception Explanations:</h6>
+                                                    <div class="accordion" id="misconceptionAccordion{{ question.id }}">
+                                                        {% for letter in ['A', 'B', 'C', 'D'] %}
+                                                        {% if letter != question.correct_answer %}
+                                                        {% set misconception = question.get_misconception(letter) %}
+                                                        {% if misconception %}
+                                                        <div class="accordion-item">
+                                                            <h2 class="accordion-header">
+                                                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ question.id }}{{ letter }}">
+                                                                    Choice {{ letter }}: Why it's wrong
+                                                                </button>
+                                                            </h2>
+                                                            <div id="collapse{{ question.id }}{{ letter }}" class="accordion-collapse collapse" data-bs-parent="#misconceptionAccordion{{ question.id }}">
+                                                                <div class="accordion-body">
+                                                                    {{ misconception }}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        {% endif %}
+                                                        {% endif %}
+                                                        {% endfor %}
+                                                    </div>
+
+                                                    <div class="mt-3">
+                                                        <h6>Metadata:</h6>
+                                                        <ul class="list-unstyled">
+                                                            <li><strong>Difficulty:</strong> {{ difficulty_map[question.difficulty] }}</li>
+                                                            <li><strong>Created:</strong> {{ question.created_at.strftime('%B %d, %Y') if question.created_at else 'Unknown' }}</li>
+                                                            {% if question.concept_tags %}
+                                                            <li><strong>Tags:</strong> {{ ', '.join(question.get_concept_tags_list()) }}</li>
+                                                            {% endif %}
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <a href="{{ url_for('mc_generation.edit_card', card_id=question.id) }}" class="btn btn-warning">
+                                                        <i class="bi bi-pencil me-1"></i>Edit Question
+                                                    </a>
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <!-- Summary Statistics -->
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h5>Summary Statistics</h5>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <strong>Total Questions:</strong>
+                                <p class="mb-0">{{ total_questions }}</p>
+                            </div>
+                            <div class="col-md-3">
+                                <strong>Decks Used:</strong>
+                                <p class="mb-0">{{ questions_by_deck|length }}</p>
+                            </div>
+                            <div class="col-md-3">
+                                <strong>Overall Accuracy:</strong>
+                                <p class="mb-0">
+                                    {% set total_attempts = questions|selectattr('attempts')|map(attribute='attempts')|sum(start=[])|length %}
+                                    {% set total_correct = questions|selectattr('attempts')|map(attribute='attempts')|sum(start=[])|selectattr('is_correct')|list|length %}
+                                    {% if total_attempts > 0 %}
+                                        {{ (total_correct / total_attempts * 100)|round(1) }}%
+                                    {% else %}
+                                        Not attempted yet
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="col-md-3">
+                                <strong>Source Document:</strong>
+                                <p class="mb-0">{{ document.file_type|upper }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

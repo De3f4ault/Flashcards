@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="padding-top: 100px; padding-bottom: 60px;">
+    <div style="max-width: 800px; margin: 0 auto;">
+        <!-- Header -->
+        <div style="text-align: center; margin-bottom: var(--space-2xl);">
+            <h1 style="font-size: var(--font-size-3xl); font-weight: var(--font-weight-bold); margin-bottom: var(--space-sm);">
+                ▶️ Study MC Questions
+            </h1>
+            <h3 style="color: var(--color-text-tertiary); font-weight: var(--font-weight-normal);">
+                {{ deck.name }}
+            </h3>
+        </div>
+
+        <!-- Stats Card -->
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-xl); margin-bottom: var(--space-lg);">
+            <h5 style="font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); margin-bottom: var(--space-md); display: flex; align-items: center; gap: 8px;">
+                📊 Deck Overview
+            </h5>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-lg); text-align: center;">
+                <div>
+                    <div style="font-size: var(--font-size-4xl); font-weight: var(--font-weight-extrabold); color: var(--color-primary); margin-bottom: 4px;">
+                        {{ card_count }}
+                    </div>
+                    <div style="color: var(--color-text-muted); font-size: var(--font-size-sm);">
+                        Total Questions
+                    </div>
+                </div>
+                <div>
+                    <div style="font-size: var(--font-size-4xl); font-weight: var(--font-weight-extrabold); color: var(--color-success); margin-bottom: 4px;">
+                        {{ stats.total_attempts }}
+                    </div>
+                    <div style="color: var(--color-text-muted); font-size: var(--font-size-sm);">
+                        Times Studied
+                    </div>
+                </div>
+                <div>
+                    <div style="font-size: var(--font-size-4xl); font-weight: var(--font-weight-extrabold); color: var(--color-info); margin-bottom: 4px;">
+                        {{ stats.avg_accuracy }}%
+                    </div>
+                    <div style="color: var(--color-text-muted); font-size: var(--font-size-sm);">
+                        Average Accuracy
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Start Session Form -->
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-xl); margin-bottom: var(--space-lg);">
+            <form method="POST" action="{{ url_for('mc_study.start', deck_id=deck.id) }}">
+                {{ form.hidden_tag() }}
+
+                <!-- Session Title -->
+                <div class="form-group">
+                    <label class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                        🔖 Session Title (Optional)
+                    </label>
+                    {{ form.session_title(class="form-input", placeholder="e.g., Morning Review, Weekly Practice") }}
+                    <div class="form-help">
+                        Give this study session a name to track your progress
+                    </div>
+                </div>
+
+                <!-- Ready Message -->
+                <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: var(--radius-lg); padding: var(--space-md); margin-bottom: var(--space-lg); color: var(--color-info);">
+                    <strong>ℹ️ Ready to start!</strong> You'll answer {{ card_count }} multiple choice questions.
+                    For each question, select your answer and rate your confidence.
+                </div>
+
+                <!-- Start Button -->
+                <div style="display: grid; gap: var(--space-xs);">
+                    {{ form.submit(class="btn btn-primary btn-lg", style="width: 100%;") }}
+                </div>
+            </form>
+        </div>
+
+        <!-- Quick Actions -->
+        <div style="text-align: center;">
+            <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-secondary">
+                ← Back to Deck
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.FlashFlow) {
+            FlashFlow.showToast('Get ready to test your knowledge!', 'info', 3000);
+        }
+    });
+</script>
+{% endblock %}

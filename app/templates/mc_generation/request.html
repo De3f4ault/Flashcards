@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="padding-top: 100px; padding-bottom: 60px;">
+    <div style="max-width: 800px; margin: 0 auto;">
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; flex-wrap: wrap; gap: 16px;">
+            <div>
+                <h2 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); margin-bottom: 8px;">
+                    ✨ Generate MC Questions
+                </h2>
+                <p style="color: var(--color-text-tertiary); margin: 0;">
+                    Use AI to create multiple choice questions for: <strong style="color: var(--color-text-secondary);">{{ deck.name }}</strong>
+                </p>
+            </div>
+            <a href="{{ url_for('decks.view', id=deck.id) }}"
+               class="btn btn-secondary"
+               style="white-space: nowrap;">
+                ← Back to Deck
+            </a>
+        </div>
+
+        <!-- Info Card -->
+        <div style="background: var(--gradient-primary); border-radius: var(--radius-lg); padding: var(--space-lg); margin-bottom: var(--space-lg); color: white;">
+            <h5 style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); margin-bottom: var(--space-sm); display: flex; align-items: center; gap: 8px;">
+                💡 How it works
+            </h5>
+            <ul style="margin: 0; padding-left: 20px; line-height: 1.8;">
+                <li>AI generates questions with 4 choices each</li>
+                <li>Each wrong answer includes an explanation of the misconception</li>
+                <li>You'll preview and approve questions before saving</li>
+                <li>Questions can be edited or regenerated</li>
+            </ul>
+        </div>
+
+        <!-- Generation Form -->
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-xl);">
+            <form method="POST" action="{{ url_for('mc_generation.generate_request', deck_id=deck.id) }}">
+                {{ form.hidden_tag() }}
+
+                <!-- Topic -->
+                <div class="form-group">
+                    <label class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                        📚 Topic <span style="color: var(--color-danger);">*</span>
+                    </label>
+                    {{ form.topic(class="form-input", placeholder="e.g., Photosynthesis, World War II, Python Functions") }}
+                    {% if form.topic.errors %}
+                        <div class="form-error">{{ form.topic.errors[0] }}</div>
+                    {% endif %}
+                    <div class="form-help">
+                        Examples: Photosynthesis, World War II, Python Functions
+                    </div>
+                </div>
+
+                <!-- Count and Difficulty Row -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); margin-bottom: var(--space-md);">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                            🔢 Number of Questions <span style="color: var(--color-danger);">*</span>
+                        </label>
+                        {{ form.count(class="form-input", type="number", min="1", max="20") }}
+                        {% if form.count.errors %}
+                            <div class="form-error">{{ form.count.errors[0] }}</div>
+                        {% endif %}
+                        <div class="form-help">Maximum: 20 questions</div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                            📊 Difficulty Level
+                        </label>
+                        {{ form.difficulty(class="form-select") }}
+                    </div>
+                </div>
+
+                <!-- Subject Area -->
+                <div class="form-group">
+                    <label class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                        📖 Subject Area
+                    </label>
+                    {{ form.subject_area(class="form-select") }}
+                </div>
+
+                <!-- Additional Context -->
+                <div class="form-group">
+                    <label class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                        💬 Additional Instructions (Optional)
+                    </label>
+                    {{ form.additional_context(class="form-textarea", rows="4", placeholder="Provide specific focus areas or requirements...") }}
+                    {% if form.additional_context.errors %}
+                        <div class="form-error">{{ form.additional_context.errors[0] }}</div>
+                    {% endif %}
+                    <div class="form-help">
+                        Provide specific focus areas or requirements
+                    </div>
+                </div>
+
+                <!-- Submit -->
+                <div style="display: grid; gap: var(--space-xs);">
+                    {{ form.submit(class="btn btn-primary btn-lg", style="width: 100%;") }}
+                </div>
+            </form>
+        </div>
+
+        <!-- Fallback Option -->
+        <div style="text-align: center; margin-top: var(--space-lg);">
+            <p style="color: var(--color-text-tertiary); margin-bottom: var(--space-sm);">
+                Prefer to create questions manually?
+            </p>
+            <a href="{{ url_for('mc_generation.manual_create', deck_id=deck.id) }}"
+               class="btn btn-secondary">
+                ✏️ Create Manually
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show toast with instructions
+        if (window.FlashFlow) {
+            FlashFlow.showToast('AI will generate questions based on your topic and preferences', 'info', 4000);
+        }
+
+        // Form validation
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            const topic = document.querySelector('input[name="topic"]');
+            const count = document.querySelector('input[name="count"]');
+
+            if (!topic.value.trim()) {
+                e.preventDefault();
+                if (window.FlashFlow) {
+                    FlashFlow.showToast('Please enter a topic', 'error');
+                }
+                topic.focus();
+                return;
+            }
+
+            if (!count.value || count.value < 1 || count.value > 20) {
+                e.preventDefault();
+                if (window.FlashFlow) {
+                    FlashFlow.showToast('Please enter a valid number of questions (1-20)', 'error');
+                }
+                count.focus();
+                return;
+            }
+        });
+    });
+</script>
+{% endblock %}

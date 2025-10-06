@@ -1,326 +1,298 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container py-4">
-    <div class="row justify-content-center">
-        <div class="col-12 col-md-10 col-lg-8">
-            <!-- Progress Section -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-body p-3">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="fw-semibold text-primary">
-                            <i class="bi bi-graph-up me-1"></i>Progress
-                        </span>
-                        <span class="text-muted small">
-                            Card <strong>{{ progress.current }}</strong> of <strong>{{ progress.total }}</strong>
-                        </span>
-                    </div>
-                    <div class="progress" style="height: 8px;">
-                        <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated"
-                             role="progressbar"
-                             style="width: {{ progress.percentage }}%"
-                             aria-valuenow="{{ progress.percentage }}"
-                             aria-valuemin="0"
-                             aria-valuemax="100">
-                        </div>
-                    </div>
-                    <div class="text-center mt-2">
-                        <small class="text-muted">{{ progress.percentage }}% Complete</small>
-                    </div>
-                </div>
+<div style="min-height: 100vh; display: flex; flex-direction: column; padding-top: calc(var(--navbar-height) + var(--space-md)); padding-bottom: var(--space-2xl);">
+    <div class="container" style="max-width: 900px;">
+
+        <!-- Progress Bar -->
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-xl); padding: var(--space-md); margin-bottom: var(--space-md); box-shadow: var(--shadow-md);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <span style="font-weight: var(--font-weight-semibold); color: var(--color-primary); display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 20px;">📊</span> Progress
+                </span>
+                <span style="color: var(--color-text-tertiary); font-size: var(--font-size-sm);">
+                    Card <strong style="color: var(--color-text-primary);">{{ progress.current }}</strong> of <strong style="color: var(--color-text-primary);">{{ progress.total }}</strong>
+                </span>
             </div>
 
-            <!-- Study Mode Toggle -->
-            <div class="text-center mb-3">
-                <div class="btn-group" role="group">
-                    <input type="radio" class="btn-check" name="studyMode" id="flipMode" {% if preferred_mode == 'flip' %}checked{% endif %} onchange="switchMode('flip')">
-                    <label class="btn btn-outline-primary" for="flipMode">
-                        <i class="bi bi-card-text me-1"></i>Flip Card
-                    </label>
-
-                    <input type="radio" class="btn-check" name="studyMode" id="typeMode" {% if preferred_mode == 'type' %}checked{% endif %} onchange="switchMode('type')">
-                    <label class="btn btn-outline-primary" for="typeMode">
-                        <i class="bi bi-keyboard me-1"></i>Type Answer
-                    </label>
-                </div>
+            <!-- Progress Bar -->
+            <div style="height: 8px; background: var(--overlay-medium); border-radius: 4px; overflow: hidden; position: relative;">
+                <div style="height: 100%; background: var(--gradient-primary); border-radius: 4px; width: {{ progress.percentage }}%; transition: width 0.5s ease;"></div>
             </div>
 
-            <!-- Flashcard Container -->
-            <div class="card border-0 shadow flashcard-card mb-4" id="flashcard">
-                <div class="card-body p-5 text-center">
-                    <!-- Card Header -->
-                    <div class="mb-4">
-                        <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2">
-                            <i class="bi bi-question-circle me-1"></i>Question {{ progress.current }}
-                        </span>
-                        <span class="badge {{ difficulty_badge_class(card.difficulty) }} px-3 py-2 ms-2">
-                            {{ difficulty_label(card.difficulty) }}
-                        </span>
-                    </div>
-
-                    <!-- FLIP MODE -->
-                    <div id="flip-mode-container">
-                        <!-- Card Front -->
-                        <div id="card-front" class="card-face">
-                            <div class="emoji-display mb-4">🎯</div>
-                            <h3 class="card-text-content mb-5">{{ card.front_text }}</h3>
-                            <button class="btn btn-primary btn-lg px-5 shadow-sm" onclick="flipCard()">
-                                <i class="bi bi-eye me-2"></i>Reveal Answer
-                            </button>
-                            <div class="mt-3">
-                                <small class="text-muted">Or click anywhere on the card to flip</small>
-                            </div>
-                        </div>
-
-                        <!-- Card Back -->
-                        <div id="card-back" class="card-face d-none">
-                            <div class="emoji-display mb-4">💡</div>
-                            <div class="answer-section mb-5">
-                                <h6 class="text-muted text-uppercase small mb-3">Answer</h6>
-                                <h3 class="card-text-content text-success">{{ card.back_text }}</h3>
-                            </div>
-
-                            <div class="rating-section">
-                                <h6 class="mb-4 fw-semibold">How well did you know this?</h6>
-                                <div class="d-flex justify-content-center gap-3 flex-wrap">
-                                    <button class="btn btn-danger btn-lg px-4 shadow-sm" onclick="submitAnswer(false)">
-                                        <i class="bi bi-x-circle me-2"></i>Incorrect
-                                    </button>
-                                    <button class="btn btn-success btn-lg px-4 shadow-sm" onclick="submitAnswer(true)">
-                                        <i class="bi bi-check-circle me-2"></i>Correct
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- TYPE MODE -->
-                    <div id="type-mode-container" class="d-none">
-                        <!-- Question State -->
-                        <div id="type-question-state">
-                            <div class="emoji-display mb-4">✍️</div>
-                            <h3 class="card-text-content mb-5">{{ card.front_text }}</h3>
-
-                            <div class="type-answer-input-container mb-4">
-                                <input type="text"
-                                       class="form-control form-control-lg text-center"
-                                       id="userAnswer"
-                                       placeholder="Type your answer here..."
-                                       autocomplete="off"
-                                       autofocus>
-                                <div class="mt-2">
-                                    <small class="text-muted">Press Enter to check your answer</small>
-                                </div>
-                            </div>
-
-                            <button class="btn btn-primary btn-lg px-5 shadow-sm" onclick="checkTypedAnswer()">
-                                <i class="bi bi-check2-square me-2"></i>Check Answer
-                            </button>
-                        </div>
-
-                        <!-- Result State -->
-                        <div id="type-result-state" class="d-none">
-                            <div id="result-emoji" class="emoji-display mb-4"></div>
-
-                            <div id="result-feedback" class="mb-4"></div>
-
-                            <div class="answer-comparison mb-5">
-                                <div class="mb-3">
-                                    <h6 class="text-muted small text-uppercase mb-2">Your Answer</h6>
-                                    <div class="user-answer-display p-3 rounded bg-light">
-                                        <span id="user-answer-text"></span>
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <h6 class="text-muted small text-uppercase mb-2">Correct Answer</h6>
-                                    <div class="correct-answer-display p-3 rounded bg-success bg-opacity-10">
-                                        <span class="text-success fw-semibold">{{ card.back_text }}</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <button class="btn btn-primary btn-lg px-5 shadow-sm" onclick="nextCardFromType()">
-                                <i class="bi bi-arrow-right me-2"></i>Next Card
-                            </button>
-                        </div>
-                    </div>
-                </div>
+            <div style="text-align: center; margin-top: 8px;">
+                <span style="color: var(--color-text-muted); font-size: var(--font-size-sm);">{{ progress.percentage }}% Complete</span>
             </div>
+        </div>
 
-            <!-- Session Statistics -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-body p-4">
-                    <h6 class="text-center mb-3 text-muted small text-uppercase">Session Stats</h6>
-                    <div class="row g-3 text-center">
-                        <div class="col-4">
-                            <div class="stat-box p-3 rounded bg-success bg-opacity-10">
-                                <div class="h4 mb-1 text-success fw-bold">{{ session_stats.correct_count }}</div>
-                                <div class="small text-success">
-                                    <i class="bi bi-check-circle me-1"></i>Correct
-                                </div>
-                            </div>
+        <!-- Study Mode Toggle -->
+        <div style="text-align: center; margin-bottom: var(--space-md);">
+            <div style="display: inline-flex; background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: 4px; box-shadow: var(--shadow-sm);">
+                <input type="radio" id="flipMode" name="studyMode" {% if preferred_mode == 'flip' %}checked{% endif %} onchange="switchMode('flip')" style="display: none;">
+                <label for="flipMode" style="padding: 12px 24px; cursor: pointer; border-radius: var(--radius-md); transition: var(--transition-base); font-weight: var(--font-weight-semibold); font-size: var(--font-size-base); display: flex; align-items: center; gap: 8px;">
+                    <span>🎴</span> Flip Card
+                </label>
+
+                <input type="radio" id="typeMode" name="studyMode" {% if preferred_mode == 'type' %}checked{% endif %} onchange="switchMode('type')" style="display: none;">
+                <label for="typeMode" style="padding: 12px 24px; cursor: pointer; border-radius: var(--radius-md); transition: var(--transition-base); font-weight: var(--font-weight-semibold); font-size: var(--font-size-base); display: flex; align-items: center; gap: 8px;">
+                    <span>⌨️</span> Type Answer
+                </label>
+            </div>
+        </div>
+
+        <!-- Flashcard Container -->
+        <div id="flashcard" style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-xl); padding: var(--space-2xl) var(--space-xl); box-shadow: var(--shadow-xl); min-height: 500px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; position: relative; overflow: hidden; transition: var(--transition-base);">
+
+            <!-- Gradient Background Effect -->
+            <div style="position: absolute; top: -50%; right: -50%; width: 400px; height: 400px; background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%); pointer-events: none;"></div>
+
+            <div style="position: relative; z-index: 1; width: 100%;">
+                <!-- Card Header Badges -->
+                <div style="margin-bottom: var(--space-md); display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+                    <span class="badge badge-primary" style="padding: 8px 16px; font-size: var(--font-size-sm);">
+                        <span style="margin-right: 6px;">❓</span>Question {{ progress.current }}
+                    </span>
+                    <span class="badge {% if card.difficulty == 1 %}badge-success{% elif card.difficulty == 2 %}badge-warning{% else %}badge-danger{% endif %}" style="padding: 8px 16px; font-size: var(--font-size-sm);">
+                        {% if card.difficulty == 1 %}🟢 Easy
+                        {% elif card.difficulty == 2 %}🟡 Medium
+                        {% else %}🔴 Hard
+                        {% endif %}
+                    </span>
+                </div>
+
+                <!-- FLIP MODE -->
+                <div id="flip-mode-container">
+                    <!-- Card Front -->
+                    <div id="card-front" class="card-face">
+                        <div style="font-size: 80px; margin-bottom: var(--space-md); animation: float 3s ease-in-out infinite;">🎯</div>
+
+                        <h3 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); line-height: var(--line-height-normal); margin-bottom: var(--space-xl); color: var(--color-text-primary); max-width: 600px; margin-left: auto; margin-right: auto;">
+                            {{ card.front_text }}
+                        </h3>
+
+                        <button class="btn btn-primary btn-lg" onclick="flipCard()" style="box-shadow: var(--shadow-primary);">
+                            <span style="margin-right: 8px;">👁️</span>Reveal Answer
+                        </button>
+
+                        <div style="margin-top: var(--space-sm);">
+                            <small style="color: var(--color-text-muted);">Press Space or click anywhere to flip</small>
                         </div>
-                        <div class="col-4">
-                            <div class="stat-box p-3 rounded bg-danger bg-opacity-10">
-                                <div class="h4 mb-1 text-danger fw-bold">{{ session_stats.total_studied - session_stats.correct_count }}</div>
-                                <div class="small text-danger">
-                                    <i class="bi bi-x-circle me-1"></i>Incorrect
-                                </div>
-                            </div>
+                    </div>
+
+                    <!-- Card Back -->
+                    <div id="card-back" class="card-face" style="display: none;">
+                        <div style="font-size: 80px; margin-bottom: var(--space-md); animation: float 3s ease-in-out infinite;">💡</div>
+
+                        <div style="background: rgba(52, 199, 89, 0.1); border: 2px solid rgba(52, 199, 89, 0.3); border-radius: var(--radius-lg); padding: var(--space-lg); margin-bottom: var(--space-xl); max-width: 600px; margin-left: auto; margin-right: auto;">
+                            <h6 style="text-transform: uppercase; font-size: var(--font-size-sm); color: var(--color-success); margin-bottom: 12px; font-weight: var(--font-weight-bold);">Answer</h6>
+                            <h3 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); color: var(--color-success); line-height: var(--line-height-normal);">
+                                {{ card.back_text }}
+                            </h3>
                         </div>
-                        <div class="col-4">
-                            <div class="stat-box p-3 rounded bg-info bg-opacity-10">
-                                <div class="h4 mb-1 text-info fw-bold">{{ session_stats.total_studied }}</div>
-                                <div class="small text-info">
-                                    <i class="bi bi-card-list me-1"></i>Total
-                                </div>
+
+                        <div>
+                            <h6 style="margin-bottom: var(--space-md); font-weight: var(--font-weight-semibold); color: var(--color-text-secondary);">How well did you know this?</h6>
+                            <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+                                <button class="btn" onclick="submitAnswer(false)" style="background: rgba(239, 68, 68, 0.2); border: 2px solid var(--color-danger); color: var(--color-danger); padding: 14px 28px; font-weight: var(--font-weight-bold);">
+                                    <span style="margin-right: 8px;">❌</span>Incorrect
+                                </button>
+                                <button class="btn" onclick="submitAnswer(true)" style="background: rgba(52, 199, 89, 0.2); border: 2px solid var(--color-success); color: var(--color-success); padding: 14px 28px; font-weight: var(--font-weight-bold);">
+                                    <span style="margin-right: 8px;">✅</span>Correct
+                                </button>
+                            </div>
+                            <div style="margin-top: var(--space-sm);">
+                                <small style="color: var(--color-text-muted);">Press 1 for Incorrect, 2 for Correct</small>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Navigation -->
-            <div class="d-flex justify-content-between align-items-center">
-                <a href="{{ url_for('study.start', deck_id=deck.id) }}" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left me-2"></i>Back to Options
-                </a>
-                <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-outline-primary">
-                    <i class="bi bi-house me-2"></i>Deck Home
-                </a>
+                <!-- TYPE MODE -->
+                <div id="type-mode-container" style="display: none;">
+                    <!-- Question State -->
+                    <div id="type-question-state">
+                        <div style="font-size: 80px; margin-bottom: var(--space-md); animation: float 3s ease-in-out infinite;">✏️</div>
+
+                        <h3 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); line-height: var(--line-height-normal); margin-bottom: var(--space-xl); color: var(--color-text-primary); max-width: 600px; margin-left: auto; margin-right: auto;">
+                            {{ card.front_text }}
+                        </h3>
+
+                        <div style="margin-bottom: var(--space-md); max-width: 500px; margin-left: auto; margin-right: auto;">
+                            <input type="text" class="form-input" id="userAnswer" placeholder="Type your answer here..." autocomplete="off" autofocus style="text-align: center; font-size: var(--font-size-lg); padding: 16px; border: 2px solid var(--color-border-medium);">
+                            <div style="margin-top: var(--space-xs);">
+                                <small style="color: var(--color-text-muted);">Press Enter to check your answer</small>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary btn-lg" onclick="checkTypedAnswer()">
+                            <span style="margin-right: 8px;">✓</span>Check Answer
+                        </button>
+                    </div>
+
+                    <!-- Result State -->
+                    <div id="type-result-state" style="display: none;">
+                        <div id="result-emoji" style="font-size: 80px; margin-bottom: var(--space-md);"></div>
+
+                        <div id="result-feedback" style="margin-bottom: var(--space-md);"></div>
+
+                        <div style="margin-bottom: var(--space-xl); max-width: 500px; margin-left: auto; margin-right: auto;">
+                            <div style="margin-bottom: var(--space-md);">
+                                <h6 style="text-transform: uppercase; font-size: var(--font-size-xs); color: var(--color-text-muted); margin-bottom: 8px; font-weight: var(--font-weight-semibold);">Your Answer</h6>
+                                <div style="background: var(--overlay-light); border: 2px solid var(--color-border-medium); border-radius: var(--radius-md); padding: var(--space-md); min-height: 60px; display: flex; align-items: center; justify-content: center;">
+                                    <span id="user-answer-text" style="font-weight: var(--font-weight-semibold);"></span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h6 style="text-transform: uppercase; font-size: var(--font-size-xs); color: var(--color-success); margin-bottom: 8px; font-weight: var(--font-weight-semibold);">Correct Answer</h6>
+                                <div style="background: rgba(52, 199, 89, 0.1); border: 2px solid var(--color-success); border-radius: var(--radius-md); padding: var(--space-md); min-height: 60px; display: flex; align-items: center; justify-content: center;">
+                                    <span style="color: var(--color-success); font-weight: var(--font-weight-bold);">{{ card.back_text }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button class="btn btn-primary btn-lg" onclick="nextCardFromType()">
+                            <span style="margin-right: 8px;">→</span>Next Card
+                        </button>
+                    </div>
+                </div>
             </div>
+        </div>
+
+        <!-- Session Statistics -->
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-xl); padding: var(--space-lg); margin-top: var(--space-md); box-shadow: var(--shadow-md);">
+            <h6 style="text-align: center; margin-bottom: var(--space-md); color: var(--color-text-tertiary); text-transform: uppercase; font-size: var(--font-size-sm); font-weight: var(--font-weight-bold);">Session Stats</h6>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: var(--space-sm);">
+                <div style="background: rgba(52, 199, 89, 0.1); border: 1px solid rgba(52, 199, 89, 0.3); border-radius: var(--radius-lg); padding: var(--space-md); text-align: center; transition: var(--transition-base);">
+                    <div style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-extrabold); color: var(--color-success); margin-bottom: 4px;">
+                        {{ session_stats.correct_count }}
+                    </div>
+                    <div style="font-size: var(--font-size-sm); color: var(--color-success); font-weight: var(--font-weight-semibold); display: flex; align-items: center; justify-content: center; gap: 4px;">
+                        <span>✓</span>Correct
+                    </div>
+                </div>
+                <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: var(--radius-lg); padding: var(--space-md); text-align: center; transition: var(--transition-base);">
+                    <div style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-extrabold); color: var(--color-danger); margin-bottom: 4px;">
+                        {{ session_stats.total_studied - session_stats.correct_count }}
+                    </div>
+                    <div style="font-size: var(--font-size-sm); color: var(--color-danger); font-weight: var(--font-weight-semibold); display: flex; align-items: center; justify-content: center; gap: 4px;">
+                        <span>✗</span>Incorrect
+                    </div>
+                </div>
+                <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: var(--radius-lg); padding: var(--space-md); text-align: center; transition: var(--transition-base);">
+                    <div style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-extrabold); color: var(--color-info); margin-bottom: 4px;">
+                        {{ session_stats.total_studied }}
+                    </div>
+                    <div style="font-size: var(--font-size-sm); color: var(--color-info); font-weight: var(--font-weight-semibold); display: flex; align-items: center; justify-content: center; gap: 4px;">
+                        <span>📋</span>Total
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: var(--space-md); gap: 12px; flex-wrap: wrap;">
+            <a href="{{ url_for('study.start', deck_id=deck.id) }}" class="btn btn-secondary">
+                <span style="margin-right: 8px;">←</span>Back to Options
+            </a>
+            <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-secondary">
+                <span style="margin-right: 8px;">🏠</span>Deck Home
+            </a>
         </div>
     </div>
 </div>
+{% endblock %}
 
+{% block extra_css %}
 <style>
-.flashcard-card {
-    min-height: 450px;
-    display: flex;
-    align-items: center;
-    transition: all 0.3s ease;
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-}
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
 
-.flashcard-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.15) !important;
-}
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-10px); }
+        50% { transform: translateX(10px); }
+        75% { transform: translateX(-5px); }
+    }
 
-.flashcard-card.clickable {
-    cursor: pointer;
-}
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
 
-.card-face {
-    width: 100%;
-    transition: opacity 0.3s ease;
-}
+    .shake {
+        animation: shake 0.5s;
+    }
 
-.emoji-display {
-    font-size: 4rem;
-    animation: float 3s ease-in-out infinite;
-}
+    .pulse {
+        animation: pulse 0.5s;
+    }
 
-@keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-}
+    .card-face {
+        width: 100%;
+        transition: opacity 0.3s ease;
+    }
 
-.card-text-content {
-    font-weight: 500;
-    line-height: 1.6;
-    color: #2c3e50;
-}
+    #flashcard.clickable {
+        cursor: pointer;
+    }
 
-.answer-section {
-    background: #f8f9fa;
-    padding: 2rem;
-    border-radius: 0.5rem;
-    border-left: 4px solid #198754;
-}
+    #flashcard:hover.clickable {
+        border-color: var(--color-border-primary);
+    }
 
-.rating-section {
-    padding: 1.5rem;
-    background: #fff;
-    border-radius: 0.5rem;
-}
+    /* Mode toggle styling */
+    input[type="radio"]:checked + label {
+        background: var(--gradient-primary);
+        color: var(--color-text-primary);
+    }
 
-.stat-box {
-    transition: transform 0.2s ease;
-}
+    input[type="radio"]:not(:checked) + label {
+        color: var(--color-text-tertiary);
+    }
 
-.stat-box:hover {
-    transform: scale(1.05);
-}
+    input[type="radio"]:not(:checked) + label:hover {
+        background: var(--overlay-light);
+        color: var(--color-text-primary);
+    }
 
-.type-answer-input-container input {
-    font-size: 1.2rem;
-    padding: 1rem;
-    border: 2px solid #dee2e6;
-    transition: all 0.3s ease;
-}
+    /* Loading overlay */
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(15, 15, 15, 0.95);
+        backdrop-filter: blur(10px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+    }
 
-.type-answer-input-container input:focus {
-    border-color: #0d6efd;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
-}
+    /* Responsive */
+    @media (max-width: 768px) {
+        #flashcard {
+            padding: var(--space-lg) var(--space-md);
+            min-height: 400px;
+        }
 
-.answer-comparison {
-    max-width: 500px;
-    margin: 0 auto;
-}
+        h3 {
+            font-size: var(--font-size-xl) !important;
+        }
 
-.user-answer-display {
-    border: 2px solid #dee2e6;
-    min-height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.correct-answer-display {
-    border: 2px solid #198754;
-    min-height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-@keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-10px); }
-    50% { transform: translateX(10px); }
-    75% { transform: translateX(-5px); }
-}
-
-.shake {
-    animation: shake 0.5s;
-}
-
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-}
-
-.pulse {
-    animation: pulse 0.5s;
-}
-
-.loading-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(255, 255, 255, 0.95);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-}
+        .btn-lg {
+            padding: 12px 24px !important;
+            font-size: var(--font-size-base) !important;
+        }
+    }
 </style>
+{% endblock %}
 
+{% block scripts %}
 <script>
 const flashcard = document.getElementById('flashcard');
 const cardFront = document.getElementById('card-front');
@@ -339,6 +311,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (currentMode === 'type') {
         switchMode('type');
     }
+
+    FlashFlow.showToast('Study session in progress!', 'info', 3000);
 });
 
 // Mode switching
@@ -346,13 +320,13 @@ function switchMode(mode) {
     currentMode = mode;
 
     if (mode === 'flip') {
-        flipModeContainer.classList.remove('d-none');
-        typeModeContainer.classList.add('d-none');
+        flipModeContainer.style.display = 'block';
+        typeModeContainer.style.display = 'none';
         flashcard.classList.add('clickable');
         resetFlipMode();
     } else {
-        flipModeContainer.classList.add('d-none');
-        typeModeContainer.classList.remove('d-none');
+        flipModeContainer.style.display = 'none';
+        typeModeContainer.style.display = 'block';
         flashcard.classList.remove('clickable');
         resetTypeMode();
         setTimeout(() => userAnswerInput.focus(), 100);
@@ -361,15 +335,15 @@ function switchMode(mode) {
 
 function resetFlipMode() {
     isFlipped = false;
-    cardFront.classList.remove('d-none');
-    cardBack.classList.add('d-none');
+    cardFront.style.display = 'block';
+    cardBack.style.display = 'none';
     cardFront.style.opacity = '1';
     cardBack.style.opacity = '1';
 }
 
 function resetTypeMode() {
-    document.getElementById('type-question-state').classList.remove('d-none');
-    document.getElementById('type-result-state').classList.add('d-none');
+    document.getElementById('type-question-state').style.display = 'block';
+    document.getElementById('type-result-state').style.display = 'none';
     userAnswerInput.value = '';
 }
 
@@ -389,8 +363,10 @@ document.addEventListener('keydown', (e) => {
             }
         } else if (isFlipped) {
             if (e.key === '1' || e.key === 'x') {
+                e.preventDefault();
                 submitAnswer(false);
             } else if (e.key === '2' || e.key === 'c') {
+                e.preventDefault();
                 submitAnswer(true);
             }
         }
@@ -404,8 +380,13 @@ function flipCard() {
     cardBack.style.opacity = '0';
 
     setTimeout(() => {
-        cardFront.classList.toggle('d-none');
-        cardBack.classList.toggle('d-none');
+        if (isFlipped) {
+            cardFront.style.display = 'none';
+            cardBack.style.display = 'block';
+        } else {
+            cardFront.style.display = 'block';
+            cardBack.style.display = 'none';
+        }
 
         setTimeout(() => {
             cardFront.style.opacity = '1';
@@ -427,7 +408,11 @@ function checkTypedAnswer() {
 
     if (!userAnswer) {
         userAnswerInput.classList.add('shake');
-        setTimeout(() => userAnswerInput.classList.remove('shake'), 500);
+        userAnswerInput.style.borderColor = 'var(--color-danger)';
+        setTimeout(() => {
+            userAnswerInput.classList.remove('shake');
+            userAnswerInput.style.borderColor = 'var(--color-border-medium)';
+        }, 500);
         return;
     }
 
@@ -436,8 +421,8 @@ function checkTypedAnswer() {
     typedAnswerCorrect = isCorrect;
 
     // Show result
-    document.getElementById('type-question-state').classList.add('d-none');
-    document.getElementById('type-result-state').classList.remove('d-none');
+    document.getElementById('type-question-state').style.display = 'none';
+    document.getElementById('type-result-state').style.display = 'block';
 
     // Update result display
     const resultEmoji = document.getElementById('result-emoji');
@@ -446,12 +431,14 @@ function checkTypedAnswer() {
 
     if (isCorrect) {
         resultEmoji.textContent = '🎉';
-        resultFeedback.innerHTML = '<div class="alert alert-success"><i class="bi bi-check-circle me-2"></i><strong>Correct!</strong> Great job!</div>';
+        resultFeedback.innerHTML = '<div class="alert alert-success"><strong>✓ Correct!</strong> Great job!</div>';
         flashcard.classList.add('pulse');
+        FlashFlow.showToast('Correct! 🎉', 'success', 2000);
     } else {
         resultEmoji.textContent = '😔';
-        resultFeedback.innerHTML = '<div class="alert alert-danger"><i class="bi bi-x-circle me-2"></i><strong>Not quite.</strong> Review the correct answer below.</div>';
+        resultFeedback.innerHTML = '<div class="alert alert-danger"><strong>✗ Not quite.</strong> Review the correct answer below.</div>';
         flashcard.classList.add('shake');
+        FlashFlow.showToast('Not quite. Keep trying!', 'warning', 2000);
     }
 
     userAnswerText.textContent = userAnswer;
@@ -495,11 +482,9 @@ async function submitAnswer(correct) {
     const loadingOverlay = document.createElement('div');
     loadingOverlay.className = 'loading-overlay';
     loadingOverlay.innerHTML = `
-        <div class="text-center">
-            <div class="spinner-border text-primary mb-3" style="width: 3rem; height: 3rem;" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-            <p class="text-muted">Loading next card...</p>
+        <div style="text-align: center;">
+            <div class="loading-spinner" style="width: 60px; height: 60px; border-width: 4px; margin: 0 auto var(--space-md);"></div>
+            <p style="color: var(--color-text-tertiary); font-size: var(--font-size-lg);">Loading next card...</p>
         </div>
     `;
 
@@ -530,6 +515,7 @@ async function submitAnswer(correct) {
         }
     } catch (error) {
         console.error('Error:', error);
+        // Fallback to form submission
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = '{{ url_for("study.answer", deck_id=deck.id) }}';

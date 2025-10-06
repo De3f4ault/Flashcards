@@ -1,389 +1,359 @@
 {% extends "base.html" %}
 
-{% block content %}
-<div class="container-fluid px-4 py-4">
-    <!-- Welcome Header -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
-                <div>
-                    <h1 class="display-6 fw-bold mb-2">Welcome back, {{ current_user.username }}! 👋</h1>
-                    <p class="text-muted mb-0">Track your progress and continue your learning journey</p>
-                </div>
-                <div class="d-flex gap-2">
-                    <a href="{{ url_for('decks.create') }}" class="btn btn-primary btn-lg shadow-sm">
-                        <i class="bi bi-plus-circle me-2"></i>New Deck
-                    </a>
-                    <a href="{{ url_for('decks.public') }}" class="btn btn-outline-primary btn-lg">
-                        <i class="bi bi-search me-2"></i>Explore
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
+{% block hero %}
+<!-- Hero Section -->
+<div class="hero-section">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <div class="hero-badge">🔥 Keep Going!</div>
+        <h1 class="hero-title">Welcome back, {{ current_user.username }}</h1>
+        <p class="hero-description">You're making incredible progress! Continue your learning journey with your personalized decks.</p>
 
-    <!-- Statistics Cards -->
-    <div class="row g-4 mb-4">
-        <div class="col-xl-3 col-md-6">
-            <div class="stat-card card border-0 shadow-sm h-100">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div class="stat-icon bg-primary bg-opacity-10 rounded-3 p-3">
-                            <i class="bi bi-collection fs-3 text-primary"></i>
-                        </div>
-                        <span class="badge bg-primary bg-opacity-10 text-primary">Active</span>
-                    </div>
-                    <h3 class="fw-bold mb-1">{{ user_stats.total_decks }}</h3>
-                    <p class="text-muted mb-0 small">Total Decks</p>
-                    <div class="mt-3 pt-3 border-top">
-                        <small class="text-success"><i class="bi bi-arrow-up me-1"></i>2 new this week</small>
-                    </div>
-                </div>
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <div class="hero-stat-value">{{ user_stats.total_decks }}</div>
+                <div class="hero-stat-label">Active Decks</div>
             </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6">
-            <div class="stat-card card border-0 shadow-sm h-100">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div class="stat-icon bg-success bg-opacity-10 rounded-3 p-3">
-                            <i class="bi bi-card-text fs-3 text-success"></i>
-                        </div>
-                        <span class="badge bg-success bg-opacity-10 text-success">Growing</span>
-                    </div>
-                    <h3 class="fw-bold mb-1">{{ user_stats.total_cards }}</h3>
-                    <p class="text-muted mb-0 small">Total Cards</p>
-                    <div class="mt-3 pt-3 border-top">
-                        <small class="text-success"><i class="bi bi-arrow-up me-1"></i>15 added today</small>
-                    </div>
-                </div>
+            <div class="hero-stat">
+                <div class="hero-stat-value">{{ user_stats.total_cards }}</div>
+                <div class="hero-stat-label">Total Cards</div>
             </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6">
-            <div class="stat-card card border-0 shadow-sm h-100">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div class="stat-icon bg-warning bg-opacity-10 rounded-3 p-3">
-                            <i class="bi bi-lightning-charge fs-3 text-warning"></i>
-                        </div>
-                        <span class="badge bg-warning bg-opacity-10 text-warning">On Fire</span>
-                    </div>
-                    <h3 class="fw-bold mb-1">7 <small class="text-muted fs-6">days</small></h3>
-                    <p class="text-muted mb-0 small">Study Streak</p>
-                    <div class="mt-3 pt-3 border-top">
-                        <small class="text-muted">Keep it going!</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-xl-3 col-md-6">
-            <div class="stat-card card border-0 shadow-sm h-100">
-                <div class="card-body p-4">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <div class="stat-icon bg-info bg-opacity-10 rounded-3 p-3">
-                            <i class="bi bi-trophy fs-3 text-info"></i>
-                        </div>
-                        <span class="badge bg-info bg-opacity-10 text-info">Excellent</span>
-                    </div>
-                    <h3 class="fw-bold mb-1">85%</h3>
-                    <p class="text-muted mb-0 small">Avg Accuracy</p>
-                    <div class="mt-3 pt-3 border-top">
-                        <div class="progress" style="height: 4px;">
-                            <div class="progress-bar bg-info" style="width: 85%"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="row g-4">
-        <!-- Main Content Area -->
-        <div class="col-lg-8">
-            <!-- Study Today Banner -->
-            <div class="card border-0 shadow-sm mb-4 overflow-hidden study-banner">
-                <div class="card-body p-4 position-relative">
-                    <div class="row align-items-center">
-                        <div class="col-md-8">
-                            <div class="d-flex align-items-center mb-2">
-                                <span class="badge bg-warning text-dark me-2">
-                                    <i class="bi bi-lightning-charge me-1"></i>Daily Goal
-                                </span>
-                                <small class="text-muted">Keep your streak alive</small>
-                            </div>
-                            <h4 class="fw-bold mb-2">Ready to study today?</h4>
-                            <p class="text-muted mb-3">You've studied 3 of 5 target decks today. Keep going!</p>
-                            <div class="progress mb-3" style="height: 8px;">
-                                <div class="progress-bar bg-success" style="width: 60%"></div>
-                            </div>
-                            <a href="{{ url_for('decks.index') }}" class="btn btn-primary">
-                                <i class="bi bi-play-circle me-2"></i>Continue Studying
-                            </a>
-                        </div>
-                        <div class="col-md-4 text-center d-none d-md-block">
-                            <div class="study-illustration">
-                                <i class="bi bi-book display-1 text-primary opacity-25"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Recent Decks -->
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white border-0 p-4">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="fw-bold mb-1">
-                                <i class="bi bi-collection text-primary me-2"></i>Your Decks
-                            </h5>
-                            <small class="text-muted">Recently accessed</small>
-                        </div>
-                        <a href="{{ url_for('decks.index') }}" class="btn btn-sm btn-outline-primary">
-                            View All <i class="bi bi-arrow-right ms-1"></i>
-                        </a>
-                    </div>
-                </div>
-                <div class="card-body p-4">
+            <div class="hero-stat">
+                <div class="hero-stat-value">
                     {% if deck_stats %}
-                        <div class="row g-3">
-                            {% for deck_stat in deck_stats %}
-                                <div class="col-md-6">
-                                    <div class="deck-card border rounded-3 p-3 h-100 position-relative">
-                                        <div class="d-flex justify-content-between align-items-start mb-3">
-                                            <div class="flex-grow-1">
-                                                <h6 class="fw-bold mb-1">
-                                                    <a href="{{ url_for('decks.view', id=deck_stat.deck.id) }}"
-                                                       class="text-decoration-none text-dark stretched-link">
-                                                        {{ deck_stat.deck.name }}
-                                                    </a>
-                                                </h6>
-                                                <p class="text-muted small mb-0">
-                                                    {{ deck_stat.deck.description[:50] }}{% if deck_stat.deck.description|length > 50 %}...{% endif %}
-                                                </p>
-                                            </div>
-                                            {% if deck_stat.deck.is_public %}
-                                                <span class="badge bg-success-subtle text-success-emphasis ms-2">Public</span>
-                                            {% else %}
-                                                <span class="badge bg-secondary-subtle text-secondary-emphasis ms-2">Private</span>
-                                            {% endif %}
-                                        </div>
-
-                                        <div class="d-flex gap-2 mb-3">
-                                            <div class="flex-fill text-center p-2 bg-light rounded">
-                                                <div class="fw-bold text-primary">{{ deck_stat.stats.total_cards }}</div>
-                                                <small class="text-muted">Cards</small>
-                                            </div>
-                                            {% if deck_stat.stats.avg_accuracy > 0 %}
-                                            <div class="flex-fill text-center p-2 bg-light rounded">
-                                                <div class="fw-bold text-success">{{ deck_stat.stats.avg_accuracy }}%</div>
-                                                <small class="text-muted">Accuracy</small>
-                                            </div>
-                                            {% endif %}
-                                        </div>
-
-                                        <div class="d-flex gap-2 position-relative" style="z-index: 2;">
-                                            <a href="{{ url_for('study.start', deck_id=deck_stat.deck.id) }}"
-                                               class="btn btn-primary btn-sm flex-fill" onclick="event.stopPropagation();">
-                                                <i class="bi bi-play-circle me-1"></i>Study
-                                            </a>
-                                            <a href="{{ url_for('decks.cards', deck_id=deck_stat.deck.id) }}"
-                                               class="btn btn-outline-secondary btn-sm" onclick="event.stopPropagation();">
-                                                <i class="bi bi-card-list"></i>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </div>
+                        {% set total_accuracy = deck_stats | selectattr('stats.avg_accuracy', 'greaterthan', 0) | map(attribute='stats.avg_accuracy') | list %}
+                        {% if total_accuracy %}
+                            {{ (total_accuracy | sum / total_accuracy | length) | round | int }}%
+                        {% else %}
+                            -
+                        {% endif %}
                     {% else %}
-                        <div class="text-center py-5">
-                            <div class="empty-state mb-4">
-                                <i class="bi bi-collection display-1 text-muted opacity-50"></i>
-                            </div>
-                            <h5 class="fw-bold mb-2">No decks yet</h5>
-                            <p class="text-muted mb-4">Create your first flashcard deck to start your learning journey!</p>
-                            <a href="{{ url_for('decks.create') }}" class="btn btn-primary btn-lg">
-                                <i class="bi bi-plus-circle me-2"></i>Create Your First Deck
-                            </a>
-                        </div>
+                        -
                     {% endif %}
                 </div>
+                <div class="hero-stat-label">Avg Accuracy</div>
             </div>
         </div>
 
-        <!-- Sidebar -->
-        <div class="col-lg-4">
-            <!-- Decks Needing Attention -->
-            {% if decks_needing_attention %}
-            <div class="card border-0 shadow-sm mb-4 border-start border-warning border-4">
-                <div class="card-header bg-white border-0 p-4">
-                    <h6 class="fw-bold mb-0">
-                        <i class="bi bi-exclamation-triangle text-warning me-2"></i>Needs Review
-                    </h6>
-                </div>
-                <div class="card-body p-4 pt-0">
-                    {% for deck_attention in decks_needing_attention %}
-                        <div class="review-item d-flex justify-content-between align-items-center p-3 mb-2 bg-light rounded-3">
-                            <div class="flex-grow-1">
-                                <a href="{{ url_for('study.review', deck_id=deck_attention.deck.id) }}"
-                                   class="text-decoration-none fw-semibold text-dark d-block mb-1">
-                                    {{ deck_attention.deck.name }}
-                                </a>
-                                <small class="text-muted">
-                                    <i class="bi bi-card-text me-1"></i>{{ deck_attention.review_count }} cards
-                                </small>
-                            </div>
-                            <a href="{{ url_for('study.review', deck_id=deck_attention.deck.id) }}"
-                               class="btn btn-warning btn-sm">
-                                <i class="bi bi-arrow-right"></i>
-                            </a>
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
-            {% endif %}
-
-            <!-- Quick Actions -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-white border-0 p-4">
-                    <h6 class="fw-bold mb-0">
-                        <i class="bi bi-lightning-charge text-primary me-2"></i>Quick Actions
-                    </h6>
-                </div>
-                <div class="card-body p-4 pt-0">
-                    <div class="d-grid gap-2">
-                        <a href="{{ url_for('decks.create') }}" class="btn btn-outline-primary">
-                            <i class="bi bi-plus-circle me-2"></i>Create Deck
-                        </a>
-                        <a href="{{ url_for('decks.public') }}" class="btn btn-outline-primary">
-                            <i class="bi bi-globe me-2"></i>Browse Public Decks
-                        </a>
-                        <a href="{{ url_for('auth.profile') }}" class="btn btn-outline-secondary">
-                            <i class="bi bi-person me-2"></i>Edit Profile
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Recent Activity -->
-            <div class="card border-0 shadow-sm">
-                <div class="card-header bg-white border-0 p-4">
-                    <h6 class="fw-bold mb-0">
-                        <i class="bi bi-clock-history text-info me-2"></i>Recent Activity
-                    </h6>
-                </div>
-                <div class="card-body p-4 pt-0">
-                    <div class="activity-timeline">
-                        <div class="activity-item d-flex mb-3">
-                            <div class="activity-icon bg-primary bg-opacity-10 rounded-circle p-2 me-3">
-                                <i class="bi bi-plus-circle text-primary"></i>
-                            </div>
-                            <div class="flex-grow-1">
-                                <p class="mb-0 small">Created deck <strong>"Spanish Vocabulary"</strong></p>
-                                <small class="text-muted">2 days ago</small>
-                            </div>
-                        </div>
-                        <div class="activity-item d-flex mb-3">
-                            <div class="activity-icon bg-success bg-opacity-10 rounded-circle p-2 me-3">
-                                <i class="bi bi-play-circle text-success"></i>
-                            </div>
-                            <div class="flex-grow-1">
-                                <p class="mb-0 small">Studied <strong>"Math Formulas"</strong></p>
-                                <small class="text-muted">3 days ago</small>
-                            </div>
-                        </div>
-                        <div class="activity-item d-flex mb-3">
-                            <div class="activity-icon bg-info bg-opacity-10 rounded-circle p-2 me-3">
-                                <i class="bi bi-card-text text-info"></i>
-                            </div>
-                            <div class="flex-grow-1">
-                                <p class="mb-0 small">Added 5 cards to <strong>"History Facts"</strong></p>
-                                <small class="text-muted">1 week ago</small>
-                            </div>
-                        </div>
-                        <div class="activity-item d-flex">
-                            <div class="activity-icon bg-warning bg-opacity-10 rounded-circle p-2 me-3">
-                                <i class="bi bi-trophy text-warning"></i>
-                            </div>
-                            <div class="flex-grow-1">
-                                <p class="mb-0 small">Achieved 90% accuracy in <strong>"Science Terms"</strong></p>
-                                <small class="text-muted">1 week ago</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        <div class="hero-buttons">
+            <a href="{{ url_for('decks.index') }}" class="btn btn-primary">
+                ▶️ Continue Learning
+            </a>
+            <a href="{{ url_for('decks.create') }}" class="btn btn-secondary">
+                ➕ Create New Deck
+            </a>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block content %}
+<!-- Continue Learning Section -->
+{% if deck_stats %}
+<div class="content-section">
+    <div class="section-header">
+        <h2 class="section-title">📖 Continue Learning</h2>
+        <a href="{{ url_for('decks.index') }}" class="view-all">View all →</a>
+    </div>
+
+    <div class="carousel-container">
+        <div class="scroll-btn scroll-btn-left" onclick="scrollCarousel('continue', -1)">‹</div>
+        <div class="carousel-wrapper" id="continue-carousel">
+            <div class="carousel">
+                {% for deck_stat in deck_stats %}
+                <div style="min-width: 320px; max-width: 320px; height: 440px; background: var(--color-bg-secondary); border-radius: 12px; overflow: hidden; cursor: pointer; transition: all 0.3s ease; border: 1px solid var(--color-border-light); display: flex; flex-direction: column;"
+                     onclick="window.location.href='{{ url_for('decks.view', id=deck_stat.deck.id) }}'"
+                     onmouseover="this.style.transform='scale(1.05) translateY(-8px)'; this.style.borderColor='var(--color-border-primary)'; this.style.boxShadow='var(--shadow-xl)'; this.style.zIndex='10';"
+                     onmouseout="this.style.transform='scale(1) translateY(0)'; this.style.borderColor='var(--color-border-light)'; this.style.boxShadow='none'; this.style.zIndex='1';">
+
+                    <!-- Card Image - Fixed Height -->
+                    <div style="width: 100%; height: 180px; background: {{ ['linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)', 'linear-gradient(135deg, #fccb90 0%, #d57eeb 100%)'][loop.index0 % 5] }}; position: relative; flex-shrink: 0;">
+                        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.3); display: flex; align-items: center; justify-content: center; font-size: 64px; opacity: 0.6;">
+                            {% if 'spanish' in deck_stat.deck.name.lower() %}📚
+                            {% elif 'python' in deck_stat.deck.name.lower() or 'programming' in deck_stat.deck.name.lower() %}💻
+                            {% elif 'math' in deck_stat.deck.name.lower() %}📐
+                            {% elif 'science' in deck_stat.deck.name.lower() or 'biology' in deck_stat.deck.name.lower() %}🧬
+                            {% elif 'history' in deck_stat.deck.name.lower() %}📜
+                            {% elif 'language' in deck_stat.deck.name.lower() %}🌍
+                            {% else %}📕
+                            {% endif %}
+                        </div>
+                        <div style="position: absolute; top: 12px; right: 12px; padding: 6px 12px; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px); border-radius: 20px; font-size: 11px; font-weight: 700; color: white; text-transform: uppercase; letter-spacing: 0.5px;">
+                            {% if deck_stat.deck.is_public %}PUBLIC{% else %}PRIVATE{% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Card Content - Fixed Height with Scroll -->
+                    <div style="padding: 20px; flex: 1; display: flex; flex-direction: column; overflow: hidden;">
+                        <h3 style="font-size: 18px; font-weight: 700; margin: 0 0 8px 0; color: var(--color-text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            {{ deck_stat.deck.name }}
+                        </h3>
+
+                        <p style="color: var(--color-text-tertiary); margin: 0 0 12px 0; font-size: 14px; line-height: 1.4; height: 40px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                            {% if deck_stat.deck.description %}
+                                {{ deck_stat.deck.description }}
+                            {% else %}
+                                Start studying this deck to build your knowledge
+                            {% endif %}
+                        </p>
+
+                        <div style="display: flex; gap: 16px; margin-bottom: 12px; font-size: 13px; color: var(--color-text-muted); flex-shrink: 0;">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                🃏 {{ deck_stat.stats.total_cards }} cards
+                            </div>
+                            {% if deck_stat.stats.avg_accuracy > 0 %}
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                🎯 {{ deck_stat.stats.avg_accuracy }}% accuracy
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        {% if deck_stat.stats.avg_accuracy > 0 %}
+                        <div style="margin-bottom: 12px; flex-shrink: 0;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 13px;">
+                                <span style="color: var(--color-text-tertiary);">Mastery</span>
+                                <span style="color: #667eea; font-weight: 700;">{{ deck_stat.stats.avg_accuracy }}%</span>
+                            </div>
+                            <div style="height: 4px; background: var(--overlay-medium); border-radius: 2px; overflow: hidden;">
+                                <div style="height: 100%; width: {{ deck_stat.stats.avg_accuracy }}%; background: var(--gradient-primary); border-radius: 2px; transition: width 0.6s ease;"></div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; flex-shrink: 0;">
+                            {% if deck_stat.deck.is_public %}
+                            <span style="padding: 4px 10px; background: var(--overlay-light); border-radius: 6px; font-size: 11px; color: var(--color-text-tertiary); border: 1px solid var(--color-border-medium);">Public</span>
+                            {% endif %}
+                            <span style="padding: 4px 10px; background: var(--overlay-light); border-radius: 6px; font-size: 11px; color: var(--color-text-tertiary); border: 1px solid var(--color-border-medium);">{{ deck_stat.stats.total_cards }} Cards</span>
+                        </div>
+
+                        <div style="display: flex; gap: 8px; margin-top: auto; flex-shrink: 0;">
+                            <a href="{{ url_for('study.start', deck_id=deck_stat.deck.id) }}"
+                               style="flex: 1; padding: 10px; background: var(--gradient-primary); border: none; border-radius: 6px; color: white; font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-size: 13px; text-align: center; text-decoration: none; display: block;"
+                               onclick="event.stopPropagation();"
+                               onmouseover="this.style.boxShadow='0 4px 12px rgba(102, 126, 234, 0.4)';"
+                               onmouseout="this.style.boxShadow='none';">
+                                ▶️ Study
+                            </a>
+                            <a href="{{ url_for('decks.view', id=deck_stat.deck.id) }}"
+                               style="flex: 1; padding: 10px; background: rgba(102, 126, 234, 0.2); border: 1px solid var(--color-border-primary); border-radius: 6px; color: var(--color-primary-light); font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-size: 13px; text-align: center; text-decoration: none; display: block;"
+                               onclick="event.stopPropagation();"
+                               onmouseover="this.style.background='rgba(102, 126, 234, 0.3)'; this.style.borderColor='rgba(102, 126, 234, 0.5)';"
+                               onmouseout="this.style.background='rgba(102, 126, 234, 0.2)'; this.style.borderColor='var(--color-border-primary)';">
+                                📊 View
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="scroll-btn scroll-btn-right" onclick="scrollCarousel('continue', 1)">›</div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Review Needed Section -->
+{% if decks_needing_attention %}
+<div class="content-section">
+    <div class="section-header">
+        <h2 class="section-title">⚠️ Review Needed</h2>
+        <a href="{{ url_for('decks.index') }}" class="view-all">View all →</a>
+    </div>
+
+    <div class="carousel-container">
+        <div class="scroll-btn scroll-btn-left" onclick="scrollCarousel('review', -1)">‹</div>
+        <div class="carousel-wrapper" id="review-carousel">
+            <div class="carousel">
+                <!-- Feature Card - Same Size as Other Cards -->
+                <div style="min-width: 320px; max-width: 320px; height: 440px; background: var(--gradient-hero); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; border: 1px solid var(--color-border-medium); flex-shrink: 0;">
+                    <div style="content: ''; position: absolute; top: -50%; right: -50%; width: 300px; height: 300px; background: radial-gradient(circle, rgba(102, 126, 234, 0.2) 0%, transparent 70%);"></div>
+                    <div style="position: relative; z-index: 1; flex: 1; display: flex; flex-direction: column;">
+                        <div style="display: inline-block; padding: 6px 12px; background: rgba(102, 126, 234, 0.2); border: 1px solid var(--color-border-primary); border-radius: 20px; font-size: 11px; font-weight: 700; color: var(--color-primary-light); margin-bottom: 16px; align-self: flex-start;">
+                            ⏰ URGENT
+                        </div>
+                        <h3 style="font-size: 20px; font-weight: 800; margin-bottom: 12px; line-height: 1.3;">
+                            {{ decks_needing_attention|length }} Deck{% if decks_needing_attention|length != 1 %}s{% endif %} Need Your Attention
+                        </h3>
+                        <p style="font-size: 13px; color: var(--color-text-tertiary); margin-bottom: 20px; line-height: 1.5; flex: 1;">
+                            Don't lose your progress! Review these decks to maintain your knowledge.
+                        </p>
+                        <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px;">
+                            <div>
+                                <div style="font-size: 32px; font-weight: 900; margin-bottom: 4px;">
+                                    {{ decks_needing_attention | sum(attribute='review_count') }}
+                                </div>
+                                <div style="font-size: 12px; color: var(--color-text-muted);">Cards Due Review</div>
+                            </div>
+                            <div>
+                                <div style="font-size: 32px; font-weight: 900; margin-bottom: 4px;">
+                                    {{ decks_needing_attention|length }}
+                                </div>
+                                <div style="font-size: 12px; color: var(--color-text-muted);">Decks Waiting</div>
+                            </div>
+                        </div>
+                    </div>
+                    <a href="{{ url_for('decks.index') }}"
+                       style="position: relative; z-index: 1; display: block; padding: 12px; background: var(--gradient-primary); border: none; border-radius: 8px; color: white; font-weight: 700; text-align: center; text-decoration: none; transition: all 0.3s ease;"
+                       onmouseover="this.style.boxShadow='var(--shadow-primary)';"
+                       onmouseout="this.style.boxShadow='none';">
+                        🔄 Start Reviewing
+                    </a>
+                </div>
+
+                <!-- Review Deck Cards - Same Height as Feature Card -->
+                {% for deck_attention in decks_needing_attention %}
+                <div style="min-width: 320px; max-width: 320px; height: 440px; background: var(--color-bg-secondary); border-radius: 12px; overflow: hidden; cursor: pointer; transition: all 0.3s ease; border: 1px solid var(--color-border-light); display: flex; flex-direction: column;"
+                     onclick="window.location.href='{{ url_for('decks.view', id=deck_attention.deck.id) }}'"
+                     onmouseover="this.style.transform='scale(1.05) translateY(-8px)'; this.style.borderColor='var(--color-border-primary)'; this.style.boxShadow='var(--shadow-xl)'; this.style.zIndex='10';"
+                     onmouseout="this.style.transform='scale(1) translateY(0)'; this.style.borderColor='var(--color-border-light)'; this.style.boxShadow='none'; this.style.zIndex='1';">
+
+                    <div style="width: 100%; height: 180px; background: {{ ['linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)', 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'][loop.index0 % 3] }}; position: relative; flex-shrink: 0;">
+                        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.3); display: flex; align-items: center; justify-content: center; font-size: 64px; opacity: 0.6;">
+                            {% if 'history' in deck_attention.deck.name.lower() %}📜
+                            {% elif 'chemistry' in deck_attention.deck.name.lower() or 'science' in deck_attention.deck.name.lower() %}⚗️
+                            {% elif 'math' in deck_attention.deck.name.lower() or 'geometry' in deck_attention.deck.name.lower() %}📐
+                            {% else %}📚
+                            {% endif %}
+                        </div>
+                        <div style="position: absolute; top: 12px; right: 12px; padding: 6px 12px; background: rgba(239, 68, 68, 0.9); backdrop-filter: blur(10px); border-radius: 20px; font-size: 11px; font-weight: 700; color: white;">
+                            NEEDS REVIEW
+                        </div>
+                    </div>
+
+                    <div style="padding: 20px; flex: 1; display: flex; flex-direction: column; overflow: hidden;">
+                        <h3 style="font-size: 18px; font-weight: 700; margin: 0 0 8px 0; color: var(--color-text-primary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            {{ deck_attention.deck.name }}
+                        </h3>
+
+                        <p style="color: var(--color-text-tertiary); margin: 0 0 12px 0; font-size: 14px; line-height: 1.4; height: 40px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+                            {% if deck_attention.deck.description %}
+                                {{ deck_attention.deck.description }}
+                            {% else %}
+                                Review these cards to maintain your progress
+                            {% endif %}
+                        </p>
+
+                        <div style="display: flex; gap: 16px; margin-bottom: 12px; font-size: 13px; color: var(--color-text-muted); flex-shrink: 0;">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                🃏 {{ deck_attention.deck.flashcards|length }} cards
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 6px; color: #ef4444;">
+                                ⚠️ {{ deck_attention.review_count }} due
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; flex-shrink: 0;">
+                            <span style="padding: 4px 10px; background: var(--overlay-light); border-radius: 6px; font-size: 11px; color: var(--color-text-tertiary); border: 1px solid var(--color-border-medium);">Review</span>
+                            <span style="padding: 4px 10px; background: var(--overlay-light); border-radius: 6px; font-size: 11px; color: var(--color-text-tertiary); border: 1px solid var(--color-border-medium);">{{ deck_attention.review_count }} Due</span>
+                        </div>
+
+                        <div style="display: flex; gap: 8px; margin-top: auto; flex-shrink: 0;">
+                            <a href="{{ url_for('study.review', deck_id=deck_attention.deck.id) }}"
+                               style="flex: 1; padding: 10px; background: var(--gradient-primary); border: none; border-radius: 6px; color: white; font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-size: 13px; text-align: center; text-decoration: none; display: block;"
+                               onclick="event.stopPropagation();">
+                                🔄 Review Now
+                            </a>
+                            <a href="{{ url_for('decks.view', id=deck_attention.deck.id) }}"
+                               style="flex: 1; padding: 10px; background: rgba(102, 126, 234, 0.2); border: 1px solid var(--color-border-primary); border-radius: 6px; color: var(--color-primary-light); font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-size: 13px; text-align: center; text-decoration: none; display: block;"
+                               onclick="event.stopPropagation();">
+                                📊 Stats
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="scroll-btn scroll-btn-right" onclick="scrollCarousel('review', 1)">›</div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Empty State -->
+{% if not deck_stats and not decks_needing_attention %}
+<div class="content-section">
+    <div style="text-align: center; padding: 80px 24px;">
+        <div style="font-size: 80px; margin-bottom: 24px; opacity: 0.3; animation: float 3s ease-in-out infinite;">📚</div>
+        <h2 style="font-size: 28px; font-weight: 700; margin: 0 0 12px 0;">No Decks Yet</h2>
+        <p style="color: var(--color-text-tertiary); margin: 0 0 32px 0; max-width: 500px; margin-left: auto; margin-right: auto;">
+            Create your first flashcard deck to start your learning journey! You can also explore public decks created by others.
+        </p>
+        <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+            <a href="{{ url_for('decks.create') }}" class="btn btn-primary">
+                ➕ Create Your First Deck
+            </a>
+            <a href="{{ url_for('decks.public') }}" class="btn btn-secondary">
+                🌐 Explore Public Decks
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Quick Stats -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin: 80px 4% 60px; max-width: 1400px; margin-left: auto; margin-right: auto;">
+    <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: 12px; padding: 24px; transition: all 0.3s ease;"
+         onmouseover="this.style.borderColor='var(--color-border-primary)'; this.style.transform='translateY(-4px)';"
+         onmouseout="this.style.borderColor='var(--color-border-light)'; this.style.transform='translateY(0)';">
+        <div style="font-size: 32px; margin-bottom: 12px;">📚</div>
+        <div style="font-size: 28px; font-weight: 800; margin-bottom: 4px;">{{ user_stats.total_decks }}</div>
+        <div style="font-size: 14px; color: var(--color-text-muted);">Total Decks</div>
+    </div>
+    <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: 12px; padding: 24px; transition: all 0.3s ease;"
+         onmouseover="this.style.borderColor='var(--color-border-primary)'; this.style.transform='translateY(-4px)';"
+         onmouseout="this.style.borderColor='var(--color-border-light)'; this.style.transform='translateY(0)';">
+        <div style="font-size: 32px; margin-bottom: 12px;">🃏</div>
+        <div style="font-size: 28px; font-weight: 800; margin-bottom: 4px;">{{ user_stats.total_cards }}</div>
+        <div style="font-size: 14px; color: var(--color-text-muted);">Total Cards</div>
+    </div>
+    <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: 12px; padding: 24px; transition: all 0.3s ease;"
+         onmouseover="this.style.borderColor='var(--color-border-primary)'; this.style.transform='translateY(-4px)';"
+         onmouseout="this.style.borderColor='var(--color-border-light)'; this.style.transform='translateY(0)';">
+        <div style="font-size: 32px; margin-bottom: 12px;">🎯</div>
+        <div style="font-size: 28px; font-weight: 800; margin-bottom: 4px;">
+            {% if deck_stats %}
+                {% set total_accuracy = deck_stats | selectattr('stats.avg_accuracy', 'greaterthan', 0) | map(attribute='stats.avg_accuracy') | list %}
+                {% if total_accuracy %}
+                    {{ (total_accuracy | sum / total_accuracy | length) | round | int }}%
+                {% else %}
+                    -
+                {% endif %}
+            {% else %}
+                -
+            {% endif %}
+        </div>
+        <div style="font-size: 14px; color: var(--color-text-muted);">Average Accuracy</div>
+    </div>
+    <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: 12px; padding: 24px; transition: all 0.3s ease;"
+         onmouseover="this.style.borderColor='var(--color-border-primary)'; this.style.transform='translateY(-4px)';"
+         onmouseout="this.style.borderColor='var(--color-border-light)'; this.style.transform='translateY(0)';">
+        <div style="font-size: 32px; margin-bottom: 12px;">⚠️</div>
+        <div style="font-size: 28px; font-weight: 800; margin-bottom: 4px;">{{ decks_needing_attention | length }}</div>
+        <div style="font-size: 14px; color: var(--color-text-muted);">Decks Need Review</div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if deck_stats %}
+            FlashFlow.showToast('Welcome back! You have {{ deck_stats|length }} active deck{{ "s" if deck_stats|length != 1 else "" }}.', 'info', 4000);
+        {% endif %}
+
+        {% if decks_needing_attention %}
+            setTimeout(() => {
+                FlashFlow.showToast('⚠️ {{ decks_needing_attention|length }} deck{{ "s" if decks_needing_attention|length != 1 else "" }} need{{ "" if decks_needing_attention|length != 1 else "s" }} review!', 'warning', 5000);
+            }, 2000);
+        {% endif %}
+    });
+</script>
 
 <style>
-.stat-card {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.15) !important;
-}
-
-.stat-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.study-banner {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-}
-
-.deck-card {
-    transition: all 0.2s ease;
-    background: white;
-}
-
-.deck-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.1);
-    border-color: var(--bs-primary) !important;
-}
-
-.review-item {
-    transition: all 0.2s ease;
-}
-
-.review-item:hover {
-    background: #fff !important;
-    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,0.075);
-}
-
-.activity-timeline {
-    position: relative;
-}
-
-.activity-item {
-    position: relative;
-}
-
-.activity-icon {
-    width: 32px;
-    height: 32px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.empty-state i {
-    animation: float 3s ease-in-out infinite;
-}
-
-@keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-}
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
 </style>
 {% endblock %}

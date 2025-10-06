@@ -1,58 +1,62 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h1 class="h2 mb-1">My Decks</h1>
-                <p class="text-muted">Manage your flashcard collections</p>
-            </div>
-            <div>
-                <a href="{{ url_for('decks.create') }}" class="btn btn-primary">
-                    <i class="bi bi-plus-circle me-2"></i>Create New Deck
-                </a>
-            </div>
+<div class="container" style="max-width: 1400px; padding-top: 120px; padding-bottom: 60px;">
+    <!-- Header Section -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; flex-wrap: wrap; gap: 16px;">
+        <div>
+            <h1 style="font-size: 2rem; font-weight: 800; margin: 0 0 8px 0;">My Decks</h1>
+            <p style="color: var(--color-text-tertiary); margin: 0;">Manage your flashcard collections</p>
         </div>
+        <a href="{{ url_for('decks.create') }}" class="btn btn-primary">
+            ➕ Create New Deck
+        </a>
     </div>
-</div>
 
-<!-- Search Form -->
-<div class="row mb-4">
-    <div class="col-md-6">
-        <form method="GET" class="d-flex">
+    <!-- Search Form -->
+    <div style="max-width: 600px; margin-bottom: 40px;">
+        <form method="GET" style="display: flex; gap: 12px;">
             {{ search_form.hidden_tag() }}
-            <div class="input-group">
-                {{ search_form.query(class="form-control", value=query) }}
-                <button class="btn btn-outline-primary" type="submit">
-                    <i class="bi bi-search"></i>
-                </button>
-            </div>
+            <input type="text"
+                   name="query"
+                   value="{{ query or '' }}"
+                   placeholder="Search by name or description..."
+                   class="form-input"
+                   style="flex: 1; padding: 14px 20px; background: var(--color-bg-secondary); border: 1px solid var(--color-border-medium); border-radius: 8px; color: var(--color-text-primary); font-size: 0.95rem; transition: all 0.3s ease;">
+            <button type="submit" class="btn btn-primary" style="padding: 14px 24px;">
+                🔍 Search
+            </button>
         </form>
     </div>
-</div>
 
-<!-- Decks Grid -->
-{% if decks %}
-<div class="row">
-    {% for deck in decks %}
-    <div class="col-md-4 col-lg-3 mb-4">
-        <div class="card h-100 border-0 shadow-sm">
-            <div class="card-body d-flex flex-column">
-                <div class="d-flex justify-content-between align-items-start mb-2">
-                    <h6 class="card-title mb-1">
-                        <a href="{{ url_for('decks.view', id=deck.id) }}" class="text-decoration-none">
-                            {{ deck.name }}
-                        </a>
-                    </h6>
-                    {% if deck.is_public %}
-                        <span class="badge bg-success">Public</span>
-                    {% else %}
-                        <span class="badge bg-secondary">Private</span>
+    <!-- Decks Grid -->
+    {% if decks %}
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; margin-bottom: 40px;">
+        {% for deck in decks %}
+        <div class="deck-card" style="background: var(--color-bg-secondary); border-radius: 12px; overflow: hidden; border: 1px solid var(--color-border-light); transition: all 0.3s ease; cursor: pointer; height: 100%; display: flex; flex-direction: column;" onclick="window.location.href='{{ url_for('decks.view', id=deck.id) }}'">
+            <!-- Deck Image/Header -->
+            <div style="height: 180px; background: {{ ['linear-gradient(135deg, #667eea 0%, #764ba2 100%)', 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)', 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'][loop.index0 % 5] }}; position: relative; display: flex; align-items: center; justify-content: center;">
+                <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.3); display: flex; align-items: center; justify-content: center; font-size: 4rem; opacity: 0.6;">
+                    {% if 'spanish' in deck.name.lower() or 'language' in deck.name.lower() %}🌍
+                    {% elif 'python' in deck.name.lower() or 'programming' in deck.name.lower() or 'code' in deck.name.lower() %}💻
+                    {% elif 'math' in deck.name.lower() %}📐
+                    {% elif 'science' in deck.name.lower() or 'biology' in deck.name.lower() or 'chemistry' in deck.name.lower() %}🧬
+                    {% elif 'history' in deck.name.lower() %}📜
+                    {% else %}📚
                     {% endif %}
                 </div>
+                <div style="position: absolute; top: 12px; right: 12px; padding: 6px 12px; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px); border-radius: 20px; font-size: 0.75rem; font-weight: 700; color: white;">
+                    {% if deck.is_public %}PUBLIC{% else %}PRIVATE{% endif %}
+                </div>
+            </div>
 
-                <p class="card-text text-muted small flex-grow-1">
+            <!-- Deck Content -->
+            <div style="padding: 24px; flex: 1; display: flex; flex-direction: column;">
+                <h3 style="font-size: 1.25rem; font-weight: 700; margin: 0 0 12px 0; color: var(--color-text-primary);">
+                    {{ deck.name }}
+                </h3>
+
+                <p style="color: var(--color-text-tertiary); margin: 0 0 16px 0; font-size: 0.95rem; line-height: 1.4; flex: 1;">
                     {% if deck.description %}
                         {{ deck.description[:80] }}{% if deck.description|length > 80 %}...{% endif %}
                     {% else %}
@@ -60,120 +64,196 @@
                     {% endif %}
                 </p>
 
-                <div class="mb-3">
-                    <small class="text-muted">
-                        <i class="bi bi-card-text me-1"></i>{{ deck.get_card_count() }} {{ deck.get_card_count()|pluralize('card', 'cards') }}
-                    </small>
-                    <br>
-                    <small class="text-muted">
-                        <i class="bi bi-clock me-1"></i>{{ deck.created_at|timeago }}
-                    </small>
+                <!-- Meta Information -->
+                <div style="display: flex; gap: 16px; margin-bottom: 16px; font-size: 0.85rem; color: var(--color-text-muted);">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        🃏 {{ deck.get_card_count() }} card{{ 's' if deck.get_card_count() != 1 else '' }}
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        🕐 {{ deck.created_at|timeago }}
+                    </div>
                 </div>
 
-                <div class="d-flex gap-2 mt-auto">
+                <!-- Action Buttons -->
+                <div style="display: flex; gap: 8px;">
                     {% if deck.can_be_studied() %}
-                    <a href="{{ url_for('study.start', deck_id=deck.id) }}" class="btn btn-primary btn-sm flex-fill">
-                        <i class="bi bi-play-circle me-1"></i>Study
+                    <a href="{{ url_for('study.start', deck_id=deck.id) }}"
+                       class="btn-deck primary"
+                       style="flex: 1; padding: 10px; background: var(--gradient-primary); border: none; border-radius: 6px; color: white; font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-size: 0.85rem; text-align: center; text-decoration: none; display: block;"
+                       onclick="event.stopPropagation();">
+                        ▶️ Study
                     </a>
                     {% else %}
-                    <span class="btn btn-outline-secondary btn-sm flex-fill disabled">
-                        <i class="bi bi-plus me-1"></i>Add Cards
+                    <span style="flex: 1; padding: 10px; background: var(--overlay-medium); border: 1px solid var(--color-border-medium); border-radius: 6px; color: var(--color-text-muted); font-weight: 600; font-size: 0.85rem; text-align: center; display: block;">
+                        ➕ Add Cards
                     </span>
                     {% endif %}
 
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-outline-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown">
-                            <i class="bi bi-three-dots"></i>
+                    <!-- Dropdown Menu -->
+                    <div style="position: relative;">
+                        <button onclick="event.stopPropagation(); toggleDropdown('dropdown-{{ deck.id }}')"
+                                style="padding: 10px 16px; background: var(--overlay-medium); border: 1px solid var(--color-border-strong); border-radius: 6px; color: var(--color-text-primary); cursor: pointer; transition: all 0.3s ease; font-size: 1rem;">
+                            ⋮
                         </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ url_for('decks.view', id=deck.id) }}">
-                                <i class="bi bi-eye me-2"></i>View
-                            </a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('decks.edit', id=deck.id) }}">
-                                <i class="bi bi-pencil me-2"></i>Edit
-                            </a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('decks.cards', deck_id=deck.id) }}">
-                                <i class="bi bi-card-list me-2"></i>Manage Cards
-                            </a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item text-danger" href="{{ url_for('decks.delete', id=deck.id) }}">
-                                <i class="bi bi-trash me-2"></i>Delete
-                            </a></li>
-                        </ul>
+                        <div id="dropdown-{{ deck.id }}"
+                             style="display: none; position: absolute; right: 0; top: 100%; margin-top: 8px; background: var(--color-bg-secondary); border: 1px solid var(--color-border-medium); border-radius: 8px; box-shadow: var(--shadow-xl); z-index: 1000; min-width: 200px; overflow: hidden;">
+                            <a href="{{ url_for('decks.view', id=deck.id) }}"
+                               style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--color-text-secondary); text-decoration: none; transition: background 0.2s ease; border-bottom: 1px solid var(--color-border-light);"
+                               onmouseover="this.style.background='var(--overlay-light)'"
+                               onmouseout="this.style.background='transparent'"
+                               onclick="event.stopPropagation();">
+                                👁️ View
+                            </a>
+                            <a href="{{ url_for('decks.edit', id=deck.id) }}"
+                               style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--color-text-secondary); text-decoration: none; transition: background 0.2s ease; border-bottom: 1px solid var(--color-border-light);"
+                               onmouseover="this.style.background='var(--overlay-light)'"
+                               onmouseout="this.style.background='transparent'"
+                               onclick="event.stopPropagation();">
+                                ✏️ Edit
+                            </a>
+                            <a href="{{ url_for('decks.cards', deck_id=deck.id) }}"
+                               style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--color-text-secondary); text-decoration: none; transition: background 0.2s ease; border-bottom: 1px solid var(--color-border-light);"
+                               onmouseover="this.style.background='var(--overlay-light)'"
+                               onmouseout="this.style.background='transparent'"
+                               onclick="event.stopPropagation();">
+                                🃏 Manage Cards
+                            </a>
+                            <a href="{{ url_for('decks.delete', id=deck.id) }}"
+                               style="display: flex; align-items: center; gap: 12px; padding: 12px 16px; color: var(--color-danger); text-decoration: none; transition: background 0.2s ease;"
+                               onmouseover="this.style.background='rgba(239, 68, 68, 0.1)'"
+                               onmouseout="this.style.background='transparent'"
+                               onclick="event.stopPropagation();">
+                                🗑️ Delete
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+        {% endfor %}
     </div>
-    {% endfor %}
-</div>
 
-<!-- Pagination -->
-{% if pagination %}
-<div class="row mt-4">
-    <div class="col-12">
-        <nav aria-label="Decks pagination">
-            <ul class="pagination justify-content-center">
-                {% if pagination.has_prev %}
-                    <li class="page-item">
-                        <a class="page-link" href="{{ url_for('decks.index', page=pagination.prev_num) }}">
-                            <i class="bi bi-chevron-left"></i> Previous
-                        </a>
-                    </li>
-                {% endif %}
+    <!-- Pagination -->
+    {% if pagination %}
+    <div style="display: flex; justify-content: center; gap: 8px; margin-top: 40px; flex-wrap: wrap;">
+        {% if pagination.has_prev %}
+        <a href="{{ url_for('decks.index', page=pagination.prev_num) }}"
+           class="btn btn-secondary"
+           style="padding: 10px 20px;">
+            ← Previous
+        </a>
+        {% endif %}
 
-                {% for page_num in pagination.iter_pages() %}
-                    {% if page_num %}
-                        {% if page_num != pagination.page %}
-                            <li class="page-item">
-                                <a class="page-link" href="{{ url_for('decks.index', page=page_num) }}">{{ page_num }}</a>
-                            </li>
-                        {% else %}
-                            <li class="page-item active">
-                                <span class="page-link">{{ page_num }}</span>
-                            </li>
-                        {% endif %}
-                    {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link">…</span>
-                        </li>
-                    {% endif %}
-                {% endfor %}
-
-                {% if pagination.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="{{ url_for('decks.index', page=pagination.next_num) }}">
-                            Next <i class="bi bi-chevron-right"></i>
-                        </a>
-                    </li>
-                {% endif %}
-            </ul>
-        </nav>
-    </div>
-</div>
-{% endif %}
-
-{% else %}
-<div class="row">
-    <div class="col-12">
-        <div class="text-center py-5">
-            {% if query %}
-                <i class="bi bi-search display-1 text-muted mb-3"></i>
-                <h4 class="text-muted">No decks found</h4>
-                <p class="text-muted">No decks match your search for "{{ query }}"</p>
-                <a href="{{ url_for('decks.index') }}" class="btn btn-outline-primary">
-                    <i class="bi bi-arrow-left me-2"></i>View All Decks
+        {% for page_num in pagination.iter_pages() %}
+            {% if page_num %}
+                {% if page_num != pagination.page %}
+                <a href="{{ url_for('decks.index', page=page_num) }}"
+                   class="btn btn-secondary"
+                   style="padding: 10px 16px;">
+                    {{ page_num }}
                 </a>
+                {% else %}
+                <span style="padding: 10px 16px; background: var(--gradient-primary); border-radius: 8px; color: white; font-weight: 700;">
+                    {{ page_num }}
+                </span>
+                {% endif %}
             {% else %}
-                <i class="bi bi-collection display-1 text-muted mb-3"></i>
-                <h4 class="text-muted">No decks yet</h4>
-                <p class="text-muted">Create your first flashcard deck to start learning!</p>
-                <a href="{{ url_for('decks.create') }}" class="btn btn-primary">
-                    <i class="bi bi-plus-circle me-2"></i>Create Your First Deck
-                </a>
+                <span style="padding: 10px 16px; color: var(--color-text-muted);">…</span>
             {% endif %}
-        </div>
+        {% endfor %}
+
+        {% if pagination.has_next %}
+        <a href="{{ url_for('decks.index', page=pagination.next_num) }}"
+           class="btn btn-secondary"
+           style="padding: 10px 20px;">
+            Next →
+        </a>
+        {% endif %}
     </div>
+    {% endif %}
+
+    {% else %}
+    <!-- Empty State -->
+    <div style="text-align: center; padding: 80px 24px;">
+        {% if query %}
+            <div style="font-size: 5rem; margin-bottom: 24px; opacity: 0.3; animation: float 3s ease-in-out infinite;">🔍</div>
+            <h2 style="font-size: 1.75rem; font-weight: 700; margin: 0 0 12px 0;">No decks found</h2>
+            <p style="color: var(--color-text-tertiary); margin: 0 0 24px 0;">
+                No decks match your search for "{{ query }}"
+            </p>
+            <a href="{{ url_for('decks.index') }}" class="btn btn-secondary">
+                ← View All Decks
+            </a>
+        {% else %}
+            <div style="font-size: 5rem; margin-bottom: 24px; opacity: 0.3; animation: float 3s ease-in-out infinite;">📚</div>
+            <h2 style="font-size: 1.75rem; font-weight: 700; margin: 0 0 12px 0;">No decks yet</h2>
+            <p style="color: var(--color-text-tertiary); margin: 0 0 24px 0;">
+                Create your first flashcard deck to start learning!
+            </p>
+            <a href="{{ url_for('decks.create') }}" class="btn btn-primary">
+                ➕ Create Your First Deck
+            </a>
+        {% endif %}
+    </div>
+    {% endif %}
 </div>
-{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Dropdown toggle functionality
+    function toggleDropdown(dropdownId) {
+        const dropdown = document.getElementById(dropdownId);
+        const allDropdowns = document.querySelectorAll('[id^="dropdown-"]');
+
+        // Close all other dropdowns
+        allDropdowns.forEach(d => {
+            if (d.id !== dropdownId) {
+                d.style.display = 'none';
+            }
+        });
+
+        // Toggle current dropdown
+        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+    }
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!event.target.closest('[id^="dropdown-"]') && !event.target.closest('button')) {
+            const allDropdowns = document.querySelectorAll('[id^="dropdown-"]');
+            allDropdowns.forEach(d => {
+                d.style.display = 'none';
+            });
+        }
+    });
+
+    // Add hover effects to deck cards
+    document.addEventListener('DOMContentLoaded', function() {
+        const deckCards = document.querySelectorAll('.deck-card');
+        deckCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px)';
+                this.style.borderColor = 'var(--color-border-primary)';
+                this.style.boxShadow = 'var(--shadow-xl)';
+            });
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+                this.style.borderColor = 'var(--color-border-light)';
+                this.style.boxShadow = 'none';
+            });
+        });
+
+        // Show toast with deck count
+        {% if decks %}
+            FlashFlow.showToast('{{ decks|length }} deck{{ "s" if decks|length != 1 else "" }} loaded', 'info', 2000);
+        {% endif %}
+    });
+</script>
+
+<style>
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-10px); }
+    }
+</style>
 {% endblock %}

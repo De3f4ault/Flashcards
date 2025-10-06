@@ -1,142 +1,200 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8 col-lg-7">
+<div style="padding-top: calc(var(--navbar-height) + var(--space-2xl)); padding-bottom: var(--space-2xl); min-height: 100vh;">
+    <div class="container" style="max-width: 900px;">
+
         <!-- Header Card -->
-        <div class="card border-primary mb-4">
-            <div class="card-header bg-gradient text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h4 class="card-title mb-0">
-                        <i class="bi bi-stars me-2"></i>Generate Cards with AI
-                    </h4>
-                </div>
-                <div class="small mt-2">{{ deck.name }}</div>
+        <div style="background: var(--gradient-primary); border-radius: var(--radius-xl); padding: var(--space-xl); margin-bottom: var(--space-md); box-shadow: var(--shadow-xl); position: relative; overflow: hidden;">
+            <!-- Animated stars background -->
+            <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; opacity: 0.1;">
+                <div style="position: absolute; top: 20%; left: 10%; font-size: 40px; animation: float 3s ease-in-out infinite;">✨</div>
+                <div style="position: absolute; top: 60%; right: 15%; font-size: 30px; animation: float 4s ease-in-out infinite 0.5s;">⭐</div>
+                <div style="position: absolute; bottom: 20%; left: 20%; font-size: 35px; animation: float 3.5s ease-in-out infinite 1s;">💫</div>
             </div>
-            <div class="card-body">
-                <p class="mb-0">
-                    AI will create multiple flashcards based on your topic.
-                    Provide a clear topic or concept, and choose how many cards you want.
+
+            <div style="position: relative; z-index: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: var(--space-sm);">
+                    <h1 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-extrabold); color: white; margin: 0; display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 32px;">✨</span> Generate Cards with AI
+                    </h1>
+                </div>
+                <div style="margin-top: 8px; color: rgba(255, 255, 255, 0.9); font-size: var(--font-size-sm);">{{ deck.name }}</div>
+                <p style="margin-top: var(--space-sm); color: rgba(255, 255, 255, 0.95); font-size: var(--font-size-base); line-height: var(--line-height-relaxed);">
+                    AI will create multiple flashcards based on your topic. Provide a clear topic or concept, and choose how many cards you want.
                 </p>
             </div>
         </div>
 
         <!-- Generation Form -->
-        <div class="card">
-            <div class="card-body">
-                <form method="POST" id="generate-form">
-                    {{ form.hidden_tag() }}
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-xl); padding: var(--space-xl); box-shadow: var(--shadow-lg); margin-bottom: var(--space-md);">
+            <form method="POST" id="generate-form">
+                {{ form.hidden_tag() }}
 
-                    <div class="mb-4">
-                        {{ form.topic.label(class="form-label fw-bold") }}
-                        {{ form.topic(class="form-control form-control-lg" + (" is-invalid" if form.topic.errors else ""), placeholder="e.g., Spanish irregular verbs, Photosynthesis, JavaScript arrays") }}
-                        {% for error in form.topic.errors %}
-                            <div class="invalid-feedback">{{ error }}</div>
+                <!-- Topic Field -->
+                <div class="form-group">
+                    <label for="{{ form.topic.id }}" class="form-label" style="display: flex; align-items: center; gap: 8px; font-size: var(--font-size-lg);">
+                        <span style="font-size: 24px;">💡</span>
+                        {{ form.topic.label.text }}
+                    </label>
+                    {{ form.topic(class="form-input" + (" error" if form.topic.errors else ""), placeholder="e.g., Spanish irregular verbs, Photosynthesis, JavaScript arrays", style="font-size: var(--font-size-lg); padding: 16px;") }}
+                    {% for error in form.topic.errors %}
+                        <div class="form-error">{{ error }}</div>
+                    {% endfor %}
+                    <div class="form-help" style="display: flex; align-items: center; gap: 8px;">
+                        <span>💡</span>
+                        <span>Be specific! Example: "French numbers 1-100" instead of just "French"</span>
+                    </div>
+                </div>
+
+                <!-- Card Count & Difficulty Row -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md);">
+                    <div class="form-group">
+                        <label for="{{ form.card_count.id }}" class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 20px;">🔢</span>
+                            {{ form.card_count.label.text }}
+                        </label>
+                        {{ form.card_count(class="form-select" + (" error" if form.card_count.errors else ""), style="font-size: var(--font-size-base);") }}
+                        {% for error in form.card_count.errors %}
+                            <div class="form-error">{{ error }}</div>
                         {% endfor %}
-                        <div class="form-text">
-                            Be specific! Example: "French numbers 1-100" instead of just "French"
-                        </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6 mb-4">
-                            {{ form.card_count.label(class="form-label fw-bold") }}
-                            {{ form.card_count(class="form-select" + (" is-invalid" if form.card_count.errors else "")) }}
-                            {% for error in form.card_count.errors %}
-                                <div class="invalid-feedback">{{ error }}</div>
-                            {% endfor %}
-                        </div>
-
-                        <div class="col-md-6 mb-4">
-                            {{ form.difficulty.label(class="form-label fw-bold") }}
-                            {{ form.difficulty(class="form-select" + (" is-invalid" if form.difficulty.errors else "")) }}
-                            {% for error in form.difficulty.errors %}
-                                <div class="invalid-feedback">{{ error }}</div>
-                            {% endfor %}
-                            <div class="form-text">Adjust card complexity</div>
-                        </div>
-                    </div>
-
-                    <!-- Optional: Context/Instructions -->
-                    <div class="mb-4">
-                        {{ form.context.label(class="form-label fw-bold") }}
-                        {{ form.context(class="form-control" + (" is-invalid" if form.context.errors else ""), rows=3, placeholder="e.g., Focus on conjugation patterns, Include examples, Make it beginner-friendly") }}
-                        {% for error in form.context.errors %}
-                            <div class="invalid-feedback">{{ error }}</div>
+                    <div class="form-group">
+                        <label for="{{ form.difficulty.id }}" class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 20px;">🎯</span>
+                            {{ form.difficulty.label.text }}
+                        </label>
+                        {{ form.difficulty(class="form-select" + (" error" if form.difficulty.errors else ""), style="font-size: var(--font-size-base);") }}
+                        {% for error in form.difficulty.errors %}
+                            <div class="form-error">{{ error }}</div>
                         {% endfor %}
-                        <div class="form-text">Optional: Provide additional context or special instructions</div>
+                        <div class="form-help">Adjust card complexity</div>
                     </div>
+                </div>
 
-                    <div class="alert alert-info">
-                        <i class="bi bi-lightbulb me-2"></i>
-                        <strong>Tips for best results:</strong>
-                        <ul class="mb-0 mt-2">
-                            <li>Be specific with your topic</li>
-                            <li>Start with fewer cards to test the quality</li>
-                            <li>You can always generate more cards later</li>
-                            <li>Review and edit generated cards before studying</li>
-                        </ul>
-                    </div>
+                <!-- Context Field (Optional) -->
+                <div class="form-group">
+                    <label for="{{ form.context.id }}" class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 20px;">📋</span>
+                        {{ form.context.label.text }}
+                    </label>
+                    {{ form.context(class="form-textarea" + (" error" if form.context.errors else ""), rows=3, placeholder="e.g., Focus on conjugation patterns, Include examples, Make it beginner-friendly") }}
+                    {% for error in form.context.errors %}
+                        <div class="form-error">{{ error }}</div>
+                    {% endfor %}
+                    <div class="form-help">Optional: Provide additional context or special instructions</div>
+                </div>
 
-                    <div class="d-flex justify-content-between align-items-center">
-                        <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-secondary">
-                            <i class="bi bi-arrow-left me-1"></i>Cancel
-                        </a>
-                        {{ form.submit(class="btn btn-primary btn-lg", id="submit-btn") }}
+                <!-- Tips Alert -->
+                <div class="alert alert-info" style="margin-bottom: var(--space-xl);">
+                    <div style="display: flex; align-items: flex-start; gap: 12px;">
+                        <span style="font-size: 24px;">💡</span>
+                        <div>
+                            <strong style="display: block; margin-bottom: 8px;">Tips for best results:</strong>
+                            <ul style="margin: 0; padding-left: 20px; line-height: var(--line-height-relaxed);">
+                                <li>Be specific with your topic</li>
+                                <li>Start with fewer cards to test the quality</li>
+                                <li>You can always generate more cards later</li>
+                                <li>Review and edit generated cards before studying</li>
+                            </ul>
+                        </div>
                     </div>
-                </form>
-            </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;">
+                    <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-secondary">
+                        <span style="margin-right: 8px;">←</span>Cancel
+                    </a>
+                    {{ form.submit(class="btn btn-primary btn-lg", id="submit-btn", style="padding: 16px 36px;") }}
+                </div>
+            </form>
         </div>
 
-        <!-- Example Topics -->
-        <div class="card mt-4">
-            <div class="card-header">
-                <h6 class="card-title mb-0">
-                    <i class="bi bi-lightbulb me-2"></i>Example Topics
-                </h6>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6 mb-2">
-                        <div class="border rounded p-2 small">
-                            <strong>Language Learning:</strong><br>
-                            Spanish present tense conjugations
-                        </div>
-                    </div>
-                    <div class="col-md-6 mb-2">
-                        <div class="border rounded p-2 small">
-                            <strong>Science:</strong><br>
-                            Human body organ systems
-                        </div>
-                    </div>
-                    <div class="col-md-6 mb-2">
-                        <div class="border rounded p-2 small">
-                            <strong>History:</strong><br>
-                            World War II major events
-                        </div>
-                    </div>
-                    <div class="col-md-6 mb-2">
-                        <div class="border rounded p-2 small">
-                            <strong>Programming:</strong><br>
-                            Python list methods and usage
-                        </div>
-                    </div>
+        <!-- Example Topics Card -->
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-xl); padding: var(--space-lg); box-shadow: var(--shadow-md);">
+            <h6 style="font-weight: var(--font-weight-bold); margin-bottom: var(--space-md); display: flex; align-items: center; gap: 8px;">
+                <span>💡</span> Example Topics
+            </h6>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--space-sm);">
+                <div style="background: var(--overlay-light); border: 1px solid var(--color-border-medium); border-radius: var(--radius-md); padding: var(--space-md); transition: var(--transition-base);" class="hover-glow">
+                    <div style="font-weight: var(--font-weight-semibold); color: var(--color-text-secondary); margin-bottom: 4px; font-size: var(--font-size-sm);">🌍 Language Learning:</div>
+                    <div style="color: var(--color-text-tertiary); font-size: var(--font-size-sm);">Spanish present tense conjugations</div>
+                </div>
+                <div style="background: var(--overlay-light); border: 1px solid var(--color-border-medium); border-radius: var(--radius-md); padding: var(--space-md); transition: var(--transition-base);" class="hover-glow">
+                    <div style="font-weight: var(--font-weight-semibold); color: var(--color-text-secondary); margin-bottom: 4px; font-size: var(--font-size-sm);">🧬 Science:</div>
+                    <div style="color: var(--color-text-tertiary); font-size: var(--font-size-sm);">Human body organ systems</div>
+                </div>
+                <div style="background: var(--overlay-light); border: 1px solid var(--color-border-medium); border-radius: var(--radius-md); padding: var(--space-md); transition: var(--transition-base);" class="hover-glow">
+                    <div style="font-weight: var(--font-weight-semibold); color: var(--color-text-secondary); margin-bottom: 4px; font-size: var(--font-size-sm);">📜 History:</div>
+                    <div style="color: var(--color-text-tertiary); font-size: var(--font-size-sm);">World War II major events</div>
+                </div>
+                <div style="background: var(--overlay-light); border: 1px solid var(--color-border-medium); border-radius: var(--radius-md); padding: var(--space-md); transition: var(--transition-base);" class="hover-glow">
+                    <div style="font-weight: var(--font-weight-semibold); color: var(--color-text-secondary); margin-bottom: 4px; font-size: var(--font-size-sm);">💻 Programming:</div>
+                    <div style="color: var(--color-text-tertiary); font-size: var(--font-size-sm);">Python list methods and usage</div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+{% endblock %}
 
+{% block extra_css %}
+<style>
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(0deg); }
+        50% { transform: translateY(-10px) rotate(5deg); }
+    }
+
+    @media (max-width: 768px) {
+        div[style*="grid-template-columns: 1fr 1fr"] {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const submitBtn = document.getElementById('submit-btn');
-    const form = document.getElementById('generate-form');
+    document.addEventListener('DOMContentLoaded', function() {
+        const submitBtn = document.getElementById('submit-btn');
+        const form = document.getElementById('generate-form');
+        const topicInput = document.querySelector('input[name="topic"]');
 
-    // Show loading state on submit
-    form.addEventListener('submit', function() {
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Generating...';
+        // Auto-focus topic input
+        if (topicInput) {
+            topicInput.focus();
+        }
+
+        // Show loading state on submit
+        form.addEventListener('submit', function(e) {
+            const topic = topicInput.value.trim();
+            if (!topic) {
+                e.preventDefault();
+                topicInput.style.borderColor = 'var(--color-danger)';
+                FlashFlow.showToast('Please enter a topic', 'error', 3000);
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<div class="loading-spinner" style="width: 20px; height: 20px; border-width: 2px; display: inline-block; margin-right: 8px;"></div>Generating...';
+
+            FlashFlow.showToast('AI is generating your cards...', 'info', 5000);
+        });
+
+        // Example topic click handlers
+        document.querySelectorAll('.hover-glow').forEach(example => {
+            example.style.cursor = 'pointer';
+            example.addEventListener('click', function() {
+                const topicText = this.querySelector('div:last-child').textContent;
+                topicInput.value = topicText;
+                topicInput.focus();
+                FlashFlow.showToast('Topic added! Adjust settings and generate.', 'success', 3000);
+            });
+        });
+
+        FlashFlow.showToast('Describe what you want to learn', 'info', 3000);
     });
-});
 </script>
 {% endblock %}

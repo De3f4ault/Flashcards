@@ -1,66 +1,166 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6 col-lg-5">
-        <div class="card shadow-sm">
-            <div class="card-body p-4">
-                <div class="text-center mb-4">
-                    <i class="bi bi-person-plus display-4 text-primary mb-3"></i>
-                    <h3 class="fw-bold">Create Your Account</h3>
-                    <p class="text-muted">Join thousands of learners today</p>
+<div class="content-section" style="padding-top: calc(var(--navbar-height) + var(--space-xl)); padding-bottom: var(--space-2xl); min-height: 100vh; display: flex; align-items: center;">
+    <div class="container" style="max-width: 520px;">
+        <!-- Register Card -->
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-xl); padding: var(--space-xl); box-shadow: var(--shadow-xl);">
+
+            <!-- Header -->
+            <div style="text-align: center; margin-bottom: var(--space-xl);">
+                <div style="width: 80px; height: 80px; margin: 0 auto 20px; border-radius: var(--radius-lg); background: var(--gradient-primary); display: flex; align-items: center; justify-content: center; font-size: 40px; box-shadow: var(--shadow-primary);">
+                    ✨
                 </div>
-
-                <form method="POST">
-                    {{ form.hidden_tag() }}
-
-                    <div class="mb-3">
-                        {{ form.username.label(class="form-label") }}
-                        {{ form.username(class="form-control" + (" is-invalid" if form.username.errors else "")) }}
-                        {% for error in form.username.errors %}
-                            <div class="invalid-feedback">{{ error }}</div>
-                        {% endfor %}
-                        <div class="form-text">Choose a unique username (3-80 characters)</div>
-                    </div>
-
-                    <div class="mb-3">
-                        {{ form.email.label(class="form-label") }}
-                        {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else "")) }}
-                        {% for error in form.email.errors %}
-                            <div class="invalid-feedback">{{ error }}</div>
-                        {% endfor %}
-                    </div>
-
-                    <div class="mb-3">
-                        {{ form.password.label(class="form-label") }}
-                        {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else "")) }}
-                        {% for error in form.password.errors %}
-                            <div class="invalid-feedback">{{ error }}</div>
-                        {% endfor %}
-                        <div class="form-text">Minimum 6 characters</div>
-                    </div>
-
-                    <div class="mb-3">
-                        {{ form.password2.label(class="form-label") }}
-                        {{ form.password2(class="form-control" + (" is-invalid" if form.password2.errors else "")) }}
-                        {% for error in form.password2.errors %}
-                            <div class="invalid-feedback">{{ error }}</div>
-                        {% endfor %}
-                    </div>
-
-                    <div class="d-grid">
-                        {{ form.submit(class="btn btn-primary") }}
-                    </div>
-                </form>
-
-                <div class="text-center mt-4">
-                    <p class="text-muted">
-                        Already have an account?
-                        <a href="{{ url_for('auth.login') }}" class="text-decoration-none">Sign in here</a>
-                    </p>
-                </div>
+                <h1 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); margin-bottom: 8px;">
+                    Create Your Account
+                </h1>
+                <p style="color: var(--color-text-tertiary); font-size: var(--font-size-base);">
+                    Join thousands of learners today
+                </p>
             </div>
+
+            <!-- Register Form -->
+            <form method="POST">
+                {{ form.hidden_tag() }}
+
+                <!-- Username Field -->
+                <div class="form-group" style="margin-bottom: var(--space-md);">
+                    {{ form.username.label(class="form-label") }}
+                    {{ form.username(
+                        class="form-input",
+                        placeholder="Choose a unique username",
+                        style="border-color: " + ("var(--color-danger)" if form.username.errors else "")
+                    ) }}
+                    {% for error in form.username.errors %}
+                    <div class="form-error">{{ error }}</div>
+                    {% endfor %}
+                    <div class="form-help">Choose a unique username (3-80 characters)</div>
+                </div>
+
+                <!-- Email Field -->
+                <div class="form-group" style="margin-bottom: var(--space-md);">
+                    {{ form.email.label(class="form-label") }}
+                    {{ form.email(
+                        class="form-input",
+                        placeholder="your.email@example.com",
+                        style="border-color: " + ("var(--color-danger)" if form.email.errors else "")
+                    ) }}
+                    {% for error in form.email.errors %}
+                    <div class="form-error">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <!-- Password Field -->
+                <div class="form-group" style="margin-bottom: var(--space-md);">
+                    {{ form.password.label(class="form-label") }}
+                    {{ form.password(
+                        class="form-input",
+                        placeholder="Create a strong password",
+                        style="border-color: " + ("var(--color-danger)" if form.password.errors else "")
+                    ) }}
+                    {% for error in form.password.errors %}
+                    <div class="form-error">{{ error }}</div>
+                    {% endfor %}
+                    <div class="form-help">Minimum 6 characters</div>
+                </div>
+
+                <!-- Confirm Password Field -->
+                <div class="form-group" style="margin-bottom: var(--space-lg);">
+                    {{ form.password2.label(class="form-label") }}
+                    {{ form.password2(
+                        class="form-input",
+                        placeholder="Re-enter your password",
+                        style="border-color: " + ("var(--color-danger)" if form.password2.errors else "")
+                    ) }}
+                    {% for error in form.password2.errors %}
+                    <div class="form-error">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <!-- Submit Button -->
+                {{ form.submit(
+                    class="btn btn-primary btn-lg",
+                    style="width: 100%; margin-bottom: 16px;"
+                ) }}
+            </form>
+
+            <!-- Divider -->
+            <div style="position: relative; text-align: center; margin: var(--space-lg) 0;">
+                <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: var(--color-border-light);"></div>
+                <span style="position: relative; background: var(--color-bg-secondary); padding: 0 16px; color: var(--color-text-muted); font-size: var(--font-size-sm);">
+                    Already have an account?
+                </span>
+            </div>
+
+            <!-- Login Link -->
+            <a href="{{ url_for('auth.login') }}"
+               class="btn btn-secondary"
+               style="width: 100%;">
+                Sign In
+            </a>
+        </div>
+
+        <!-- Tips Card -->
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-md); margin-top: var(--space-md);">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                <span style="font-size: 20px;">💡</span>
+                <h3 style="font-size: var(--font-size-md); font-weight: var(--font-weight-bold); margin: 0;">
+                    Tips for Creating Great Accounts
+                </h3>
+            </div>
+            <ul style="margin: 0; padding-left: 20px; color: var(--color-text-tertiary); font-size: var(--font-size-sm); line-height: 1.6;">
+                <li>Use a valid email address for account recovery</li>
+                <li>Choose a strong, unique password you'll remember</li>
+                <li>Your username will be visible to other users</li>
+                <li>Keep your account secure and don't share credentials</li>
+            </ul>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Focus states */
+    .form-input:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    /* List styling */
+    ul {
+        list-style-type: disc;
+    }
+
+    li {
+        margin-bottom: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Focus first input
+        const firstInput = document.querySelector('input[type="text"]');
+        if (firstInput) {
+            firstInput.focus();
+        }
+
+        // Password strength indicator
+        const passwordInput = document.querySelector('input[name="password"]');
+        if (passwordInput) {
+            passwordInput.addEventListener('input', function() {
+                const strength = this.value.length;
+                if (strength >= 10) {
+                    this.style.borderColor = 'var(--color-success)';
+                } else if (strength >= 6) {
+                    this.style.borderColor = 'var(--color-warning)';
+                } else {
+                    this.style.borderColor = '';
+                }
+            });
+        }
+    });
+</script>
 {% endblock %}

@@ -1,325 +1,351 @@
 {% extends "base.html" %}
 
+{% block hero %}
+<!-- Cards Management Hero -->
+<div class="hero-section" style="height: 45vh; min-height: 350px;">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <div class="hero-badge">CARD MANAGEMENT</div>
+        <h1 class="hero-title" style="font-size: var(--font-size-3xl); margin-bottom: 12px;">{{ deck.name }}</h1>
+        <p class="hero-description" style="font-size: var(--font-size-lg);">
+            {% if pagination %}
+                Managing {{ pagination.total }} {{ 'card' if pagination.total == 1 else 'cards' }} in this deck
+            {% else %}
+                No cards in this deck yet
+            {% endif %}
+        </p>
+
+        <div class="hero-buttons" style="margin-top: var(--space-lg);">
+            <a href="{{ url_for('decks.create_card', deck_id=deck.id) }}" class="btn btn-primary">
+                ➕ Add Card
+            </a>
+            <a href="{{ url_for('decks.bulk_create_cards', deck_id=deck.id) }}" class="btn btn-secondary">
+                📦 Bulk Import
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
 {% block content %}
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h1 class="h2 mb-1">Manage Cards</h1>
-                <h5 class="text-muted">{{ deck.name }}</h5>
-                <p class="text-muted">
-                    {% if pagination %}
-                        {{ pagination.total }} {{ 'card' if pagination.total == 1 else 'cards' }} in this deck
-                    {% else %}
-                        0 cards in this deck
-                    {% endif %}
-                </p>
-            </div>
-            <div>
-                <div class="btn-group">
-                    <a href="{{ url_for('decks.create_card', deck_id=deck.id) }}" class="btn btn-primary">
-                        <i class="bi bi-plus me-1"></i>Add Card
-                    </a>
-                    <a href="{{ url_for('decks.bulk_create_cards', deck_id=deck.id) }}" class="btn btn-outline-primary">
-                        <i class="bi bi-stack me-1"></i>Bulk Import
-                    </a>
+<!-- Quick Stats Bar -->
+{% if deck_stats %}
+<div class="content-section" style="padding-top: var(--space-lg); padding-bottom: 0;">
+    <div class="container">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 12px; background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-md);">
+            <div style="text-align: center;">
+                <div style="font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); color: var(--color-primary);">
+                    {{ deck_stats.total }}
                 </div>
+                <div style="font-size: var(--font-size-xs); color: var(--color-text-muted);">Total</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); color: var(--color-text-secondary);">
+                    {{ deck_stats.new }}
+                </div>
+                <div style="font-size: var(--font-size-xs); color: var(--color-text-muted);">New</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); color: var(--color-warning);">
+                    {{ deck_stats.learning }}
+                </div>
+                <div style="font-size: var(--font-size-xs); color: var(--color-text-muted);">Learning</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); color: var(--color-info);">
+                    {{ deck_stats.review }}
+                </div>
+                <div style="font-size: var(--font-size-xs); color: var(--color-text-muted);">Review</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); color: var(--color-success);">
+                    {{ deck_stats.mastered }}
+                </div>
+                <div style="font-size: var(--font-size-xs); color: var(--color-text-muted);">Mastered</div>
+            </div>
+            <div style="text-align: center;">
+                <div style="font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); color: var(--color-danger);">
+                    {{ deck_stats.due_today }}
+                </div>
+                <div style="font-size: var(--font-size-xs); color: var(--color-text-muted);">Due Today</div>
             </div>
         </div>
     </div>
 </div>
+{% endif %}
 
 <!-- Search & Filter Section -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h6 class="mb-0">
-                    <i class="bi bi-funnel me-2"></i>Search & Filter
-                </h6>
-                <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#filterSection">
-                    <i class="bi bi-chevron-down"></i>
+<div class="content-section">
+    <div class="container">
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); overflow: hidden;">
+            <!-- Filter Header -->
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: var(--space-md); border-bottom: 1px solid var(--color-border-light);">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 20px;">🔍</span>
+                    <h3 style="font-size: var(--font-size-md); font-weight: var(--font-weight-bold); margin: 0;">Search & Filter</h3>
+                </div>
+                <button type="button"
+                        class="btn btn-secondary btn-sm"
+                        onclick="toggleFilters()"
+                        id="filterToggle">
+                    Hide Filters
                 </button>
             </div>
-            <div class="collapse show" id="filterSection">
-                <div class="card-body">
-                    <form method="GET" action="{{ url_for('decks.cards', deck_id=deck.id) }}">
-                        <div class="row g-3">
-                            <!-- Text Search -->
-                            <div class="col-md-6">
-                                <label for="query" class="form-label">Search Cards</label>
-                                <input type="text" class="form-control" id="query" name="query"
-                                       value="{{ query }}" placeholder="Search front or back...">
-                            </div>
 
-                            <!-- Learning State Filter -->
-                            <div class="col-md-3">
-                                <label for="learning_state" class="form-label">Learning State</label>
-                                <select class="form-select" id="learning_state" name="learning_state">
-                                    <option value="">All States</option>
-                                    <option value="new" {% if learning_state == 'new' %}selected{% endif %}>New</option>
-                                    <option value="learning" {% if learning_state == 'learning' %}selected{% endif %}>Learning</option>
-                                    <option value="review" {% if learning_state == 'review' %}selected{% endif %}>Review</option>
-                                    <option value="mastered" {% if learning_state == 'mastered' %}selected{% endif %}>Mastered</option>
-                                </select>
-                            </div>
-
-                            <!-- Difficulty Filter -->
-                            <div class="col-md-3">
-                                <label for="difficulty" class="form-label">Difficulty</label>
-                                <select class="form-select" id="difficulty" name="difficulty">
-                                    <option value="">All Difficulties</option>
-                                    <option value="easy" {% if difficulty == 'easy' %}selected{% endif %}>Easy</option>
-                                    <option value="medium" {% if difficulty == 'medium' %}selected{% endif %}>Medium</option>
-                                    <option value="hard" {% if difficulty == 'hard' %}selected{% endif %}>Hard</option>
-                                </select>
-                            </div>
-
-                            <!-- Sort By -->
-                            <div class="col-md-4">
-                                <label for="sort_by" class="form-label">Sort By</label>
-                                <select class="form-select" id="sort_by" name="sort_by">
-                                    <option value="created_desc" {% if sort_by == 'created_desc' %}selected{% endif %}>Newest First</option>
-                                    <option value="created_asc" {% if sort_by == 'created_asc' %}selected{% endif %}>Oldest First</option>
-                                    <option value="alpha_asc" {% if sort_by == 'alpha_asc' %}selected{% endif %}>A-Z</option>
-                                    <option value="alpha_desc" {% if sort_by == 'alpha_desc' %}selected{% endif %}>Z-A</option>
-                                    <option value="accuracy_high" {% if sort_by == 'accuracy_high' %}selected{% endif %}>Highest Accuracy</option>
-                                    <option value="accuracy_low" {% if sort_by == 'accuracy_low' %}selected{% endif %}>Lowest Accuracy</option>
-                                    <option value="studied_most" {% if sort_by == 'studied_most' %}selected{% endif %}>Most Studied</option>
-                                    <option value="studied_least" {% if sort_by == 'studied_least' %}selected{% endif %}>Least Studied</option>
-                                    <option value="difficulty_high" {% if sort_by == 'difficulty_high' %}selected{% endif %}>Hardest First</option>
-                                    <option value="difficulty_low" {% if sort_by == 'difficulty_low' %}selected{% endif %}>Easiest First</option>
-                                    <option value="due_soon" {% if sort_by == 'due_soon' %}selected{% endif %}>Due Soonest</option>
-                                </select>
-                            </div>
-
-                            <!-- Date From -->
-                            <div class="col-md-4">
-                                <label for="date_from" class="form-label">Created From</label>
-                                <input type="date" class="form-control" id="date_from" name="date_from" value="{{ date_from }}">
-                            </div>
-
-                            <!-- Date To -->
-                            <div class="col-md-4">
-                                <label for="date_to" class="form-label">Created To</label>
-                                <input type="date" class="form-control" id="date_to" name="date_to" value="{{ date_to }}">
-                            </div>
-
-                            <!-- Action Buttons -->
-                            <div class="col-12">
-                                <div class="d-flex gap-2">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="bi bi-search me-1"></i>Apply Filters
-                                    </button>
-                                    <a href="{{ url_for('decks.cards', deck_id=deck.id) }}" class="btn btn-outline-secondary">
-                                        <i class="bi bi-x-circle me-1"></i>Clear All
-                                    </a>
-                                </div>
-                            </div>
+            <!-- Filter Form -->
+            <div id="filterSection" style="padding: var(--space-lg);">
+                <form method="GET" action="{{ url_for('decks.cards', deck_id=deck.id) }}">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-md); margin-bottom: var(--space-md);">
+                        <!-- Text Search -->
+                        <div style="grid-column: span 2;">
+                            <label class="form-label">Search Cards</label>
+                            <input type="text"
+                                   class="form-input"
+                                   id="query"
+                                   name="query"
+                                   value="{{ query }}"
+                                   placeholder="Search front or back...">
                         </div>
-                    </form>
-                </div>
+
+                        <!-- Learning State -->
+                        <div>
+                            <label class="form-label">Learning State</label>
+                            <select class="form-select" id="learning_state" name="learning_state">
+                                <option value="">All States</option>
+                                <option value="new" {% if learning_state == 'new' %}selected{% endif %}>New</option>
+                                <option value="learning" {% if learning_state == 'learning' %}selected{% endif %}>Learning</option>
+                                <option value="review" {% if learning_state == 'review' %}selected{% endif %}>Review</option>
+                                <option value="mastered" {% if learning_state == 'mastered' %}selected{% endif %}>Mastered</option>
+                            </select>
+                        </div>
+
+                        <!-- Difficulty -->
+                        <div>
+                            <label class="form-label">Difficulty</label>
+                            <select class="form-select" id="difficulty" name="difficulty">
+                                <option value="">All Difficulties</option>
+                                <option value="easy" {% if difficulty == 'easy' %}selected{% endif %}>Easy</option>
+                                <option value="medium" {% if difficulty == 'medium' %}selected{% endif %}>Medium</option>
+                                <option value="hard" {% if difficulty == 'hard' %}selected{% endif %}>Hard</option>
+                            </select>
+                        </div>
+
+                        <!-- Sort By -->
+                        <div style="grid-column: span 2;">
+                            <label class="form-label">Sort By</label>
+                            <select class="form-select" id="sort_by" name="sort_by">
+                                <option value="created_desc" {% if sort_by == 'created_desc' %}selected{% endif %}>Newest First</option>
+                                <option value="created_asc" {% if sort_by == 'created_asc' %}selected{% endif %}>Oldest First</option>
+                                <option value="alpha_asc" {% if sort_by == 'alpha_asc' %}selected{% endif %}>A-Z</option>
+                                <option value="alpha_desc" {% if sort_by == 'alpha_desc' %}selected{% endif %}>Z-A</option>
+                                <option value="accuracy_high" {% if sort_by == 'accuracy_high' %}selected{% endif %}>Highest Accuracy</option>
+                                <option value="accuracy_low" {% if sort_by == 'accuracy_low' %}selected{% endif %}>Lowest Accuracy</option>
+                                <option value="studied_most" {% if sort_by == 'studied_most' %}selected{% endif %}>Most Studied</option>
+                                <option value="studied_least" {% if sort_by == 'studied_least' %}selected{% endif %}>Least Studied</option>
+                                <option value="difficulty_high" {% if sort_by == 'difficulty_high' %}selected{% endif %}>Hardest First</option>
+                                <option value="difficulty_low" {% if sort_by == 'difficulty_low' %}selected{% endif %}>Easiest First</option>
+                                <option value="due_soon" {% if sort_by == 'due_soon' %}selected{% endif %}>Due Soonest</option>
+                            </select>
+                        </div>
+
+                        <!-- Date From -->
+                        <div>
+                            <label class="form-label">Created From</label>
+                            <input type="date" class="form-input" id="date_from" name="date_from" value="{{ date_from }}">
+                        </div>
+
+                        <!-- Date To -->
+                        <div>
+                            <label class="form-label">Created To</label>
+                            <input type="date" class="form-input" id="date_to" name="date_to" value="{{ date_to }}">
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div style="display: flex; gap: 12px;">
+                        <button type="submit" class="btn btn-primary">
+                            🔍 Apply Filters
+                        </button>
+                        <a href="{{ url_for('decks.cards', deck_id=deck.id) }}" class="btn btn-secondary">
+                            ✕ Clear All
+                        </a>
+                    </div>
+                </form>
             </div>
         </div>
-    </div>
-</div>
 
-<!-- Active Filters Display -->
-{% if active_filters %}
-<div class="row mb-3">
-    <div class="col-12">
-        <div class="d-flex gap-2 flex-wrap align-items-center">
-            <span class="text-muted">Active filters:</span>
+        <!-- Active Filters Display -->
+        {% if active_filters %}
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: var(--space-md);">
+            <span style="color: var(--color-text-muted); font-size: var(--font-size-sm);">Active filters:</span>
             {% for filter in active_filters %}
-            <span class="badge bg-info">{{ filter }}</span>
+            <span class="badge badge-primary">{{ filter }}</span>
             {% endfor %}
         </div>
+        {% endif %}
     </div>
 </div>
-{% endif %}
-
-<!-- Statistics Sidebar (Optional Collapsible) -->
-{% if deck_stats %}
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card bg-light">
-            <div class="card-body">
-                <div class="row text-center">
-                    <div class="col-6 col-md-2">
-                        <div class="fw-bold text-primary">{{ deck_stats.total }}</div>
-                        <small class="text-muted">Total</small>
-                    </div>
-                    <div class="col-6 col-md-2">
-                        <div class="fw-bold text-secondary">{{ deck_stats.new }}</div>
-                        <small class="text-muted">New</small>
-                    </div>
-                    <div class="col-6 col-md-2">
-                        <div class="fw-bold text-warning">{{ deck_stats.learning }}</div>
-                        <small class="text-muted">Learning</small>
-                    </div>
-                    <div class="col-6 col-md-2">
-                        <div class="fw-bold text-info">{{ deck_stats.review }}</div>
-                        <small class="text-muted">Review</small>
-                    </div>
-                    <div class="col-6 col-md-2">
-                        <div class="fw-bold text-success">{{ deck_stats.mastered }}</div>
-                        <small class="text-muted">Mastered</small>
-                    </div>
-                    <div class="col-6 col-md-2">
-                        <div class="fw-bold text-danger">{{ deck_stats.due_today }}</div>
-                        <small class="text-muted">Due Today</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-{% endif %}
 
 <!-- Cards Grid -->
 {% if cards %}
-<div class="row">
-    {% for card in cards %}
-    <div class="col-md-6 col-lg-4 mb-4">
-        <div class="card h-100 {% if card.is_due_for_review() %}border-warning{% endif %}">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start mb-3">
-                    <div class="d-flex gap-2 flex-wrap">
-                        <!-- Learning State Badge -->
+<div class="content-section">
+    <div class="container">
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: var(--space-sm);">
+            {% for card in cards %}
+            <div class="review-item hover-lift-sm"
+                 style="flex-direction: column; align-items: stretch; padding: var(--space-md); background: var(--color-bg-secondary); border: 1px solid {% if card.is_due_for_review() %}var(--color-warning){% else %}var(--color-border-light){% endif %}; border-radius: var(--radius-md);"
+                 onclick="flipManageCard(this)">
+
+                <!-- Card Header -->
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+                    <!-- State Badges -->
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
                         {% if card.learning_state == 'new' %}
-                            <span class="badge bg-secondary">New</span>
+                        <span class="badge badge-dark">NEW</span>
                         {% elif card.learning_state == 'learning' %}
-                            <span class="badge bg-warning">Learning</span>
+                        <span class="badge" style="background: rgba(234, 179, 8, 0.1); border-color: rgba(234, 179, 8, 0.3); color: var(--color-warning);">LEARNING</span>
                         {% elif card.learning_state == 'review' %}
-                            <span class="badge bg-info">Review</span>
+                        <span class="badge" style="background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3); color: var(--color-info);">REVIEW</span>
                         {% elif card.learning_state == 'mastered' %}
-                            <span class="badge bg-success">Mastered</span>
+                        <span class="badge badge-success">MASTERED</span>
                         {% endif %}
 
-                        <!-- Due Badge -->
                         {% if card.is_due_for_review() %}
-                            <span class="badge bg-danger">Due</span>
+                        <span class="badge badge-danger">DUE</span>
                         {% endif %}
                     </div>
 
-                    <div class="d-flex gap-1">
-                        <!-- Difficulty Indicator (Ease Factor) -->
+                    <!-- Difficulty & Accuracy -->
+                    <div style="display: flex; gap: 6px;">
                         {% if card.ease_factor %}
                             {% if card.ease_factor >= 2.5 %}
-                                <span class="badge bg-success" title="Ease Factor: {{ card.ease_factor }}">Easy</span>
+                            <span class="badge badge-success" title="Ease: {{ card.ease_factor }}">EASY</span>
                             {% elif card.ease_factor >= 2.0 %}
-                                <span class="badge bg-warning" title="Ease Factor: {{ card.ease_factor }}">Medium</span>
+                            <span class="badge" style="background: rgba(234, 179, 8, 0.1); border-color: rgba(234, 179, 8, 0.3); color: var(--color-warning);" title="Ease: {{ card.ease_factor }}">MEDIUM</span>
                             {% else %}
-                                <span class="badge bg-danger" title="Ease Factor: {{ card.ease_factor }}">Hard</span>
+                            <span class="badge badge-danger" title="Ease: {{ card.ease_factor }}">HARD</span>
                             {% endif %}
                         {% endif %}
 
-                        <!-- Accuracy Badge -->
                         {% if card.times_studied > 0 %}
                             {% set accuracy = (card.times_correct / card.times_studied * 100) | int %}
-                            {% if accuracy >= 80 %}
-                                <span class="badge bg-success">{{ accuracy }}%</span>
-                            {% elif accuracy >= 50 %}
-                                <span class="badge bg-warning">{{ accuracy }}%</span>
-                            {% else %}
-                                <span class="badge bg-danger">{{ accuracy }}%</span>
-                            {% endif %}
+                            <span class="badge" style="
+                                {% if accuracy >= 80 %}
+                                    background: rgba(52, 199, 89, 0.1); border-color: rgba(52, 199, 89, 0.3); color: var(--color-success);
+                                {% elif accuracy >= 50 %}
+                                    background: rgba(234, 179, 8, 0.1); border-color: rgba(234, 179, 8, 0.3); color: var(--color-warning);
+                                {% else %}
+                                    background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: var(--color-danger);
+                                {% endif %}
+                            ">{{ accuracy }}%</span>
                         {% endif %}
                     </div>
                 </div>
 
-                <div class="mb-3">
-                    <div class="small fw-bold text-muted mb-1">FRONT:</div>
-                    <div class="mb-2">{{ card.front }}</div>
-                    <div class="small fw-bold text-muted mb-1">BACK:</div>
-                    <div class="text-muted">{{ card.back }}</div>
+                <!-- Card Content (Flip Container) -->
+                <div class="card-flip-container" style="position: relative; min-height: 100px; margin-bottom: 12px; cursor: pointer;">
+                    <div class="card-front" style="display: block;">
+                        <div style="font-weight: var(--font-weight-semibold); color: var(--color-text-muted); font-size: var(--font-size-xs); margin-bottom: 8px; text-transform: uppercase;">
+                            Front
+                        </div>
+                        <div style="color: var(--color-text-primary); line-height: 1.5;">
+                            {{ card.front }}
+                        </div>
+                    </div>
+                    <div class="card-back" style="display: none;">
+                        <div style="font-weight: var(--font-weight-semibold); color: var(--color-text-muted); font-size: var(--font-size-xs); margin-bottom: 8px; text-transform: uppercase;">
+                            Back
+                        </div>
+                        <div style="color: var(--color-text-primary); line-height: 1.5;">
+                            {{ card.back }}
+                        </div>
+                    </div>
                 </div>
 
-                <div class="small text-muted mb-3">
-                    <i class="bi bi-eye me-1"></i>{{ card.times_studied }} {{ 'study' if card.times_studied == 1 else 'studies' }}
-                    {% if card.times_studied > 0 %}
-                        <span class="mx-2">•</span>
-                        <i class="bi bi-check-circle me-1"></i>{{ card.times_correct }} correct
-                    {% endif %}
-                    {% if card.next_review_date %}
-                        <span class="mx-2">•</span>
-                        <i class="bi bi-calendar me-1"></i>
-                        {% set days_until = card.days_until_due() %}
-                        {% if days_until == 0 %}
-                            Due today
-                        {% elif days_until < 0 %}
-                            {{ days_until|abs }} days overdue
-                        {% else %}
-                            Due in {{ days_until }} {{ 'day' if days_until == 1 else 'days' }}
+                <!-- Card Meta Info -->
+                <div style="font-size: var(--font-size-xs); color: var(--color-text-muted); margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid var(--color-border-light);">
+                    <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+                        <span>👁️ {{ card.times_studied }} {{ 'study' if card.times_studied == 1 else 'studies' }}</span>
+                        {% if card.times_studied > 0 %}
+                        <span>✓ {{ card.times_correct }} correct</span>
                         {% endif %}
-                    {% endif %}
+                        {% if card.next_review_date %}
+                            {% set days_until = card.days_until_due() %}
+                            <span>
+                                📅
+                                {% if days_until == 0 %}
+                                Due today
+                                {% elif days_until < 0 %}
+                                {{ days_until|abs }} days overdue
+                                {% else %}
+                                Due in {{ days_until }} {{ 'day' if days_until == 1 else 'days' }}
+                                {% endif %}
+                            </span>
+                        {% endif %}
+                    </div>
                 </div>
 
-                <div class="d-flex gap-2">
+                <!-- Action Buttons -->
+                <div style="display: flex; gap: 8px;" onclick="event.stopPropagation();">
                     <a href="{{ url_for('decks.edit_card', deck_id=deck.id, card_id=card.id) }}"
-                       class="btn btn-outline-primary btn-sm flex-fill">
-                        <i class="bi bi-pencil me-1"></i>Edit
+                       class="btn-deck"
+                       style="flex: 1;">
+                        ✏️ Edit
                     </a>
-                    <form method="POST" action="{{ url_for('decks.delete_card', deck_id=deck.id, card_id=card.id) }}"
-                          onsubmit="return confirm('Delete this card?')" class="d-inline">
-                        <button type="submit" class="btn btn-outline-danger btn-sm">
-                            <i class="bi bi-trash me-1"></i>Delete
+                    <form method="POST"
+                          action="{{ url_for('decks.delete_card', deck_id=deck.id, card_id=card.id) }}"
+                          onsubmit="return confirm('Delete this card?')"
+                          style="flex: 1;">
+                        <button type="submit" class="btn-deck" style="width: 100%; background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.3); color: var(--color-danger);">
+                            🗑️ Delete
                         </button>
                     </form>
                 </div>
             </div>
+            {% endfor %}
         </div>
     </div>
-    {% endfor %}
 </div>
 
 <!-- Pagination -->
 {% if pagination and pagination.pages > 1 %}
-<div class="row mt-4">
-    <div class="col-12">
-        <nav aria-label="Cards pagination">
-            <ul class="pagination justify-content-center">
-                {% if pagination.has_prev %}
-                    <li class="page-item">
-                        <a class="page-link" href="{{ url_for('decks.cards', deck_id=deck.id, page=pagination.prev_num,
-                            query=query, learning_state=learning_state, difficulty=difficulty, sort_by=sort_by,
-                            date_from=date_from, date_to=date_to) }}">
-                            <i class="bi bi-chevron-left"></i> Previous
-                        </a>
-                    </li>
-                {% endif %}
+<div class="content-section" style="padding-top: 0;">
+    <div class="container">
+        <div style="display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;">
+            {% if pagination.has_prev %}
+            <a href="{{ url_for('decks.cards', deck_id=deck.id, page=pagination.prev_num, query=query, learning_state=learning_state, difficulty=difficulty, sort_by=sort_by, date_from=date_from, date_to=date_to) }}"
+               class="btn btn-secondary btn-sm">
+                ‹ Previous
+            </a>
+            {% endif %}
 
-                {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
-                    {% if page_num %}
-                        <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
-                            <a class="page-link" href="{{ url_for('decks.cards', deck_id=deck.id, page=page_num,
-                                query=query, learning_state=learning_state, difficulty=difficulty, sort_by=sort_by,
-                                date_from=date_from, date_to=date_to) }}">
-                                {{ page_num }}
-                            </a>
-                        </li>
+            {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+                {% if page_num %}
+                    {% if page_num == pagination.page %}
+                    <span class="btn btn-primary btn-sm" style="pointer-events: none;">
+                        {{ page_num }}
+                    </span>
                     {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link">...</span>
-                        </li>
+                    <a href="{{ url_for('decks.cards', deck_id=deck.id, page=page_num, query=query, learning_state=learning_state, difficulty=difficulty, sort_by=sort_by, date_from=date_from, date_to=date_to) }}"
+                       class="btn btn-secondary btn-sm">
+                        {{ page_num }}
+                    </a>
                     {% endif %}
-                {% endfor %}
-
-                {% if pagination.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="{{ url_for('decks.cards', deck_id=deck.id, page=pagination.next_num,
-                            query=query, learning_state=learning_state, difficulty=difficulty, sort_by=sort_by,
-                            date_from=date_from, date_to=date_to) }}">
-                            Next <i class="bi bi-chevron-right"></i>
-                        </a>
-                    </li>
+                {% else %}
+                    <span class="btn btn-secondary btn-sm" style="pointer-events: none; opacity: 0.5;">...</span>
                 {% endif %}
-            </ul>
-        </nav>
+            {% endfor %}
 
-        <p class="text-center text-muted small">
-            Showing {{ ((pagination.page - 1) * pagination.per_page) + 1 }} -
-            {{ min(pagination.page * pagination.per_page, pagination.total) }} of {{ pagination.total }}
+            {% if pagination.has_next %}
+            <a href="{{ url_for('decks.cards', deck_id=deck.id, page=pagination.next_num, query=query, learning_state=learning_state, difficulty=difficulty, sort_by=sort_by, date_from=date_from, date_to=date_to) }}"
+               class="btn btn-secondary btn-sm">
+                Next ›
+            </a>
+            {% endif %}
+        </div>
+
+        <p style="text-align: center; color: var(--color-text-muted); font-size: var(--font-size-sm);">
+            Showing {{ ((pagination.page - 1) * pagination.per_page) + 1 }} - {{ min(pagination.page * pagination.per_page, pagination.total) }} of {{ pagination.total }}
         </p>
     </div>
 </div>
@@ -327,28 +353,30 @@
 
 {% else %}
 <!-- Empty State -->
-<div class="row">
-    <div class="col-12">
-        <div class="text-center py-5">
+<div class="content-section">
+    <div class="container">
+        <div class="empty-state">
             {% if query or learning_state or difficulty or date_from or date_to %}
-                <!-- No Results -->
-                <i class="bi bi-search display-1 text-muted mb-3"></i>
-                <h4 class="text-muted">No cards found</h4>
-                <p class="text-muted">Try adjusting your filters or search terms</p>
+                <div class="empty-state-icon">🔍</div>
+                <h2 class="empty-state-title">No Cards Found</h2>
+                <p class="empty-state-description">
+                    Try adjusting your filters or search terms to find what you're looking for
+                </p>
                 <a href="{{ url_for('decks.cards', deck_id=deck.id) }}" class="btn btn-primary">
-                    <i class="bi bi-x-circle me-2"></i>Clear Filters
+                    ✕ Clear Filters
                 </a>
             {% else %}
-                <!-- No Cards -->
-                <i class="bi bi-card-text display-1 text-muted mb-3"></i>
-                <h4 class="text-muted">No cards yet</h4>
-                <p class="text-muted">Add your first flashcard to start building this deck!</p>
-                <div class="d-flex justify-content-center gap-3">
+                <div class="empty-state-icon">🃏</div>
+                <h2 class="empty-state-title">No Cards Yet</h2>
+                <p class="empty-state-description">
+                    Add your first flashcard to start building this deck and begin your learning journey!
+                </p>
+                <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
                     <a href="{{ url_for('decks.create_card', deck_id=deck.id) }}" class="btn btn-primary">
-                        <i class="bi bi-plus me-2"></i>Add Card
+                        ➕ Add Card
                     </a>
-                    <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-left me-2"></i>Back to Deck
+                    <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-secondary">
+                        ← Back to Deck
                     </a>
                 </div>
             {% endif %}
@@ -356,4 +384,93 @@
     </div>
 </div>
 {% endif %}
+
+<div style="height: 80px;"></div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-select {
+        width: 100%;
+        padding: 12px 14px;
+        background: var(--color-bg-primary);
+        border: 1px solid var(--color-border-medium);
+        border-radius: var(--radius-md);
+        color: var(--color-text-primary);
+        font-size: var(--font-size-base);
+        transition: var(--transition-base);
+        cursor: pointer;
+    }
+
+    .form-select:focus {
+        outline: none;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    @media (max-width: 768px) {
+        .hero-section {
+            height: auto !important;
+            min-height: 300px !important;
+        }
+
+        div[style*="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr))"] > div[style*="grid-column: span 2"] {
+            grid-column: span 1 !important;
+        }
+
+        div[style*="grid-template-columns: repeat(auto-fill, minmax(340px, 1fr))"] {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Toggle Filters
+    function toggleFilters() {
+        const section = document.getElementById('filterSection');
+        const toggle = document.getElementById('filterToggle');
+
+        if (section.style.display === 'none') {
+            section.style.display = 'block';
+            toggle.textContent = 'Hide Filters';
+        } else {
+            section.style.display = 'none';
+            toggle.textContent = 'Show Filters';
+        }
+    }
+
+    // Flip Card
+    function flipManageCard(cardElement) {
+        const front = cardElement.querySelector('.card-front');
+        const back = cardElement.querySelector('.card-back');
+
+        if (front.style.display !== 'none') {
+            front.style.display = 'none';
+            back.style.display = 'block';
+        } else {
+            front.style.display = 'block';
+            back.style.display = 'none';
+        }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if cards %}
+            FlashFlow.showToast('Loaded {{ cards|length }} card{{ "s" if cards|length != 1 else "" }}', 'info', 3000);
+        {% endif %}
+
+        // Search on Enter
+        const searchInput = document.getElementById('query');
+        if (searchInput) {
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    this.form.submit();
+                }
+            });
+        }
+    });
+</script>
 {% endblock %}

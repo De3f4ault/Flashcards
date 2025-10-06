@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="padding-top: 100px; padding-bottom: 60px;">
+    <div class="container">
+        <!-- Header Section -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-xl); flex-wrap: wrap; gap: var(--space-md);">
+            <div>
+                <h1 style="font-size: var(--font-size-3xl); font-weight: var(--font-weight-black); margin-bottom: 8px; color: var(--color-text-primary); display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 32px;">📄</span>
+                    My Documents
+                </h1>
+                <p style="font-size: var(--font-size-md); color: var(--color-text-tertiary); margin: 0;">
+                    Upload and manage your study materials
+                </p>
+            </div>
+            <a href="{{ url_for('documents.upload') }}" class="btn btn-primary">
+                ☁️ Upload Document
+            </a>
+        </div>
+
+        <!-- Storage Stats Grid -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-sm); margin-bottom: var(--space-xl);">
+            <!-- Total Documents -->
+            <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-md); transition: var(--transition-base);" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='var(--color-border-primary)'" onmouseout="this.style.transform=''; this.style.borderColor='var(--color-border-light)'">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: var(--space-sm);">
+                    <div style="width: 40px; height: 40px; border-radius: var(--radius-md); background: rgba(102, 126, 234, 0.1); display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                        📚
+                    </div>
+                    <div>
+                        <div style="font-size: var(--font-size-xs); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Total Documents</div>
+                        <div style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-extrabold); color: var(--color-text-primary);">{{ storage_stats.total_documents }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Storage Used -->
+            <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-md); transition: var(--transition-base);" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='var(--color-border-primary)'" onmouseout="this.style.transform=''; this.style.borderColor='var(--color-border-light)'">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: var(--space-sm);">
+                    <div style="width: 40px; height: 40px; border-radius: var(--radius-md); background: rgba(52, 199, 89, 0.1); display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                        💾
+                    </div>
+                    <div>
+                        <div style="font-size: var(--font-size-xs); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Storage Used</div>
+                        <div style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-extrabold); color: var(--color-text-primary);">{{ storage_stats.total_formatted }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Questions Generated -->
+            <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-md); transition: var(--transition-base);" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='var(--color-border-primary)'" onmouseout="this.style.transform=''; this.style.borderColor='var(--color-border-light)'">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: var(--space-sm);">
+                    <div style="width: 40px; height: 40px; border-radius: var(--radius-md); background: rgba(234, 179, 8, 0.1); display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                        ❓
+                    </div>
+                    <div>
+                        <div style="font-size: var(--font-size-xs); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Questions Generated</div>
+                        <div style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-extrabold); color: var(--color-text-primary);">{{ doc_question_counts.values()|sum }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status -->
+            <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-md); transition: var(--transition-base);" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='var(--color-border-primary)'" onmouseout="this.style.transform=''; this.style.borderColor='var(--color-border-light)'">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: var(--space-sm);">
+                    <div style="width: 40px; height: 40px; border-radius: var(--radius-md); background: rgba(59, 130, 246, 0.1); display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                        ✅
+                    </div>
+                    <div>
+                        <div style="font-size: var(--font-size-xs); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.5px;">Status</div>
+                        <div style="font-size: var(--font-size-md); font-weight: var(--font-weight-bold);">
+                            <span style="display: inline-block; padding: 4px 12px; background: rgba(52, 199, 89, 0.1); color: var(--color-success); border-radius: var(--radius-2xl); font-size: var(--font-size-xs);">All Systems Ready</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filters and Sorting -->
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-md); margin-bottom: var(--space-xl);">
+            <form method="GET" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: var(--space-sm); align-items: end;">
+                <div>
+                    <label style="display: block; font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); margin-bottom: 6px; color: var(--color-text-secondary);">
+                        Sort By
+                    </label>
+                    {{ search_form.sort_by(class="form-input", style="width: 100%;") }}
+                </div>
+                <div>
+                    <label style="display: block; font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); margin-bottom: 6px; color: var(--color-text-secondary);">
+                        Order
+                    </label>
+                    {{ search_form.order(class="form-input", style="width: 100%;") }}
+                </div>
+                <div>
+                    <label style="display: block; font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); margin-bottom: 6px; color: var(--color-text-secondary);">
+                        File Type
+                    </label>
+                    {{ search_form.file_type(class="form-input", style="width: 100%;") }}
+                </div>
+                <div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        🔍 Filter
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Documents Grid -->
+        {% if documents %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(450px, 1fr)); gap: var(--space-md);">
+            {% for document in documents %}
+            <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-md); transition: var(--transition-base); height: 100%;" onmouseover="this.style.borderColor='var(--color-border-primary)'; this.style.transform='translateY(-4px)'" onmouseout="this.style.borderColor='var(--color-border-light)'; this.style.transform=''">
+                <!-- Header -->
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--space-sm);">
+                    <h3 style="font-size: var(--font-size-md); font-weight: var(--font-weight-bold); color: var(--color-text-primary); margin: 0; flex: 1; display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 20px;">
+                            {% if document.file_type == 'pdf' %}📕
+                            {% elif document.file_type == 'txt' %}📄
+                            {% elif document.file_type == 'epub' %}📘
+                            {% elif document.file_type == 'docx' %}📗
+                            {% else %}📄
+                            {% endif %}
+                        </span>
+                        <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ document.original_filename|truncate(35) }}</span>
+                    </h3>
+                    <span style="flex-shrink: 0; margin-left: 8px; padding: 4px 12px; border-radius: var(--radius-2xl); font-size: var(--font-size-xs); font-weight: var(--font-weight-bold); {% if document.processing_status == 'ready' %}background: rgba(52, 199, 89, 0.1); color: var(--color-success);{% elif document.processing_status == 'uploading' %}background: rgba(234, 179, 8, 0.1); color: var(--color-warning);{% else %}background: rgba(239, 68, 68, 0.1); color: var(--color-danger);{% endif %}">
+                        {{ document.processing_status|title }}
+                    </span>
+                </div>
+
+                <!-- Metadata -->
+                <div style="font-size: var(--font-size-sm); color: var(--color-text-tertiary); margin-bottom: var(--space-md); line-height: 1.8;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span>📅</span>
+                        <span>Uploaded: {{ document.upload_date.strftime('%B %d, %Y at %I:%M %p') }}</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span>💾</span>
+                        <span>Size: {{ document.get_file_size_formatted() }}</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span>🕐</span>
+                        <span>Last accessed: {{ document.last_accessed.strftime('%B %d, %Y') }}</span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span>❓</span>
+                        <span>Questions:
+                            {% set question_count = doc_question_counts.get(document.id, 0) %}
+                            {% if question_count > 0 %}
+                                <span style="padding: 2px 8px; background: rgba(52, 199, 89, 0.1); color: var(--color-success); border-radius: var(--radius-sm); font-weight: var(--font-weight-bold);">{{ question_count }}</span>
+                            {% else %}
+                                <span>None yet</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% if document.gemini_expires_at %}
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span>☁️</span>
+                        <span>Cache:
+                            {% if document.is_gemini_cache_expired() %}
+                                <span style="color: var(--color-danger);">Expired</span>
+                            {% else %}
+                                <span style="color: var(--color-success);">Active (expires {{ document.gemini_expires_at.strftime('%b %d') }})</span>
+                            {% endif %}
+                        </span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Error Message -->
+                {% if document.error_message %}
+                <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid var(--color-danger); border-radius: var(--radius-md); padding: var(--space-sm); margin-bottom: var(--space-sm); font-size: var(--font-size-sm);">
+                    <span style="color: var(--color-danger);">⚠️ {{ document.error_message }}</span>
+                </div>
+                {% endif %}
+
+                <!-- Action Buttons -->
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <a href="{{ url_for('documents.view', id=document.id) }}" class="btn btn-primary" style="flex: 1; min-width: 80px; font-size: var(--font-size-sm); padding: 8px 12px;">
+                        👁️ View
+                    </a>
+                    {% if document.processing_status == 'ready' and not document.is_gemini_cache_expired() %}
+                        {% set question_count = doc_question_counts.get(document.id, 0) %}
+                        {% if question_count > 0 %}
+                        <a href="{{ url_for('documents.questions', id=document.id) }}" class="btn btn-secondary" style="font-size: var(--font-size-sm); padding: 8px 12px;" title="View {{ question_count }} questions">
+                            📋 {{ question_count }}
+                        </a>
+                        <a href="{{ url_for('documents.study', id=document.id) }}" class="btn btn-secondary" style="font-size: var(--font-size-sm); padding: 8px 12px;" title="Study questions">
+                            🎓
+                        </a>
+                        {% else %}
+                        <a href="{{ url_for('documents.view', id=document.id) }}" class="btn btn-secondary" style="font-size: var(--font-size-sm); padding: 8px 12px;" title="Generate questions">
+                            ➕ Generate
+                        </a>
+                        {% endif %}
+                    {% endif %}
+                    <button class="btn btn-secondary" disabled style="font-size: var(--font-size-sm); padding: 8px 12px; opacity: 0.5;" title="Chat About Document (Coming in Phase 2)">
+                        💬
+                    </button>
+                    <form method="POST" action="{{ url_for('documents.delete', id=document.id) }}" style="display: inline;" onsubmit="return confirm('Delete this document and all its questions?');">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <button type="submit" class="btn btn-secondary" style="font-size: var(--font-size-sm); padding: 8px 12px; background: rgba(239, 68, 68, 0.1); color: var(--color-danger); border-color: rgba(239, 68, 68, 0.3);">
+                            🗑️
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- Empty State -->
+        <div style="text-align: center; padding: var(--space-2xl);">
+            <div style="width: 120px; height: 120px; margin: 0 auto var(--space-xl); border-radius: var(--radius-xl); background: var(--color-bg-secondary); border: 2px solid var(--color-border-light); display: flex; align-items: center; justify-content: center; font-size: 64px; animation: float 3s ease-in-out infinite;">
+                📄
+            </div>
+            <h2 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); margin-bottom: var(--space-sm); color: var(--color-text-primary);">
+                No documents yet
+            </h2>
+            <p style="font-size: var(--font-size-md); color: var(--color-text-tertiary); margin-bottom: var(--space-lg);">
+                Upload your first study material to get started
+            </p>
+            <a href="{{ url_for('documents.upload') }}" class="btn btn-primary btn-lg">
+                ☁️ Upload Your First Document
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+    }
+
+    /* Responsive grid adjustments */
+    @media (max-width: 768px) {
+        .container > div:first-child {
+            flex-direction: column;
+            align-items: flex-start !important;
+        }
+
+        [style*="grid-template-columns: repeat(auto-fill, minmax(450px, 1fr))"] {
+            grid-template-columns: 1fr !important;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show welcome toast
+        {% if documents %}
+        FlashFlow.showToast('You have {{ documents|length }} document{{ "s" if documents|length != 1 else "" }} in your library', 'info', 3000);
+        {% endif %}
+    });
+</script>
+{% endblock %}

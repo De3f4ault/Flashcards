@@ -1,49 +1,124 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="card-title mb-0">
-                    <i class="bi bi-pencil me-2"></i>Edit Deck
-                </h4>
+<div style="padding-top: calc(var(--navbar-height) + var(--space-2xl)); padding-bottom: var(--space-2xl); min-height: 100vh;">
+    <div class="container" style="max-width: 700px;">
+
+        <!-- Page Header -->
+        <div style="text-align: center; margin-bottom: var(--space-xl);">
+            <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; background: var(--gradient-primary); border-radius: var(--radius-xl); margin-bottom: var(--space-md); box-shadow: var(--shadow-lg);">
+                <span style="font-size: 32px;">✏️</span>
             </div>
-            <div class="card-body">
-                <form method="POST">
-                    {{ form.hidden_tag() }}
+            <h1 style="font-size: var(--font-size-3xl); font-weight: var(--font-weight-extrabold); margin-bottom: 8px;">Edit Deck</h1>
+            <p style="color: var(--color-text-tertiary); font-size: var(--font-size-md);">Update your deck information</p>
+        </div>
 
-                    <div class="mb-3">
-                        {{ form.name.label(class="form-label") }}
-                        {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
-                        {% for error in form.name.errors %}
-                            <div class="invalid-feedback">{{ error }}</div>
-                        {% endfor %}
-                    </div>
+        <!-- Edit Form -->
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-xl); padding: var(--space-xl); box-shadow: var(--shadow-lg);">
+            <form method="POST">
+                {{ form.hidden_tag() }}
 
-                    <div class="mb-3">
-                        {{ form.description.label(class="form-label") }}
-                        {{ form.description(class="form-control" + (" is-invalid" if form.description.errors else "")) }}
-                        {% for error in form.description.errors %}
-                            <div class="invalid-feedback">{{ error }}</div>
-                        {% endfor %}
-                    </div>
+                <!-- Name Field -->
+                <div class="form-group">
+                    <label for="{{ form.name.id }}" class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 20px;">📚</span>
+                        {{ form.name.label.text }}
+                    </label>
+                    {{ form.name(class="form-input" + (" error" if form.name.errors else ""), placeholder="e.g., Spanish Vocabulary", style="font-size: var(--font-size-md);") }}
+                    {% for error in form.name.errors %}
+                        <div class="form-error">{{ error }}</div>
+                    {% endfor %}
+                    <div class="form-help">Choose a clear, descriptive name for your deck</div>
+                </div>
 
-                    <div class="mb-4">
-                        <div class="form-check">
-                            {{ form.is_public(class="form-check-input") }}
-                            {{ form.is_public.label(class="form-check-label") }}
-                        </div>
-                        <div class="form-text">{{ form.is_public.description }}</div>
-                    </div>
+                <!-- Description Field -->
+                <div class="form-group">
+                    <label for="{{ form.description.id }}" class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 20px;">📝</span>
+                        {{ form.description.label.text }}
+                    </label>
+                    {{ form.description(class="form-textarea" + (" error" if form.description.errors else ""), placeholder="Describe what this deck covers...", rows=4, style="font-size: var(--font-size-md);") }}
+                    {% for error in form.description.errors %}
+                        <div class="form-error">{{ error }}</div>
+                    {% endfor %}
+                    <div class="form-help">Help others understand what they'll learn</div>
+                </div>
 
-                    <div class="d-flex justify-content-between">
-                        <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-secondary">Cancel</a>
-                        {{ form.submit(class="btn btn-primary") }}
+                <!-- Public Checkbox -->
+                <div class="form-group">
+                    <div style="background: var(--overlay-light); border: 1px solid var(--color-border-medium); border-radius: var(--radius-lg); padding: var(--space-md);">
+                        <label style="display: flex; align-items: flex-start; gap: 12px; cursor: pointer; user-select: none;">
+                            {{ form.is_public(style="width: 20px; height: 20px; cursor: pointer; margin-top: 2px;") }}
+                            <div style="flex: 1;">
+                                <div style="font-weight: var(--font-weight-semibold); color: var(--color-text-primary); margin-bottom: 4px;">
+                                    {{ form.is_public.label.text }}
+                                </div>
+                                <div style="font-size: var(--font-size-sm); color: var(--color-text-muted); line-height: var(--line-height-relaxed);">
+                                    {{ form.is_public.description }}
+                                </div>
+                            </div>
+                        </label>
                     </div>
-                </form>
-            </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div style="display: flex; gap: 12px; margin-top: var(--space-xl);">
+                    <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-secondary" style="flex: 1;">
+                        Cancel
+                    </a>
+                    {{ form.submit(class="btn btn-primary", style="flex: 2;") }}
+                </div>
+            </form>
+        </div>
+
+        <!-- Tips Card -->
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-lg); margin-top: var(--space-md);">
+            <h6 style="font-weight: var(--font-weight-bold); margin-bottom: var(--space-sm); display: flex; align-items: center; gap: 8px;">
+                <span>💡</span> Tips for Great Decks
+            </h6>
+            <ul style="margin: 0; padding-left: 24px; color: var(--color-text-tertiary); font-size: var(--font-size-sm); line-height: var(--line-height-relaxed);">
+                <li>Use clear, specific names that describe the topic</li>
+                <li>Write helpful descriptions so others know what to expect</li>
+                <li>Public decks help the community learn together</li>
+                <li>You can always change these settings later</li>
+            </ul>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        FlashFlow.showToast('Edit your deck details below', 'info', 3000);
+
+        // Auto-focus first input
+        const firstInput = document.querySelector('input[type="text"]');
+        if (firstInput) {
+            firstInput.focus();
+        }
+
+        // Add character counter for description
+        const descTextarea = document.querySelector('textarea');
+        if (descTextarea) {
+            const maxLength = 500;
+            const counter = document.createElement('div');
+            counter.style.cssText = 'text-align: right; font-size: var(--font-size-xs); color: var(--color-text-muted); margin-top: 4px;';
+
+            function updateCounter() {
+                const remaining = maxLength - descTextarea.value.length;
+                counter.textContent = `${descTextarea.value.length} / ${maxLength} characters`;
+                if (remaining < 50) {
+                    counter.style.color = 'var(--color-warning)';
+                } else {
+                    counter.style.color = 'var(--color-text-muted)';
+                }
+            }
+
+            descTextarea.parentElement.appendChild(counter);
+            descTextarea.addEventListener('input', updateCounter);
+            updateCounter();
+        }
+    });
+</script>
 {% endblock %}

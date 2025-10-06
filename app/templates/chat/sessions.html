@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div style="padding-top: 100px; padding-bottom: 60px;">
+    <div class="container">
+        <!-- Header Section -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-xl); flex-wrap: wrap; gap: var(--space-md);">
+            <div>
+                <h1 style="font-size: var(--font-size-3xl); font-weight: var(--font-weight-black); margin-bottom: 8px; color: var(--color-text-primary); display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 32px;">💬</span>
+                    AI Chat Sessions
+                </h1>
+                <p style="font-size: var(--font-size-md); color: var(--color-text-tertiary); margin: 0;">
+                    Manage your conversations with AI study assistant
+                </p>
+            </div>
+            <a href="{{ url_for('chat.new_session') }}" class="btn btn-primary">
+                ➕ New Chat
+            </a>
+        </div>
+
+        {% if empty_state %}
+        <!-- Empty State -->
+        <div style="text-align: center; padding: var(--space-2xl);">
+            <div style="width: 120px; height: 120px; margin: 0 auto var(--space-xl); border-radius: var(--radius-xl); background: var(--color-bg-secondary); border: 2px solid var(--color-border-light); display: flex; align-items: center; justify-content: center; font-size: 64px; animation: float 3s ease-in-out infinite;">
+                💬
+            </div>
+            <h2 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); margin-bottom: var(--space-sm); color: var(--color-text-primary);">
+                No Chat Sessions Yet
+            </h2>
+            <p style="font-size: var(--font-size-md); color: var(--color-text-tertiary); margin-bottom: var(--space-lg);">
+                Start a conversation with your AI study assistant
+            </p>
+            <a href="{{ url_for('chat.new_session') }}" class="btn btn-primary btn-lg">
+                ➕ Start Your First Chat
+            </a>
+
+            <!-- What Can You Do Section -->
+            <div style="margin-top: var(--space-2xl);">
+                <h3 style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); margin-bottom: var(--space-md); color: var(--color-text-primary);">
+                    What can you do with AI Chat?
+                </h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-md); text-align: left;">
+                    <!-- Ask Questions -->
+                    <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-md); transition: var(--transition-base);" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='var(--color-border-primary)'" onmouseout="this.style.transform=''; this.style.borderColor='var(--color-border-light)'">
+                        <div style="width: 48px; height: 48px; border-radius: var(--radius-md); background: rgba(234, 179, 8, 0.1); display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: var(--space-sm);">
+                            💡
+                        </div>
+                        <h4 style="font-size: var(--font-size-md); font-weight: var(--font-weight-semibold); margin-bottom: 8px; color: var(--color-text-primary);">
+                            Ask Questions
+                        </h4>
+                        <p style="font-size: var(--font-size-sm); color: var(--color-text-tertiary); margin: 0; line-height: var(--line-height-relaxed);">
+                            Get explanations on any topic you're studying
+                        </p>
+                    </div>
+
+                    <!-- Discuss Documents -->
+                    <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-md); transition: var(--transition-base);" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='var(--color-border-primary)'" onmouseout="this.style.transform=''; this.style.borderColor='var(--color-border-light)'">
+                        <div style="width: 48px; height: 48px; border-radius: var(--radius-md); background: rgba(102, 126, 234, 0.1); display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: var(--space-sm);">
+                            📄
+                        </div>
+                        <h4 style="font-size: var(--font-size-md); font-weight: var(--font-weight-semibold); margin-bottom: 8px; color: var(--color-text-primary);">
+                            Discuss Documents
+                        </h4>
+                        <p style="font-size: var(--font-size-sm); color: var(--color-text-tertiary); margin: 0; line-height: var(--line-height-relaxed);">
+                            Attach documents for context-aware conversations
+                        </p>
+                    </div>
+
+                    <!-- Study Help -->
+                    <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-md); transition: var(--transition-base);" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='var(--color-border-primary)'" onmouseout="this.style.transform=''; this.style.borderColor='var(--color-border-light)'">
+                        <div style="width: 48px; height: 48px; border-radius: var(--radius-md); background: rgba(52, 199, 89, 0.1); display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: var(--space-sm);">
+                            📚
+                        </div>
+                        <h4 style="font-size: var(--font-size-md); font-weight: var(--font-weight-semibold); margin-bottom: 8px; color: var(--color-text-primary);">
+                            Study Help
+                        </h4>
+                        <p style="font-size: var(--font-size-sm); color: var(--color-text-tertiary); margin: 0; line-height: var(--line-height-relaxed);">
+                            Get study tips and learning strategies
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <!-- Stats Cards -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--space-md); margin-bottom: var(--space-xl);">
+            <!-- Total Sessions -->
+            <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-md); transition: var(--transition-base);" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='var(--color-border-primary)'" onmouseout="this.style.transform=''; this.style.borderColor='var(--color-border-light)'">
+                <div style="display: flex; align-items: center; gap: var(--space-md);">
+                    <div style="width: 56px; height: 56px; border-radius: var(--radius-md); background: rgba(102, 126, 234, 0.1); display: flex; align-items: center; justify-content: center; font-size: 28px;">
+                        💬
+                    </div>
+                    <div>
+                        <div style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-extrabold); color: var(--color-text-primary);">{{ stats.total_sessions }}</div>
+                        <div style="font-size: var(--font-size-sm); color: var(--color-text-muted);">Total Sessions</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Messages -->
+            <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-md); transition: var(--transition-base);" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='var(--color-border-primary)'" onmouseout="this.style.transform=''; this.style.borderColor='var(--color-border-light)'">
+                <div style="display: flex; align-items: center; gap: var(--space-md);">
+                    <div style="width: 56px; height: 56px; border-radius: var(--radius-md); background: rgba(52, 199, 89, 0.1); display: flex; align-items: center; justify-content: center; font-size: 28px;">
+                        📝
+                    </div>
+                    <div>
+                        <div style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-extrabold); color: var(--color-text-primary);">{{ stats.total_messages }}</div>
+                        <div style="font-size: var(--font-size-sm); color: var(--color-text-muted);">Total Messages</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tokens Used -->
+            <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-md); transition: var(--transition-base);" onmouseover="this.style.transform='translateY(-4px)'; this.style.borderColor='var(--color-border-primary)'" onmouseout="this.style.transform=''; this.style.borderColor='var(--color-border-light)'">
+                <div style="display: flex; align-items: center; gap: var(--space-md);">
+                    <div style="width: 56px; height: 56px; border-radius: var(--radius-md); background: rgba(59, 130, 246, 0.1); display: flex; align-items: center; justify-content: center; font-size: 28px;">
+                        📊
+                    </div>
+                    <div>
+                        <div style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-extrabold); color: var(--color-text-primary);">{{ stats.total_tokens_used }}</div>
+                        <div style="font-size: var(--font-size-sm); color: var(--color-text-muted);">Tokens Used</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sessions List -->
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-xl); overflow: hidden;">
+            <div style="padding: var(--space-md); border-bottom: 1px solid var(--color-border-light);">
+                <h3 style="font-size: var(--font-size-md); font-weight: var(--font-weight-bold); margin: 0; color: var(--color-text-primary);">
+                    Your Conversations
+                </h3>
+            </div>
+
+            <div>
+                {% for session in sessions %}
+                <a href="{{ url_for('chat.session', session_id=session.id) }}" style="display: block; padding: var(--space-md); border-bottom: 1px solid var(--color-border-light); text-decoration: none; transition: var(--transition-base);" onmouseover="this.style.background='var(--overlay-light)'" onmouseout="this.style.background=''">
+                    <div style="display: flex; justify-content: space-between; align-items: start; gap: var(--space-md); flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 250px;">
+                            <h4 style="font-size: var(--font-size-md); font-weight: var(--font-weight-semibold); margin-bottom: 8px; color: var(--color-text-primary); display: flex; align-items: center; gap: 8px;">
+                                💬 {{ session.title }}
+                            </h4>
+                            <div style="display: flex; align-items: center; gap: var(--space-md); flex-wrap: wrap; font-size: var(--font-size-sm); color: var(--color-text-tertiary);">
+                                <span style="display: flex; align-items: center; gap: 4px;">
+                                    🕐 {{ session._format_time_ago() }}
+                                </span>
+                                <span style="display: flex; align-items: center; gap: 4px;">
+                                    📝 {{ session.message_count }} messages
+                                </span>
+                                {% if session.document %}
+                                <span style="display: flex; align-items: center; gap: 4px; color: var(--color-primary);">
+                                    📄 {{ session.document.original_filename }}
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div>
+                            <span style="padding: 4px 12px; background: var(--overlay-medium); color: var(--color-text-tertiary); border-radius: var(--radius-2xl); font-size: var(--font-size-xs); font-weight: var(--font-weight-bold);">
+                                {{ session.total_tokens_used }} tokens
+                            </span>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% if sessions|length == 0 %}
+        <div style="text-align: center; padding: var(--space-xl);">
+            <p style="color: var(--color-text-muted);">No sessions found</p>
+        </div>
+        {% endif %}
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-20px); }
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if not empty_state %}
+        FlashFlow.showToast('You have {{ stats.total_sessions }} chat session{{ "s" if stats.total_sessions != 1 else "" }}', 'info', 3000);
+        {% endif %}
+    });
+</script>
+{% endblock %}

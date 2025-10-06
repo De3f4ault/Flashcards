@@ -1,77 +1,140 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">
-                        <i class="bi bi-pencil me-2"></i>Edit Flashcard
-                    </h5>
-                    {% if card.ai_generated %}
-                    <span class="badge bg-gradient" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                        <i class="bi bi-stars"></i> AI Generated
-                    </span>
-                    {% endif %}
-                </div>
-                <div class="text-muted small mt-1">
-                    Deck: <a href="{{ url_for('decks.view', id=deck.id) }}">{{ deck.name }}</a>
-                </div>
+<div style="padding-top: calc(var(--navbar-height) + var(--space-2xl)); padding-bottom: var(--space-2xl); min-height: 100vh;">
+    <div class="container" style="max-width: 900px;">
+
+        <!-- Page Header -->
+        <div style="text-align: center; margin-bottom: var(--space-xl);">
+            <div style="display: inline-flex; align-items: center; justify-content: center; width: 64px; height: 64px; background: var(--gradient-primary); border-radius: var(--radius-xl); margin-bottom: var(--space-md); box-shadow: var(--shadow-lg);">
+                <span style="font-size: 32px;">✏️</span>
             </div>
-            <div class="card-body">
+            <h1 style="font-size: var(--font-size-3xl); font-weight: var(--font-weight-extrabold); margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap;">
+                Edit Flashcard
+                {% if card.ai_generated %}
+                <span class="badge" style="background: var(--gradient-primary); color: var(--color-text-primary); padding: 8px 16px; font-size: var(--font-size-sm);">
+                    <span style="margin-right: 6px;">✨</span>AI Generated
+                </span>
+                {% endif %}
+            </h1>
+            <p style="color: var(--color-text-tertiary); font-size: var(--font-size-md);">
+                Deck: <a href="{{ url_for('decks.view', id=deck.id) }}" style="color: var(--color-primary); text-decoration: none;">{{ deck.name }}</a>
+            </p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr; gap: var(--space-md);">
+            <!-- Edit Form -->
+            <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-xl); padding: var(--space-xl); box-shadow: var(--shadow-lg);">
                 <form method="POST">
                     {{ form.hidden_tag() }}
 
-                    <div class="mb-4">
-                        {{ form.front_text.label(class="form-label fw-bold") }}
-                        {{ form.front_text(class="form-control" + (" is-invalid" if form.front_text.errors else ""), rows=4) }}
+                    <!-- Front Text Field -->
+                    <div class="form-group">
+                        <label for="{{ form.front_text.id }}" class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 20px;">❓</span>
+                            {{ form.front_text.label.text }}
+                        </label>
+                        {{ form.front_text(class="form-textarea" + (" error" if form.front_text.errors else ""), rows=4, style="font-size: var(--font-size-md);") }}
                         {% for error in form.front_text.errors %}
-                            <div class="invalid-feedback">{{ error }}</div>
+                            <div class="form-error">{{ error }}</div>
                         {% endfor %}
-                        <div class="form-text">The question or prompt side of the card</div>
+                        <div class="form-help">The question or prompt side of the card</div>
                     </div>
 
-                    <div class="mb-4">
-                        {{ form.back_text.label(class="form-label fw-bold") }}
-                        {{ form.back_text(class="form-control" + (" is-invalid" if form.back_text.errors else ""), rows=4) }}
+                    <!-- Back Text Field -->
+                    <div class="form-group">
+                        <label for="{{ form.back_text.id }}" class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 20px;">💡</span>
+                            {{ form.back_text.label.text }}
+                        </label>
+                        {{ form.back_text(class="form-textarea" + (" error" if form.back_text.errors else ""), rows=4, style="font-size: var(--font-size-md);") }}
                         {% for error in form.back_text.errors %}
-                            <div class="invalid-feedback">{{ error }}</div>
+                            <div class="form-error">{{ error }}</div>
                         {% endfor %}
-                        <div class="form-text">The answer or information side of the card</div>
+                        <div class="form-help">The answer or information side of the card</div>
                     </div>
 
-                    <!-- Additional form fields will appear here if they exist in the form -->
-
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle me-2"></i>
-                        <strong>Card Statistics:</strong>
-                        <ul class="mb-0 mt-2 small">
-                            <li>Studied: {{ card.times_studied }} times</li>
-                            <li>Correct: {{ card.times_correct }} times</li>
-                            {% if card.times_studied > 0 %}
-                            <li>Accuracy: {{ ((card.times_correct / card.times_studied) * 100)|round(1) }}%</li>
-                            {% endif %}
-                            <li>Created: {{ card.created_at|datetime }}</li>
-                        </ul>
-                    </div>
-
-                    <div class="d-flex justify-content-between align-items-center">
+                    <!-- Action Buttons -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: var(--space-xl); gap: 12px; flex-wrap: wrap;">
                         <a href="{{ url_for('decks.cards', deck_id=deck.id) }}" class="btn btn-secondary">
-                            <i class="bi bi-arrow-left me-1"></i>Back to Cards
+                            <span style="margin-right: 8px;">←</span>Back to Cards
                         </a>
-                        <div>
+                        <div style="display: flex; gap: 12px;">
                             <a href="{{ url_for('decks.delete_card', deck_id=deck.id, card_id=card.id) }}"
-                                class="btn btn-outline-danger me-2"
-                                onclick="return confirm('Are you sure you want to delete this card?')">
-                                    <i class="bi bi-trash me-1"></i>Delete
-                                </a>
+                               class="btn"
+                               style="background: rgba(239, 68, 68, 0.2); border: 2px solid var(--color-danger); color: var(--color-danger);"
+                               onclick="return confirmDelete(event)">
+                                <span style="margin-right: 8px;">🗑️</span>Delete
+                            </a>
                             {{ form.submit(class="btn btn-primary") }}
                         </div>
                     </div>
                 </form>
             </div>
+
+            <!-- Card Statistics -->
+            <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-xl); padding: var(--space-lg); box-shadow: var(--shadow-md);">
+                <h6 style="font-weight: var(--font-weight-bold); margin-bottom: var(--space-md); display: flex; align-items: center; gap: 8px; color: var(--color-primary);">
+                    <span>📊</span> Card Statistics
+                </h6>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--space-sm);">
+                    <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: var(--radius-md); padding: var(--space-md); text-align: center;">
+                        <div style="font-size: var(--font-size-xl); font-weight: var(--font-weight-extrabold); color: var(--color-info); margin-bottom: 4px;">
+                            {{ card.times_studied }}
+                        </div>
+                        <div style="font-size: var(--font-size-xs); color: var(--color-info); font-weight: var(--font-weight-semibold);">Times Studied</div>
+                    </div>
+
+                    <div style="background: rgba(52, 199, 89, 0.1); border: 1px solid rgba(52, 199, 89, 0.3); border-radius: var(--radius-md); padding: var(--space-md); text-align: center;">
+                        <div style="font-size: var(--font-size-xl); font-weight: var(--font-weight-extrabold); color: var(--color-success); margin-bottom: 4px;">
+                            {{ card.times_correct }}
+                        </div>
+                        <div style="font-size: var(--font-size-xs); color: var(--color-success); font-weight: var(--font-weight-semibold);">Times Correct</div>
+                    </div>
+
+                    {% if card.times_studied > 0 %}
+                    <div style="background: rgba(102, 126, 234, 0.1); border: 1px solid var(--color-border-primary); border-radius: var(--radius-md); padding: var(--space-md); text-align: center;">
+                        <div style="font-size: var(--font-size-xl); font-weight: var(--font-weight-extrabold); color: var(--color-primary); margin-bottom: 4px;">
+                            {{ ((card.times_correct / card.times_studied) * 100)|round(1) }}%
+                        </div>
+                        <div style="font-size: var(--font-size-xs); color: var(--color-primary); font-weight: var(--font-weight-semibold);">Accuracy</div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div style="margin-top: var(--space-md); padding-top: var(--space-md); border-top: 1px solid var(--color-border-light);">
+                    <div style="font-size: var(--font-size-sm); color: var(--color-text-tertiary); display: flex; align-items: center; gap: 8px;">
+                        <span>📅</span>
+                        <span>Created: {{ card.created_at.strftime('%B %d, %Y at %I:%M %p') if card.created_at else 'Unknown' }}</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        FlashFlow.showToast('Edit your flashcard below', 'info', 3000);
+
+        // Auto-focus first textarea
+        const firstTextarea = document.querySelector('textarea');
+        if (firstTextarea) {
+            firstTextarea.focus();
+            // Move cursor to end
+            firstTextarea.selectionStart = firstTextarea.selectionEnd = firstTextarea.value.length;
+        }
+    });
+
+    async function confirmDelete(event) {
+        event.preventDefault();
+        const confirmed = await FlashFlow.confirmDialog('Are you sure you want to delete this card? This action cannot be undone.');
+        if (confirmed) {
+            window.location.href = event.target.closest('a').href;
+        }
+    }
+</script>
 {% endblock %}

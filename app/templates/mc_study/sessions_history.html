@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="padding-top: 100px; padding-bottom: 60px;">
+    <div style="max-width: 900px; margin: 0 auto;">
+        <!-- Header -->
+        <div style="margin-bottom: var(--space-2xl);">
+            <h2 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); margin-bottom: var(--space-xs); display: flex; align-items: center; gap: 12px;">
+                🕐 MC Study Session History
+            </h2>
+            <p style="color: var(--color-text-tertiary); margin: 0;">
+                Track your progress and review past study sessions
+            </p>
+        </div>
+
+        <!-- Coming Soon Alert -->
+        <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: var(--radius-lg); padding: var(--space-lg); margin-bottom: var(--space-lg); text-align: center;">
+            <div style="font-size: 64px; margin-bottom: var(--space-md); opacity: 0.5; animation: float 3s ease-in-out infinite;">
+                📊
+            </div>
+            <h3 style="font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); margin-bottom: var(--space-sm); color: var(--color-info);">
+                Session History Coming Soon!
+            </h3>
+            <p style="color: var(--color-text-tertiary); font-size: var(--font-size-md); line-height: var(--line-height-relaxed); max-width: 500px; margin: 0 auto var(--space-md);">
+                We're building a comprehensive session history feature. For now, you can see your progress in the deck statistics and metrics dashboard.
+            </p>
+        </div>
+
+        <!-- Feature Preview -->
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-xl); margin-bottom: var(--space-lg);">
+            <h5 style="font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); margin-bottom: var(--space-md); color: var(--color-text-secondary);">
+                Coming Features:
+            </h5>
+            <div style="display: grid; gap: var(--space-md);">
+                <div style="display: flex; align-items: start; gap: 12px;">
+                    <span style="font-size: 24px; flex-shrink: 0;">📅</span>
+                    <div>
+                        <strong style="color: var(--color-text-primary);">Session Timeline</strong>
+                        <p style="color: var(--color-text-tertiary); margin: 4px 0 0 0; font-size: var(--font-size-sm);">
+                            View all your study sessions with dates and times
+                        </p>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: start; gap: 12px;">
+                    <span style="font-size: 24px; flex-shrink: 0;">📈</span>
+                    <div>
+                        <strong style="color: var(--color-text-primary);">Performance Graphs</strong>
+                        <p style="color: var(--color-text-tertiary); margin: 4px 0 0 0; font-size: var(--font-size-sm);">
+                            Track your accuracy improvement over time
+                        </p>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: start; gap: 12px;">
+                    <span style="font-size: 24px; flex-shrink: 0;">🎯</span>
+                    <div>
+                        <strong style="color: var(--color-text-primary);">Detailed Analytics</strong>
+                        <p style="color: var(--color-text-tertiary); margin: 4px 0 0 0; font-size: var(--font-size-sm);">
+                            See which questions you struggle with most
+                        </p>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: start; gap: 12px;">
+                    <span style="font-size: 24px; flex-shrink: 0;">⏱️</span>
+                    <div>
+                        <strong style="color: var(--color-text-primary);">Time Tracking</strong>
+                        <p style="color: var(--color-text-tertiary); margin: 4px 0 0 0; font-size: var(--font-size-sm);">
+                            Monitor how long you spend on each session
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div style="display: flex; gap: var(--space-sm); justify-content: center; flex-wrap: wrap;">
+            <a href="{{ url_for('decks.index') }}" class="btn btn-primary">
+                ← Back to Decks
+            </a>
+            <a href="{{ url_for('mc_metrics.dashboard') }}" class="btn btn-secondary">
+                📊 View Metrics Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.FlashFlow) {
+            FlashFlow.showToast('Session history is coming soon! Check the metrics dashboard for now.', 'info', 4000);
+        }
+    });
+</script>
+{% endblock %}

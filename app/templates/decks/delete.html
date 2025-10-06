@@ -1,65 +1,113 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="card-title mb-0 text-danger">
-                    <i class="bi bi-exclamation-triangle me-2"></i>Delete Deck
-                </h4>
+<div class="container" style="max-width: 700px; padding-top: 120px; padding-bottom: 60px;">
+    <!-- Header Card with Warning -->
+    <div style="background: var(--color-bg-secondary); border: 2px solid var(--color-danger); border-radius: 16px; overflow: hidden; margin-bottom: 32px;">
+        <div style="background: rgba(239, 68, 68, 0.1); padding: 24px; border-bottom: 1px solid var(--color-border-light);">
+            <h1 style="margin: 0; font-size: 1.5rem; font-weight: 800; color: var(--color-danger); display: flex; align-items: center; gap: 12px;">
+                ⚠️ Delete Deck
+            </h1>
+        </div>
+
+        <!-- Warning Alert -->
+        <div style="background: rgba(239, 68, 68, 0.15); border-left: 4px solid var(--color-danger); padding: 24px; margin: 24px;">
+            <h2 style="font-size: 1.125rem; font-weight: 700; margin: 0 0 12px 0; color: var(--color-danger);">Warning!</h2>
+            <p style="margin: 0; color: var(--color-text-secondary);">
+                You are about to delete the deck "<strong>{{ deck.name }}</strong>". This action cannot be undone.
+            </p>
+        </div>
+
+        <!-- Deck Details -->
+        <div style="background: var(--overlay-light); border-radius: 12px; padding: 24px; margin: 0 24px 24px 24px;">
+            <h3 style="font-size: 1rem; font-weight: 700; margin: 0 0 16px 0;">Deck Details</h3>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div>
+                    <div style="color: var(--color-text-muted); font-size: 0.85rem; margin-bottom: 4px;">Name:</div>
+                    <div style="font-weight: 600;">{{ deck.name }}</div>
+                </div>
+                <div>
+                    <div style="color: var(--color-text-muted); font-size: 0.85rem; margin-bottom: 4px;">Cards:</div>
+                    <div style="font-weight: 600;">{{ deck.get_card_count() }} cards</div>
+                </div>
             </div>
-            <div class="card-body">
-                <div class="alert alert-danger">
-                    <h5 class="alert-heading">Warning!</h5>
-                    <p class="mb-0">You are about to delete the deck "<strong>{{ deck.name }}</strong>". This action cannot be undone.</p>
+
+            {% if deck.description %}
+            <div style="margin-bottom: 16px;">
+                <div style="color: var(--color-text-muted); font-size: 0.85rem; margin-bottom: 4px;">Description:</div>
+                <div style="color: var(--color-text-tertiary);">{{ deck.description }}</div>
+            </div>
+            {% endif %}
+
+            <div>
+                <div style="color: var(--color-text-muted); font-size: 0.85rem; margin-bottom: 4px;">Created:</div>
+                <div style="font-weight: 600;">{{ deck.created_at|datetime }}</div>
+            </div>
+        </div>
+
+        <!-- Form -->
+        <div style="padding: 0 24px 24px 24px;">
+            <form method="POST">
+                {{ form.hidden_tag() }}
+
+                <div style="margin-bottom: 24px;">
+                    <label for="{{ form.confirmation.id }}" style="display: block; font-weight: 600; margin-bottom: 8px; color: var(--color-text-secondary);">
+                        {{ form.confirmation.label.text }}
+                    </label>
+                    {{ form.confirmation(class="form-input" + (" is-invalid" if form.confirmation.errors else ""), style="width: 100%;") }}
+                    {% for error in form.confirmation.errors %}
+                        <div style="color: var(--color-danger); font-size: 0.85rem; margin-top: 8px;">{{ error }}</div>
+                    {% endfor %}
+                    <div style="color: var(--color-text-muted); font-size: 0.85rem; margin-top: 8px;">
+                        Type "CONFIRM" to proceed with deletion
+                    </div>
                 </div>
 
-                <div class="card bg-light mb-4">
-                    <div class="card-body">
-                        <h6 class="fw-bold">Deck Details</h6>
-                        <div class="row">
-                            <div class="col-6">
-                                <strong>Name:</strong><br>
-                                {{ deck.name }}
-                            </div>
-                            <div class="col-6">
-                                <strong>Cards:</strong><br>
-                                {{ deck.get_card_count() }} cards
-                            </div>
-                        </div>
-                        {% if deck.description %}
-                        <div class="mt-2">
-                            <strong>Description:</strong><br>
-                            {{ deck.description }}
-                        </div>
-                        {% endif %}
-                        <div class="mt-2">
-                            <strong>Created:</strong><br>
-                            {{ deck.created_at|datetime }}
-                        </div>
-                    </div>
+                <div style="display: flex; gap: 12px; justify-content: space-between;">
+                    <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-secondary" style="flex: 1;">
+                        Cancel
+                    </a>
+                    {{ form.submit(class="btn", style="flex: 1; background: var(--color-danger); color: white; border: none; padding: 14px 32px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.3s ease;") }}
                 </div>
-
-                <form method="POST">
-                    {{ form.hidden_tag() }}
-
-                    <div class="mb-3">
-                        {{ form.confirmation.label(class="form-label fw-bold") }}
-                        {{ form.confirmation(class="form-control" + (" is-invalid" if form.confirmation.errors else "")) }}
-                        {% for error in form.confirmation.errors %}
-                            <div class="invalid-feedback">{{ error }}</div>
-                        {% endfor %}
-                        <div class="form-text">Type "CONFIRM" to proceed with deletion</div>
-                    </div>
-
-                    <div class="d-flex justify-content-between">
-                        <a href="{{ url_for('decks.view', id=deck.id) }}" class="btn btn-secondary">Cancel</a>
-                        {{ form.submit(class="btn btn-danger") }}
-                    </div>
-                </form>
-            </div>
+            </form>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-focus confirmation input
+        const confirmInput = document.querySelector('input[name="confirmation"]');
+        if (confirmInput) {
+            confirmInput.focus();
+        }
+
+        // Show warning toast
+        FlashFlow.showToast('⚠️ Warning: This action cannot be undone!', 'danger', 4000);
+
+        // Add visual feedback on form submit
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const confirmValue = confirmInput.value.trim().toUpperCase();
+                if (confirmValue !== 'CONFIRM') {
+                    e.preventDefault();
+                    confirmInput.style.border = '2px solid var(--color-danger)';
+                    confirmInput.style.animation = 'shake 0.5s';
+                    FlashFlow.showToast('Please type CONFIRM to proceed', 'error', 3000);
+                }
+            });
+        }
+    });
+</script>
+<style>
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-10px); }
+        75% { transform: translateX(10px); }
+    }
+</style>
 {% endblock %}

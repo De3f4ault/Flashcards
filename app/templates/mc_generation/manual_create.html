@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container" style="padding-top: 100px; padding-bottom: 60px;">
+    <div style="max-width: 900px; margin: 0 auto;">
+        <!-- Header -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; flex-wrap: wrap; gap: 16px;">
+            <div>
+                <h2 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); margin-bottom: 8px;">
+                    ✏️ Create MC Question Manually
+                </h2>
+                <p style="color: var(--color-text-tertiary); margin: 0;">
+                    Deck: <a href="{{ url_for('decks.view', id=deck.id) }}" style="color: var(--color-primary-light); text-decoration: underline;">{{ deck.name }}</a>
+                </p>
+            </div>
+            <a href="{{ url_for('decks.view', id=deck.id) }}"
+               class="btn btn-secondary"
+               style="white-space: nowrap;">
+                ← Back to Deck
+            </a>
+        </div>
+
+        <!-- Form Card -->
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-xl);">
+            <form method="POST" action="{{ url_for('mc_generation.manual_create', deck_id=deck.id) }}">
+                {{ form.hidden_tag() }}
+
+                <!-- Question Text -->
+                <div class="form-group">
+                    <label class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                        ❓ Question <span style="color: var(--color-danger);">*</span>
+                    </label>
+                    {{ form.question_text(class="form-textarea", rows="3", placeholder="Enter your multiple choice question...") }}
+                    {% if form.question_text.errors %}
+                        <div class="form-error">{{ form.question_text.errors[0] }}</div>
+                    {% endif %}
+                </div>
+
+                <!-- Choices Section -->
+                <h5 style="font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); margin-bottom: var(--space-md); display: flex; align-items: center; gap: 8px;">
+                    📋 Answer Choices
+                </h5>
+
+                {% for letter in ['a', 'b', 'c', 'd'] %}
+                <div class="form-group">
+                    <label class="form-label">
+                        Choice {{ letter.upper() }} <span style="color: var(--color-danger);">*</span>
+                    </label>
+                    {% set field = form['choice_' + letter] %}
+                    {{ field(class="form-input", placeholder="Enter answer choice " + letter.upper()) }}
+                    {% if field.errors %}
+                        <div class="form-error">{{ field.errors[0] }}</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                <!-- Correct Answer & Difficulty -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-md); margin-bottom: var(--space-md);">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                            ✓ Correct Answer <span style="color: var(--color-danger);">*</span>
+                        </label>
+                        {{ form.correct_answer(class="form-select") }}
+                    </div>
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                            📊 Difficulty
+                        </label>
+                        {{ form.difficulty(class="form-select") }}
+                    </div>
+                </div>
+
+                <!-- Misconceptions Section -->
+                <h5 style="font-size: var(--font-size-lg); font-weight: var(--font-weight-semibold); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; margin-top: var(--space-lg);">
+                    💡 Misconception Explanations
+                    <small style="font-weight: var(--font-weight-normal); color: var(--color-text-muted);">(Optional but recommended)</small>
+                </h5>
+                <p style="font-size: var(--font-size-sm); color: var(--color-text-muted); margin-bottom: var(--space-md);">
+                    Explain why each incorrect answer might be tempting to choose
+                </p>
+
+                {% for letter in ['a', 'b', 'c', 'd'] %}
+                <div class="form-group">
+                    <label class="form-label">
+                        Why {{ letter.upper() }} is wrong (if not correct)
+                    </label>
+                    {% set field = form['misconception_' + letter] %}
+                    {{ field(class="form-textarea", rows="2", placeholder="Explain the misconception for choice " + letter.upper()) }}
+                </div>
+                {% endfor %}
+
+                <!-- Concept Tags -->
+                <div class="form-group">
+                    <label class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                        🏷️ Concept Tags (Optional)
+                    </label>
+                    {{ form.concept_tags(class="form-input", placeholder="e.g., photosynthesis, cellular respiration") }}
+                    <div class="form-help">Separate tags with commas</div>
+                </div>
+
+                <!-- Submit -->
+                <div style="display: grid; gap: var(--space-xs); margin-top: var(--space-lg);">
+                    {{ form.submit(class="btn btn-primary btn-lg", style="width: 100%;") }}
+                </div>
+            </form>
+        </div>
+
+        <!-- Help Text -->
+        <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: var(--radius-lg); padding: var(--space-md); margin-top: var(--space-lg); color: var(--color-info);">
+            <h6 style="font-weight: var(--font-weight-bold); margin-bottom: var(--space-sm); display: flex; align-items: center; gap: 8px;">
+                ℹ️ Tips for good MC questions:
+            </h6>
+            <ul style="margin: 0; padding-left: 20px; line-height: 1.8;">
+                <li>Make the question clear and specific</li>
+                <li>Ensure only ONE answer is definitively correct</li>
+                <li>Make wrong answers plausible (based on common mistakes)</li>
+                <li>Keep choices similar in length and complexity</li>
+                <li>Avoid "All of the above" or "None of the above"</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-focus first input
+        const firstInput = document.querySelector('textarea[name="question_text"]');
+        if (firstInput) {
+            firstInput.focus();
+        }
+
+        // Show toast
+        if (window.FlashFlow) {
+            FlashFlow.showToast('Create a multiple choice question for your deck', 'info', 3000);
+        }
+
+        // Form validation
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            const question = document.querySelector('textarea[name="question_text"]');
+            const choices = ['a', 'b', 'c', 'd'].map(letter =>
+                document.querySelector(`input[name="choice_${letter}"]`)
+            );
+
+            // Check question
+            if (!question.value.trim()) {
+                e.preventDefault();
+                if (window.FlashFlow) {
+                    FlashFlow.showToast('Please enter a question', 'error');
+                }
+                question.focus();
+                return;
+            }
+
+            // Check all choices filled
+            for (let i = 0; i < choices.length; i++) {
+                if (!choices[i].value.trim()) {
+                    e.preventDefault();
+                    if (window.FlashFlow) {
+                        FlashFlow.showToast(`Please enter choice ${String.fromCharCode(65 + i)}`, 'error');
+                    }
+                    choices[i].focus();
+                    return;
+                }
+            }
+
+            // Check for duplicate choices
+            const choiceValues = choices.map(c => c.value.trim().toLowerCase());
+            const uniqueValues = new Set(choiceValues);
+            if (uniqueValues.size !== choiceValues.length) {
+                e.preventDefault();
+                if (window.FlashFlow) {
+                    FlashFlow.showToast('All choices must be unique', 'error');
+                }
+                return;
+            }
+        });
+    });
+</script>
+{% endblock %}

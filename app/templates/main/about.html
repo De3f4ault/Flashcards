@@ -1,108 +1,230 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-lg-8">
-        <div class="text-center mb-5">
-            <i class="bi bi-collection-fill display-4 text-primary mb-3"></i>
-            <h1 class="display-5 fw-bold mb-3">About FlashCards</h1>
-            <p class="lead text-muted">Empowering learners with intelligent spaced repetition</p>
-        </div>
+<!-- About Header Section -->
+<div style="padding-top: 120px; padding-bottom: 60px; background: var(--gradient-hero); position: relative; overflow: hidden;">
+    <!-- Grid Overlay -->
+    <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('data:image/svg+xml,<svg width=\"100\" height=\"100\" xmlns=\"http://www.w3.org/2000/svg\"><defs><pattern id=\"grid\" width=\"40\" height=\"40\" patternUnits=\"userSpaceOnUse\"><path d=\"M 40 0 L 0 0 0 40\" fill=\"none\" stroke=\"rgba(255,255,255,0.03)\" stroke-width=\"1\"/></pattern></defs><rect width=\"100\" height=\"100\" fill=\"url(%23grid)\"/></svg>'); opacity: 0.5;"></div>
 
-        <div class="row mb-5">
-            <div class="col-md-6 mb-4">
-                <div class="card h-100 border-0">
-                    <div class="card-body">
-                        <h4 class="fw-bold mb-3">
-                            <i class="bi bi-target text-primary me-2"></i>Our Mission
-                        </h4>
-                        <p class="text-muted">
-                            We believe that learning should be effective, engaging, and accessible to everyone.
-                            FlashCards combines proven learning science with modern technology to help you
-                            master any subject efficiently.
-                        </p>
-                    </div>
-                </div>
+    <div class="container" style="position: relative; z-index: 1;">
+        <div style="text-align: center; max-width: 800px; margin: 0 auto;">
+            <!-- Icon with gradient background -->
+            <div style="width: 80px; height: 80px; margin: 0 auto 24px; border-radius: var(--radius-xl); background: var(--gradient-primary); display: flex; align-items: center; justify-content: center; font-size: 40px; box-shadow: var(--shadow-primary);">
+                📚
             </div>
-            <div class="col-md-6 mb-4">
-                <div class="card h-100 border-0">
-                    <div class="card-body">
-                        <h4 class="fw-bold mb-3">
-                            <i class="bi bi-lightbulb text-warning me-2"></i>How It Works
-                        </h4>
-                        <p class="text-muted">
-                            Our adaptive algorithm tracks your performance and focuses on cards you find
-                            challenging. This spaced repetition approach maximizes retention while
-                            minimizing study time.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
 
-        <div class="card mb-5">
-            <div class="card-body">
-                <h4 class="fw-bold mb-4 text-center">Key Features</h4>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <div class="d-flex align-items-start">
-                            <i class="bi bi-check-circle-fill text-success me-3 mt-1"></i>
-                            <div>
-                                <h6 class="fw-bold mb-1">Smart Study Modes</h6>
-                                <p class="text-muted small mb-0">Multiple ways to study based on difficulty, accuracy, or chronology</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="d-flex align-items-start">
-                            <i class="bi bi-check-circle-fill text-success me-3 mt-1"></i>
-                            <div>
-                                <h6 class="fw-bold mb-1">Progress Tracking</h6>
-                                <p class="text-muted small mb-0">Detailed analytics to monitor your learning journey</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="d-flex align-items-start">
-                            <i class="bi bi-check-circle-fill text-success me-3 mt-1"></i>
-                            <div>
-                                <h6 class="fw-bold mb-1">Community Sharing</h6>
-                                <p class="text-muted small mb-0">Access and contribute to a vast library of public decks</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <div class="d-flex align-items-start">
-                            <i class="bi bi-check-circle-fill text-success me-3 mt-1"></i>
-                            <div>
-                                <h6 class="fw-bold mb-1">Bulk Import</h6>
-                                <p class="text-muted small mb-0">Quickly create multiple cards with our bulk import feature</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+            <h1 style="font-size: var(--font-size-4xl); font-weight: var(--font-weight-black); margin-bottom: 16px; background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                About FlashFlow
+            </h1>
 
-        <div class="text-center">
-            <h4 class="fw-bold mb-3">Ready to Start Learning?</h4>
-            <p class="text-muted mb-4">Join thousands of students, professionals, and lifelong learners who trust FlashCards.</p>
-            {% if not current_user.is_authenticated %}
-            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg me-3">
-                <i class="bi bi-person-plus me-2"></i>Get Started Free
-            </a>
-            <a href="{{ url_for('decks.public') }}" class="btn btn-outline-primary btn-lg">
-                <i class="bi bi-search me-2"></i>Browse Decks
-            </a>
-            {% else %}
-            <a href="{{ url_for('decks.create') }}" class="btn btn-primary btn-lg me-3">
-                <i class="bi bi-plus-circle me-2"></i>Create Your First Deck
-            </a>
-            <a href="{{ url_for('main.dashboard') }}" class="btn btn-outline-primary btn-lg">
-                <i class="bi bi-speedometer2 me-2"></i>Go to Dashboard
-            </a>
-            {% endif %}
+            <p style="font-size: var(--font-size-lg); color: var(--color-text-tertiary); line-height: var(--line-height-relaxed);">
+                Empowering learners with intelligent spaced repetition and AI-powered study tools
+            </p>
         </div>
     </div>
 </div>
+
+<!-- Mission & Vision Grid -->
+<div class="container" style="padding: 60px 4% 40px;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: var(--space-md);">
+        <!-- Mission Card -->
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-xl); padding: var(--space-xl); transition: var(--transition-base); position: relative; overflow: hidden;">
+            <!-- Gradient Glow -->
+            <div style="position: absolute; top: -50%; right: -50%; width: 300px; height: 300px; background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%); pointer-events: none;"></div>
+
+            <div style="position: relative; z-index: 1;">
+                <div style="width: 56px; height: 56px; border-radius: var(--radius-lg); background: rgba(102, 126, 234, 0.1); display: flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: var(--space-md);">
+                    🎯
+                </div>
+
+                <h3 style="font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); margin-bottom: var(--space-sm); color: var(--color-text-primary);">
+                    Our Mission
+                </h3>
+
+                <p style="color: var(--color-text-tertiary); line-height: var(--line-height-relaxed); margin: 0;">
+                    We believe that learning should be effective, engaging, and accessible to everyone. FlashFlow combines proven learning science with modern technology to help you master any subject efficiently.
+                </p>
+            </div>
+        </div>
+
+        <!-- How It Works Card -->
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-xl); padding: var(--space-xl); transition: var(--transition-base); position: relative; overflow: hidden;">
+            <!-- Gradient Glow -->
+            <div style="position: absolute; top: -50%; right: -50%; width: 300px; height: 300px; background: radial-gradient(circle, rgba(245, 87, 108, 0.1) 0%, transparent 70%); pointer-events: none;"></div>
+
+            <div style="position: relative; z-index: 1;">
+                <div style="width: 56px; height: 56px; border-radius: var(--radius-lg); background: rgba(245, 87, 108, 0.1); display: flex; align-items: center; justify-content: center; font-size: 28px; margin-bottom: var(--space-md);">
+                    💡
+                </div>
+
+                <h3 style="font-size: var(--font-size-xl); font-weight: var(--font-weight-bold); margin-bottom: var(--space-sm); color: var(--color-text-primary);">
+                    How It Works
+                </h3>
+
+                <p style="color: var(--color-text-tertiary); line-height: var(--line-height-relaxed); margin: 0;">
+                    Our adaptive algorithm tracks your performance and focuses on cards you find challenging. This spaced repetition approach maximizes retention while minimizing study time.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Key Features Section -->
+<div class="container" style="padding: 40px 4%;">
+    <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-xl); padding: var(--space-xl);">
+        <h3 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); text-align: center; margin-bottom: var(--space-xl); color: var(--color-text-primary);">
+            Key Features
+        </h3>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: var(--space-lg);">
+            <!-- Feature 1 -->
+            <div style="display: flex; gap: var(--space-sm);">
+                <div style="flex-shrink: 0; width: 32px; height: 32px; border-radius: var(--radius-full); background: rgba(52, 199, 89, 0.1); display: flex; align-items: center; justify-content: center; color: var(--color-success); font-size: 18px; margin-top: 4px;">
+                    ✓
+                </div>
+                <div>
+                    <h4 style="font-size: var(--font-size-md); font-weight: var(--font-weight-semibold); margin-bottom: 6px; color: var(--color-text-primary);">
+                        Smart Study Modes
+                    </h4>
+                    <p style="font-size: var(--font-size-sm); color: var(--color-text-tertiary); line-height: var(--line-height-relaxed); margin: 0;">
+                        Multiple ways to study based on difficulty, accuracy, or chronology
+                    </p>
+                </div>
+            </div>
+
+            <!-- Feature 2 -->
+            <div style="display: flex; gap: var(--space-sm);">
+                <div style="flex-shrink: 0; width: 32px; height: 32px; border-radius: var(--radius-full); background: rgba(52, 199, 89, 0.1); display: flex; align-items: center; justify-content: center; color: var(--color-success); font-size: 18px; margin-top: 4px;">
+                    ✓
+                </div>
+                <div>
+                    <h4 style="font-size: var(--font-size-md); font-weight: var(--font-weight-semibold); margin-bottom: 6px; color: var(--color-text-primary);">
+                        Progress Tracking
+                    </h4>
+                    <p style="font-size: var(--font-size-sm); color: var(--color-text-tertiary); line-height: var(--line-height-relaxed); margin: 0;">
+                        Detailed analytics to monitor your learning journey
+                    </p>
+                </div>
+            </div>
+
+            <!-- Feature 3 -->
+            <div style="display: flex; gap: var(--space-sm);">
+                <div style="flex-shrink: 0; width: 32px; height: 32px; border-radius: var(--radius-full); background: rgba(52, 199, 89, 0.1); display: flex; align-items: center; justify-content: center; color: var(--color-success); font-size: 18px; margin-top: 4px;">
+                    ✓
+                </div>
+                <div>
+                    <h4 style="font-size: var(--font-size-md); font-weight: var(--font-weight-semibold); margin-bottom: 6px; color: var(--color-text-primary);">
+                        AI-Powered Generation
+                    </h4>
+                    <p style="font-size: var(--font-size-sm); color: var(--color-text-tertiary); line-height: var(--line-height-relaxed); margin: 0;">
+                        Create flashcards instantly using AI technology
+                    </p>
+                </div>
+            </div>
+
+            <!-- Feature 4 -->
+            <div style="display: flex; gap: var(--space-sm);">
+                <div style="flex-shrink: 0; width: 32px; height: 32px; border-radius: var(--radius-full); background: rgba(52, 199, 89, 0.1); display: flex; align-items: center; justify-content: center; color: var(--color-success); font-size: 18px; margin-top: 4px;">
+                    ✓
+                </div>
+                <div>
+                    <h4 style="font-size: var(--font-size-md); font-weight: var(--font-weight-semibold); margin-bottom: 6px; color: var(--color-text-primary);">
+                        Community Sharing
+                    </h4>
+                    <p style="font-size: var(--font-size-sm); color: var(--color-text-tertiary); line-height: var(--line-height-relaxed); margin: 0;">
+                        Access and contribute to a vast library of public decks
+                    </p>
+                </div>
+            </div>
+
+            <!-- Feature 5 -->
+            <div style="display: flex; gap: var(--space-sm);">
+                <div style="flex-shrink: 0; width: 32px; height: 32px; border-radius: var(--radius-full); background: rgba(52, 199, 89, 0.1); display: flex; align-items: center; justify-content: center; color: var(--color-success); font-size: 18px; margin-top: 4px;">
+                    ✓
+                </div>
+                <div>
+                    <h4 style="font-size: var(--font-size-md); font-weight: var(--font-weight-semibold); margin-bottom: 6px; color: var(--color-text-primary);">
+                        Bulk Import
+                    </h4>
+                    <p style="font-size: var(--font-size-sm); color: var(--color-text-tertiary); line-height: var(--line-height-relaxed); margin: 0;">
+                        Quickly create multiple cards with our bulk import feature
+                    </p>
+                </div>
+            </div>
+
+            <!-- Feature 6 -->
+            <div style="display: flex; gap: var(--space-sm);">
+                <div style="flex-shrink: 0; width: 32px; height: 32px; border-radius: var(--radius-full); background: rgba(52, 199, 89, 0.1); display: flex; align-items: center; justify-content: center; color: var(--color-success); font-size: 18px; margin-top: 4px;">
+                    ✓
+                </div>
+                <div>
+                    <h4 style="font-size: var(--font-size-md); font-weight: var(--font-weight-semibold); margin-bottom: 6px; color: var(--color-text-primary);">
+                        Document Chat
+                    </h4>
+                    <p style="font-size: var(--font-size-sm); color: var(--color-text-tertiary); line-height: var(--line-height-relaxed); margin: 0;">
+                        Upload documents and chat with AI about their content
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CTA Section -->
+<div class="container" style="padding: 60px 4% 80px;">
+    <div style="background: var(--gradient-hero); border: 1px solid var(--color-border-medium); border-radius: var(--radius-xl); padding: var(--space-2xl); text-align: center; position: relative; overflow: hidden;">
+        <!-- Grid Overlay -->
+        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: url('data:image/svg+xml,<svg width=\"100\" height=\"100\" xmlns=\"http://www.w3.org/2000/svg\"><defs><pattern id=\"grid\" width=\"40\" height=\"40\" patternUnits=\"userSpaceOnUse\"><path d=\"M 40 0 L 0 0 0 40\" fill=\"none\" stroke=\"rgba(255,255,255,0.03)\" stroke-width=\"1\"/></pattern></defs><rect width=\"100\" height=\"100\" fill=\"url(%23grid)\"/></svg>'); opacity: 0.5;"></div>
+
+        <div style="position: relative; z-index: 1;">
+            <h3 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); margin-bottom: var(--space-sm); background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                Ready to Start Learning?
+            </h3>
+
+            <p style="font-size: var(--font-size-md); color: var(--color-text-tertiary); margin-bottom: var(--space-lg); max-width: 600px; margin-left: auto; margin-right: auto;">
+                Join thousands of students, professionals, and lifelong learners who trust FlashFlow to accelerate their learning journey.
+            </p>
+
+            <div style="display: flex; gap: var(--space-sm); justify-content: center; flex-wrap: wrap;">
+                {% if not current_user.is_authenticated %}
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
+                    <span style="margin-right: 8px;">➕</span> Get Started Free
+                </a>
+                <a href="{{ url_for('decks.public') }}" class="btn btn-secondary btn-lg">
+                    <span style="margin-right: 8px;">🔍</span> Browse Decks
+                </a>
+                {% else %}
+                <a href="{{ url_for('decks.create') }}" class="btn btn-primary btn-lg">
+                    <span style="margin-right: 8px;">➕</span> Create Your First Deck
+                </a>
+                <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary btn-lg">
+                    <span style="margin-right: 8px;">📊</span> Go to Dashboard
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show welcome toast
+        FlashFlow.showToast('Learn more about how FlashFlow can help you study smarter!', 'info', 4000);
+
+        // Add hover effects to feature cards
+        const featureCards = document.querySelectorAll('[style*="background: var(--color-bg-secondary)"]');
+        featureCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-4px)';
+                this.style.borderColor = 'var(--color-border-primary)';
+            });
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = '';
+                this.style.borderColor = 'var(--color-border-light)';
+            });
+        });
+    });
+</script>
 {% endblock %}

@@ -1,65 +1,203 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
-        <div class="card">
-            <div class="card-header">
-                <h4 class="card-title mb-0">
-                    <i class="bi bi-plus-circle me-2"></i>Create New Deck
-                </h4>
+<div class="content-section" style="padding-top: calc(var(--navbar-height) + var(--space-2xl)); padding-bottom: var(--space-2xl);">
+    <div class="container" style="max-width: 700px;">
+
+        <!-- Page Header -->
+        <div style="text-align: center; margin-bottom: var(--space-xl);">
+            <div style="width: 72px; height: 72px; margin: 0 auto 16px; border-radius: var(--radius-lg); background: var(--gradient-primary); display: flex; align-items: center; justify-content: center; font-size: 36px; box-shadow: var(--shadow-primary);">
+                ➕
             </div>
-            <div class="card-body">
-                <form method="POST">
-                    {{ form.hidden_tag() }}
-
-                    <div class="mb-3">
-                        {{ form.name.label(class="form-label") }}
-                        {{ form.name(class="form-control" + (" is-invalid" if form.name.errors else "")) }}
-                        {% for error in form.name.errors %}
-                            <div class="invalid-feedback">{{ error }}</div>
-                        {% endfor %}
-                        <div class="form-text">Give your deck a clear, descriptive name</div>
-                    </div>
-
-                    <div class="mb-3">
-                        {{ form.description.label(class="form-label") }}
-                        {{ form.description(class="form-control" + (" is-invalid" if form.description.errors else "")) }}
-                        {% for error in form.description.errors %}
-                            <div class="invalid-feedback">{{ error }}</div>
-                        {% endfor %}
-                        <div class="form-text">Briefly describe what this deck covers (optional)</div>
-                    </div>
-
-                    <div class="mb-4">
-                        <div class="form-check">
-                            {{ form.is_public(class="form-check-input") }}
-                            {{ form.is_public.label(class="form-check-label") }}
-                        </div>
-                        <div class="form-text">{{ form.is_public.description }}</div>
-                    </div>
-
-                    <div class="d-flex justify-content-between">
-                        <a href="{{ url_for('decks.index') }}" class="btn btn-secondary">Cancel</a>
-                        {{ form.submit(class="btn btn-primary") }}
-                    </div>
-                </form>
-            </div>
+            <h1 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); margin-bottom: 8px;">
+                Create New Deck
+            </h1>
+            <p style="color: var(--color-text-tertiary);">
+                Start building your flashcard collection
+            </p>
         </div>
 
-        <div class="card mt-4">
-            <div class="card-body">
-                <h6 class="fw-bold mb-3">
-                    <i class="bi bi-lightbulb me-2"></i>Tips for Creating Great Decks
-                </h6>
-                <ul class="small text-muted mb-0">
-                    <li>Use clear, specific names that describe the content</li>
-                    <li>Add a description to help others understand what your deck covers</li>
-                    <li>Make decks public to share knowledge with the community</li>
-                    <li>Keep related topics together in one deck for better learning</li>
-                </ul>
+        <!-- Create Form Card -->
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-xl); padding: var(--space-xl); box-shadow: var(--shadow-lg); margin-bottom: var(--space-md);">
+            <form method="POST">
+                {{ form.hidden_tag() }}
+
+                <!-- Deck Name -->
+                <div class="form-group" style="margin-bottom: var(--space-lg);">
+                    <label class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 20px;">📚</span>
+                        <span>{{ form.name.label.text }}</span>
+                    </label>
+                    {{ form.name(
+                        class="form-input",
+                        placeholder="e.g., Spanish Vocabulary, Python Basics, Biology Chapter 3...",
+                        style="border-color: " + ("var(--color-danger)" if form.name.errors else "") + ";"
+                    ) }}
+                    {% for error in form.name.errors %}
+                    <div class="form-error">{{ error }}</div>
+                    {% endfor %}
+                    <div class="form-help">Give your deck a clear, descriptive name</div>
+                </div>
+
+                <!-- Description -->
+                <div class="form-group" style="margin-bottom: var(--space-lg);">
+                    <label class="form-label" style="display: flex; align-items: center; gap: 8px;">
+                        <span style="font-size: 20px;">📝</span>
+                        <span>{{ form.description.label.text }}</span>
+                    </label>
+                    {{ form.description(
+                        class="form-textarea",
+                        placeholder="Describe what this deck covers and what topics it includes...",
+                        style=("border-color: var(--color-danger); min-height: 120px;" if form.description.errors else "min-height: 120px;")
+                    ) }}
+                    {% for error in form.description.errors %}
+                    <div class="form-error">{{ error }}</div>
+                    {% endfor %}
+                    <div class="form-help">Briefly describe what this deck covers (optional)</div>
+                </div>
+
+                <!-- Public Checkbox -->
+                <div style="background: var(--overlay-light); border-radius: var(--radius-md); padding: var(--space-md); margin-bottom: var(--space-xl);">
+                    <label style="display: flex; align-items: start; gap: 12px; cursor: pointer; user-select: none;">
+                        {{ form.is_public(style="margin-top: 2px; cursor: pointer; width: 20px; height: 20px;") }}
+                        <div style="flex: 1;">
+                            <div style="font-weight: var(--font-weight-semibold); color: var(--color-text-secondary); margin-bottom: 4px;">
+                                {{ form.is_public.label.text }}
+                            </div>
+                            <div style="font-size: var(--font-size-sm); color: var(--color-text-tertiary);">
+                                {{ form.is_public.description or "Allow other users to discover and copy your deck" }}
+                            </div>
+                        </div>
+                    </label>
+                </div>
+
+                <!-- Action Buttons -->
+                <div style="display: flex; gap: 12px;">
+                    <a href="{{ url_for('decks.index') }}"
+                       class="btn btn-secondary"
+                       style="flex: 1;">
+                        Cancel
+                    </a>
+                    {{ form.submit(
+                        class="btn btn-primary",
+                        style="flex: 2;"
+                    ) }}
+                </div>
+            </form>
+        </div>
+
+        <!-- Tips Card -->
+        <div style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-radius: var(--radius-lg); padding: var(--space-lg);">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: var(--space-md);">
+                <span style="font-size: 24px;">💡</span>
+                <h3 style="font-size: var(--font-size-lg); font-weight: var(--font-weight-bold); margin: 0;">
+                    Tips for Creating Great Decks
+                </h3>
+            </div>
+
+            <div style="display: grid; gap: 12px;">
+                <div style="display: flex; gap: 12px; padding: 12px; background: var(--overlay-light); border-radius: var(--radius-md);">
+                    <span style="font-size: 18px; flex-shrink: 0;">🎯</span>
+                    <div>
+                        <div style="font-weight: var(--font-weight-semibold); color: var(--color-text-secondary); margin-bottom: 4px;">
+                            Use Clear, Specific Names
+                        </div>
+                        <div style="font-size: var(--font-size-sm); color: var(--color-text-tertiary);">
+                            Good deck names clearly describe the content and make it easy to find later
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; padding: 12px; background: var(--overlay-light); border-radius: var(--radius-md);">
+                    <span style="font-size: 18px; flex-shrink: 0;">📋</span>
+                    <div>
+                        <div style="font-weight: var(--font-weight-semibold); color: var(--color-text-secondary); margin-bottom: 4px;">
+                            Add Helpful Descriptions
+                        </div>
+                        <div style="font-size: var(--font-size-sm); color: var(--color-text-tertiary);">
+                            Descriptions help others understand what your deck covers and its learning objectives
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; padding: 12px; background: var(--overlay-light); border-radius: var(--radius-md);">
+                    <span style="font-size: 18px; flex-shrink: 0;">🌍</span>
+                    <div>
+                        <div style="font-weight: var(--font-weight-semibold); color: var(--color-text-secondary); margin-bottom: 4px;">
+                            Share Your Knowledge
+                        </div>
+                        <div style="font-size: var(--font-size-sm); color: var(--color-text-tertiary);">
+                            Make decks public to help others learn and contribute to the community
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 12px; padding: 12px; background: var(--overlay-light); border-radius: var(--radius-md);">
+                    <span style="font-size: 18px; flex-shrink: 0;">📦</span>
+                    <div>
+                        <div style="font-weight: var(--font-weight-semibold); color: var(--color-text-secondary); margin-bottom: 4px;">
+                            Keep Topics Together
+                        </div>
+                        <div style="font-size: var(--font-size-sm); color: var(--color-text-tertiary);">
+                            Group related topics in one deck for better organization and learning flow
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<div style="height: 60px;"></div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Checkbox styling */
+    input[type="checkbox"] {
+        accent-color: var(--color-primary);
+    }
+
+    /* Textarea specific styling */
+    .form-textarea {
+        resize: vertical;
+        font-family: inherit;
+    }
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Focus first input
+        const nameInput = document.querySelector('input[name="name"]');
+        if (nameInput) {
+            nameInput.focus();
+        }
+
+        // Character counter for description
+        const descriptionField = document.querySelector('textarea[name="description"]');
+        if (descriptionField) {
+            const helpText = descriptionField.nextElementSibling;
+
+            descriptionField.addEventListener('input', function() {
+                const length = this.value.length;
+                if (length > 0) {
+                    helpText.textContent = `${length} characters - Briefly describe what this deck covers (optional)`;
+                } else {
+                    helpText.textContent = 'Briefly describe what this deck covers (optional)';
+                }
+            });
+        }
+
+        // Show success message on valid submission
+        const form = document.querySelector('form');
+        form.addEventListener('submit', function(e) {
+            const nameValue = document.querySelector('input[name="name"]').value;
+            if (nameValue.trim()) {
+                FlashFlow.showToast('Creating deck: ' + nameValue, 'info', 2000);
+            }
+        });
+    });
+</script>
 {% endblock %}

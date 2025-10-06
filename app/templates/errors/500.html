@@ -1,23 +1,80 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6 text-center">
-        <div class="py-5">
-            <div class="display-1 text-danger mb-4">500</div>
-            <h2 class="mb-3">Server Error</h2>
-            <p class="text-muted mb-4">
-                Something went wrong on our end. We're working to fix it!
-            </p>
-            <div class="d-flex justify-content-center gap-3">
-                <a href="{{ url_for('main.index') }}" class="btn btn-primary">
-                    <i class="bi bi-house me-2"></i>Go Home
-                </a>
-                <button onclick="window.location.reload()" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-clockwise me-2"></i>Try Again
-                </button>
+<div style="min-height: calc(100vh - 200px); display: flex; align-items: center; justify-content: center; padding: var(--space-xl) 4%;">
+    <div style="text-align: center; max-width: 600px;">
+        <!-- Animated Icon -->
+        <div style="margin-bottom: var(--space-xl); animation: pulse 2s ease-in-out infinite;">
+            <div style="width: 120px; height: 120px; margin: 0 auto; border-radius: var(--radius-xl); background: var(--color-bg-secondary); border: 2px solid rgba(239, 68, 68, 0.3); display: flex; align-items: center; justify-content: center; font-size: 64px; box-shadow: var(--shadow-lg);">
+                ⚠️
             </div>
         </div>
+
+        <!-- Error Code -->
+        <div style="font-size: 80px; font-weight: var(--font-weight-black); background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; margin-bottom: var(--space-md);">
+            500
+        </div>
+
+        <!-- Title -->
+        <h1 style="font-size: var(--font-size-2xl); font-weight: var(--font-weight-bold); margin-bottom: var(--space-sm); color: var(--color-text-primary);">
+            Server Error
+        </h1>
+
+        <!-- Description -->
+        <p style="font-size: var(--font-size-md); color: var(--color-text-tertiary); margin-bottom: var(--space-xl); line-height: var(--line-height-relaxed);">
+            Oops! Something went wrong on our end. Our team has been notified and we're working to fix it. Please try again in a few moments.
+        </p>
+
+        <!-- Action Buttons -->
+        <div style="display: flex; gap: var(--space-sm); justify-content: center; flex-wrap: wrap;">
+            <button onclick="window.location.reload()" class="btn btn-primary">
+                🔄 Try Again
+            </button>
+            <a href="{{ url_for('main.index') }}" class="btn btn-secondary">
+                🏠 Go Home
+            </a>
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-secondary">
+                📊 Dashboard
+            </a>
+            {% endif %}
+        </div>
+
+        <!-- Troubleshooting Tips -->
+        <div style="margin-top: var(--space-2xl); background: var(--color-bg-secondary); border: 1px solid var(--color-border-light); border-left: 4px solid var(--color-danger); border-radius: var(--radius-lg); padding: var(--space-md); text-align: left;">
+            <h3 style="font-size: var(--font-size-md); font-weight: var(--font-weight-semibold); margin-bottom: var(--space-sm); color: var(--color-text-primary);">
+                What you can try:
+            </h3>
+            <ul style="color: var(--color-text-tertiary); line-height: var(--line-height-relaxed); margin: 0; padding-left: 24px; font-size: var(--font-size-sm);">
+                <li style="margin-bottom: 6px;">Refresh the page (click "Try Again" above)</li>
+                <li style="margin-bottom: 6px;">Wait a few minutes and try again</li>
+                <li style="margin-bottom: 6px;">Clear your browser cache and cookies</li>
+                <li style="margin-bottom: 6px;">Try accessing a different page to see if the issue persists</li>
+                <li>If the problem continues, contact our support team</li>
+            </ul>
+        </div>
+
+        <!-- Error ID (if available) -->
+        {% if error_id %}
+        <div style="margin-top: var(--space-md); padding: var(--space-sm); background: var(--overlay-light); border-radius: var(--radius-sm);">
+            <p style="font-size: var(--font-size-xs); color: var(--color-text-muted); margin: 0;">
+                Error ID: <code style="color: var(--color-text-tertiary);">{{ error_id }}</code>
+            </p>
+        </div>
+        {% endif %}
     </div>
 </div>
+
+<style>
+    @keyframes pulse {
+        0%, 100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+        50% {
+            opacity: 0.7;
+            transform: scale(0.95);
+        }
+    }
+</style>
 {% endblock %}
